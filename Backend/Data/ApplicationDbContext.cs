@@ -9,44 +9,123 @@ namespace FormBackend.Data
         {
         }
 
-        public DbSet<ApplicationForm> ApplicationForms { get; set; }
-        public DbSet<FamilyDetails> FamilyDetails { get; set; }
-        public DbSet<AcademicDetails> AcademicDetails { get; set; }
+        public DbSet<Student> Students { get; set; }
         public DbSet<Address> Addresses { get; set; }
+        public DbSet<AddressType> AddressTypes { get; set; }
+        public DbSet<Parent> Parents { get; set; }
+        public DbSet<AcademicHistory> AcademicHistories { get; set; }
+        public DbSet<AcademicEnrollment> AcademicEnrollments { get; set; }
+        public DbSet<Achievement> Achievements { get; set; }
+        public DbSet<BankDetails> BankDetails { get; set; }
+        public DbSet<Citizenship> Citizenships { get; set; }
+        public DbSet<ContactInfo> ContactInfos { get; set; }
+        public DbSet<Disability> Disabilities { get; set; }
+        public DbSet<Hobby> Hobbies { get; set; }
+        public DbSet<Faculty> Faculties { get; set; }
+        public DbSet<FacultyMember> FacultyMembers { get; set; }
+        public DbSet<FinancialDetails> FinancialDetails { get; set; }
+        public DbSet<Scholarship> Scholarships { get; set; }
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<ApplicationForm>()
-                .HasOne(a => a.PermanentAddress)
+            modelBuilder.Entity<FinancialDetails>()
+                .Property(fd => fd.AnnualIncome)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Parent>()
+                .Property(p => p.AnnualIncome)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Scholarship>()
+                .Property(s => s.Amount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Student>()
+                .HasOne(s => s.Citizenship)
                 .WithOne()
-                .HasForeignKey<ApplicationForm>("PermanentAddressId")
+                .HasForeignKey<Student>(s => s.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ApplicationForm>()
-                .HasOne(a => a.TemporaryAddress)
+            modelBuilder.Entity<Student>()
+                .HasOne(s => s.ContactInfo)
                 .WithOne()
-                .HasForeignKey<ApplicationForm>("TemporaryAddressId")
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ApplicationForm>()
-                .HasOne(a => a.FamilyDetails)
-                .WithOne()
-                .HasForeignKey<ApplicationForm>("FamilyDetailsId")
+                .HasForeignKey<Student>(s => s.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ApplicationForm>()
-                .HasOne(a => a.AcademicDetails)
+            modelBuilder.Entity<Student>()
+                .HasMany(s => s.Addresses)
                 .WithOne()
-                .HasForeignKey<ApplicationForm>("AcademicDetailsId")
+                .HasForeignKey("StudentId")
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Student>()
+                .HasMany(s => s.Parents)
+                .WithOne()
+                .HasForeignKey("StudentId")
                 .OnDelete(DeleteBehavior.Cascade);
             
-            modelBuilder.Entity<AcademicDetails>()
-                .HasOne(a => a.SchoolAddress)
+            modelBuilder.Entity<Student>()
+                .HasMany(s => s.AcademicHistories)
                 .WithOne()
-                .HasForeignKey<AcademicDetails>("SchoolAddressId")
+                .HasForeignKey("StudentId")
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Student>()
+                .HasOne(s => s.AcademicEnrollment)
+                .WithOne(ae => ae.Student)
+                .HasForeignKey<AcademicEnrollment>(ae => ae.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            modelBuilder.Entity<Student>()
+                .HasMany(s => s.Achievements)
+                .WithOne()
+                .HasForeignKey("StudentId")
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Student>()
+                .HasMany(s => s.Hobbies)
+                .WithOne()
+                .HasForeignKey("StudentId")
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            modelBuilder.Entity<Student>()
+                .HasOne(s => s.Disability)
+                .WithOne()
+                .HasForeignKey<Student>(s => s.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Student>()
+                .HasOne(s => s.BankDetails)
+                .WithOne()
+                .HasForeignKey<Student>(s => s.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Student>()
+                .HasOne(s => s.FinancialDetails)
+                .WithOne()
+                .HasForeignKey<Student>(s => s.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            modelBuilder.Entity<Student>()
+                .HasOne(s => s.Scholarship)
+                .WithOne()
+                .HasForeignKey<Student>(s => s.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Faculty>()
+                .HasMany(f => f.FacultyMembers)
+                .WithOne(fm => fm.Faculty)
+                .HasForeignKey(fm => fm.FacultyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Address>()
+                .HasOne(a => a.AddressType)
+                .WithMany()
+                .HasForeignKey(a => a.AddressTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

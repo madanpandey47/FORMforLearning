@@ -1,0 +1,40 @@
+using FormBackend.Core.Interfaces;
+using FormBackend.DTOs;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+
+namespace FormBackend.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class StudentController : ControllerBase
+    {
+        private readonly IStudentService _studentService;
+
+        public StudentController(IStudentService studentService)
+        {
+            _studentService = studentService;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateStudent([FromBody] StudentDTO studentDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var student = await _studentService.CreateStudentAsync(studentDto);
+            return CreatedAtAction(nameof(GetStudent), new { id = student.Id }, student);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetStudent(int id)
+        {
+            // This is just a placeholder to make CreatedAtAction work.
+            // You should implement a proper GetStudent method.
+            await Task.Yield();
+            return Ok(new { Id = id });
+        }
+    }
+}

@@ -1,0 +1,7 @@
+namespace FormBackend.Core.Interfaces
+{
+    public interface IDbInitializer
+    {
+        void Initialize();
+    }
+}

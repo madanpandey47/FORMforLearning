@@ -1,4 +1,3 @@
-// app/(your-path)/FormPage.tsx
 "use client";
 import React from "react";
 import Form from "../../components/ui/form";
@@ -8,7 +7,7 @@ import Select from "../../components/ui/select";
 import Checkbox from "../../components/ui/checkbox";
 import ImageUpload from "../../components/ui/upload";
 import Button from "../../components/ui/button";
-import { useForm, FieldValues } from "react-hook-form";
+import { useForm, FieldValues, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "../../lib/formvalidation";
@@ -18,13 +17,41 @@ type FormData = z.infer<typeof formSchema>;
 const FormPage: React.FC = () => {
   const {
     register,
+    control,
     handleSubmit,
     trigger,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: "onChange",
+    defaultValues: {
+      addresses: [{ province: "", municipality: "", ward: "", country: "", addressTypeId: 1 }],
+      parents: [{ firstName: "", lastName: "", relation: "" }],
+      academicHistories: [{ institutionName: "", level: "", percentageOrGPA: 0, passingYear: 2020 }],
+    },
   });
+
+  const { fields: addressFields, append: appendAddress, remove: removeAddress } = useFieldArray({
+    control,
+    name: "addresses",
+  });
+  const { fields: parentFields, append: appendParent, remove: removeParent } = useFieldArray({
+    control,
+    name: "parents",
+  });
+  const { fields: academicHistoryFields, append: appendAcademicHistory, remove: removeAcademicHistory } = useFieldArray({
+    control,
+    name: "academicHistories",
+  });
+  const { fields: achievementFields, append: appendAchievement, remove: removeAchievement } = useFieldArray({
+    control,
+    name: "achievements",
+  });
+  const { fields: hobbyFields, append: appendHobby, remove: removeHobby } = useFieldArray({
+    control,
+    name: "hobbies",
+  });
+
 
   const [currentStep, setCurrentStep] = React.useState(1);
 
@@ -48,25 +75,12 @@ const FormPage: React.FC = () => {
 
   const processForm = async (data: FieldValues) => {
     try {
-      // profile (single file) -> base64
-      let profileImageBase64 = "";
-      if (data.profile && data.profile.length > 0) {
-        profileImageBase64 = await toBase64(data.profile[0]);
-      }
-
-      // additionalDocuments (multiple) -> base64 array
-      const additionalDocsBase64 = await toBase64Array(
-        (data.additionalDocuments as FileList) || null
-      );
-
       const submissionData = {
         ...data,
-        profile: profileImageBase64,
-        additionalDocuments: additionalDocsBase64,
       };
 
       const response = await fetch(
-        "http://localhost:5000/api/ApplicationForm",
+        "http://localhost:5000/api/Student",
         {
           method: "POST",
           headers: {
@@ -98,66 +112,20 @@ const FormPage: React.FC = () => {
 
   // ---- fields grouped per step ----
   const steps = [
-    {
-      fields: [
-        "firstname",
-        "middlename",
-        "lastname",
-        "dob",
-        "nationality",
-        "citizenshipNumber",
-        "email",
-        "alternateEmail",
-        "gender",
-        "bloodgroup",
-        "country",
-      ] as (keyof FormData)[],
-    },
-    {
-      fields: [
-        "primaryMobile",
-        "alternateMobile",
-        "emergencyContact",
-        "emergencyRelation",
-        "permanentAddress",
-        "preferredContactMethod",
-      ] as (keyof FormData)[],
-    },
-    {
-      fields: [
-        "primaryContact",
-        "fatherName",
-        "fatherMobile",
-        "fatherOccupation",
-        "motherName",
-        "motherMobile",
-        "motherOccupation",
-        "guardianName",
-        "guardianRelation",
-        "guardianMobile",
-        "annualIncome",
-        "familyType",
-      ] as (keyof FormData)[],
-    },
-    {
-      fields: [
-        "schoolName",
-        "collegeName",
-        "schoolAddress",
-        "previousGrade",
-        "percentage",
-        "passingYear",
-        "extraCurricular",
-        "profile",
-        "additionalDocuments",
-        "agree",
-      ] as (keyof FormData)[],
-    },
+    { name: "Personal Details", fields: ["firstName", "lastName", "dateOfBirth", "gender", "bloodGroup"] },
+    { name: "Contact Info", fields: ["contactInfo"] },
+    { name: "Address", fields: ["addresses"] },
+    { name: "Family Details", fields: ["parents"] },
+    { name: "Academic History", fields: ["academicHistories"] },
+    { name: "Enrollment", fields: ["academicEnrollment"] },
+    { name: "Financial & Scholarship", fields: ["financialDetails", "scholarship"] },
+    { name: "Other", fields: ["disability", "hobbies", "achievements"] },
+    { name: "Documents & Confirmation", fields: ["agree"] },
   ];
 
   const handleNext = async () => {
     const fields = steps[currentStep - 1].fields;
-    const ok = await trigger(fields);
+    const ok = await trigger(fields as (keyof FormData)[]);
     if (ok) setCurrentStep((s) => s + 1);
   };
 
@@ -173,35 +141,16 @@ const FormPage: React.FC = () => {
     { label: "O+", value: "O+" },
     { label: "O-", value: "O-" },
   ];
-  const previousacademic = [
-    { label: "Master's", value: "master" },
-    { label: "Bachelor's", value: "bachelor" },
-    { label: "+2", value: "intermediate" },
-    { label: "Secondary", value: "secondary" },
-  ];
-  const incomeOptions = [
-    { label: "<5 Lakh", value: "<5" },
-    { label: "5-10 Lakh", value: "5-10" },
-    { label: "10-20 Lakh", value: "10-20" },
-    { label: ">20 Lakh", value: ">20" },
-  ];
-  const emergencyRelations = [
-    { label: "Parent", value: "parent" },
-    { label: "Sibling", value: "sibling" },
-    { label: "Relative", value: "relative" },
-    { label: "Friend", value: "friend" },
-    { label: "Other", value: "other" },
-  ];
-
+  
   return (
     <div className="flex items-center justify-center min-h-screen bg-slate-300 p-4">
       <Form onSubmit={handleSubmit(processForm)}>
         <div className="mb-1 text-right text-gray-500 text-sm font-bold">
-          Step {currentStep} of {steps.length}
+          Step {currentStep} of {steps.length}: {steps[currentStep-1].name}
         </div>
 
         <h1 className="text-2xl font-bold text-center mb-4">
-          Application Form
+          Student Application Form
         </h1>
 
         {/* STEP 1 - Personal */}
@@ -210,78 +159,28 @@ const FormPage: React.FC = () => {
             <h2 className="text-xl font-semibold border-b pb-2">
               Personal Information
             </h2>
-
             <div className="grid grid-cols-3 gap-4">
               <Input
                 label="First Name"
-                {...register("firstname")}
-                error={errors.firstname?.message}
+                {...register("firstName")}
+                error={errors.firstName?.message}
               />
               <Input
                 label="Middle Name (optional)"
-                {...register("middlename")}
-                error={errors.middlename?.message}
+                {...register("middleName")}
               />
               <Input
                 label="Last Name"
-                {...register("lastname")}
-                error={errors.lastname?.message}
+                {...register("lastName")}
+                error={errors.lastName?.message}
               />
             </div>
-
             <div className="grid grid-cols-3 gap-4">
               <Input
                 label="Date of Birth (YYYY-MM-DD)"
-                {...register("dob")}
-                error={errors.dob?.message}
+                {...register("dateOfBirth")}
+                error={errors.dateOfBirth?.message}
               />
-              <Input
-                label="Nationality (optional)"
-                {...register("nationality")}
-                error={errors.nationality?.message}
-              />
-              <Input
-                label="Citizenship No (optional)"
-                {...register("citizenshipNumber")}
-                error={errors.citizenshipNumber?.message}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Email"
-                type="email"
-                {...register("email")}
-                error={errors.email?.message}
-              />
-              <Input
-                label="Alternate Email (optional)"
-                {...register("alternateEmail")}
-                error={errors.alternateEmail?.message}
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <Select
-                label="Country"
-                name="country"
-                register={register}
-                options={[
-                  { label: "Nepal", value: "nepal" },
-                  { label: "India", value: "india" },
-                  { label: "China", value: "china" },
-                ]}
-                error={errors.country?.message}
-              />
-
-              <Select
-                label="Blood Group (optional)"
-                name="bloodgroup"
-                register={register}
-                options={bloodGroups}
-                error={errors.bloodgroup?.message}
-              />
-
               <Radio
                 label="Gender"
                 name="gender"
@@ -293,6 +192,37 @@ const FormPage: React.FC = () => {
                 ]}
                 error={errors.gender?.message}
               />
+              <Select
+                label="Blood Group (optional)"
+                name="bloodGroup"
+                register={register}
+                options={bloodGroups}
+              />
+            </div>
+            <h2 className="text-xl font-semibold border-b pb-2">
+              Citizenship
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+                <Input
+                    label="Citizenship Number"
+                    {...register("citizenship.citizenshipNumber")}
+                    error={errors.citizenship?.citizenshipNumber?.message}
+                />
+                <Input
+                    label="Country of Issuance"
+                    {...register("citizenship.countryOfIssuance")}
+                    error={errors.citizenship?.countryOfIssuance?.message}
+                />
+                <Input
+                    label="Date of Issuance"
+                    {...register("citizenship.dateOfIssuance")}
+                    error={errors.citizenship?.dateOfIssuance?.message}
+                />
+                <Input
+                    label="Place of Issuance"
+                    {...register("citizenship.placeOfIssuance")}
+                    error={errors.citizenship?.placeOfIssuance?.message}
+                />
             </div>
           </div>
         )}
@@ -307,248 +237,121 @@ const FormPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <Input
                 label="Primary Mobile"
-                {...register("primaryMobile")}
-                error={errors.primaryMobile?.message}
+                {...register("contactInfo.primaryMobile")}
+                error={errors.contactInfo?.primaryMobile?.message}
               />
               <Input
                 label="Alternate Mobile (optional)"
-                {...register("alternateMobile")}
-                error={errors.alternateMobile?.message}
+                {...register("contactInfo.alternateMobile")}
               />
             </div>
-
             <div className="grid grid-cols-2 gap-4">
               <Input
-                label="Emergency Contact"
-                {...register("emergencyContact")}
-                error={errors.emergencyContact?.message}
+                label="Primary Email"
+                type="email"
+                {...register("contactInfo.primaryEmail")}
+                error={errors.contactInfo?.primaryEmail?.message}
               />
-
-              <Select
-                label="Emergency Contact Relation"
-                name="emergencyRelation"
-                register={register}
-                options={emergencyRelations}
-                error={errors.emergencyRelation?.message}
+              <Input
+                label="Alternate Email (optional)"
+                type="email"
+                {...register("contactInfo.alternateEmail")}
               />
             </div>
-
-            <Input
-              label="Permanent Address"
-              {...register("permanentAddress")}
-              error={errors.permanentAddress?.message}
-            />
-
-            <Select
-              label="Preferred Contact Method (optional)"
-              name="preferredContactMethod"
-              register={register}
-              options={[
-                { label: "Email", value: "email" },
-                { label: "Phone", value: "phone" },
-                { label: "Both", value: "both" },
-              ]}
-              error={errors.preferredContactMethod?.message}
-            />
           </div>
         )}
-
-        {/* STEP 3 - Family */}
+        
+        {/* STEP 3 - Address */}
         {currentStep === 3 && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold border-b pb-2">
-              Family Details
-            </h2>
-
-            <Radio
-              label="Primary Contact"
-              name="primaryContact"
-              register={register}
-              options={[
-                { label: "Father", value: "father" },
-                { label: "Mother", value: "mother" },
-                { label: "Guardian", value: "guardian" },
-              ]}
-              error={errors.primaryContact?.message}
-            />
-
-            <div className="bg-slate-50 p-4 rounded-md">
-              <h3 className="font-bold mb-2">Father&apos;s Details</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="Name"
-                  {...register("fatherName")}
-                  error={errors.fatherName?.message}
-                />
-                <Input
-                  label="Mobile"
-                  {...register("fatherMobile")}
-                  error={errors.fatherMobile?.message}
-                />
-                <Input
-                  label="Occupation (optional)"
-                  {...register("fatherOccupation")}
-                  error={errors.fatherOccupation?.message}
-                />
-              </div>
+            <div className="space-y-4">
+                <h2 className="text-xl font-semibold border-b pb-2">Address Information</h2>
+                {addressFields.map((field, index) => (
+                    <div key={field.id} className="border p-4 rounded-md">
+                        <div className="grid grid-cols-2 gap-4">
+                            <Input
+                                label="Province"
+                                {...register(`addresses.${index}.province`)}
+                                error={errors.addresses?.[index]?.province?.message}
+                            />
+                            <Input
+                                label="Municipality"
+                                {...register(`addresses.${index}.municipality`)}
+                                error={errors.addresses?.[index]?.municipality?.message}
+                            />
+                            <Input
+                                label="Ward"
+                                {...register(`addresses.${index}.ward`)}
+                                error={errors.addresses?.[index]?.ward?.message}
+                            />
+                             <Input
+                                label="Street"
+                                {...register(`addresses.${index}.street`)}
+                            />
+                            <Input
+                                label="Country"
+                                {...register(`addresses.${index}.country`)}
+                                error={errors.addresses?.[index]?.country?.message}
+                            />
+                            <Select
+                                label="Address Type"
+                                name={`addresses.${index}.addressTypeId`}
+                                register={register}
+                                options={[{label: "Permanent", value: 1}, {label: "Temporary", value: 2}]}
+                                error={errors.addresses?.[index]?.addressTypeId?.message}
+                            />
+                        </div>
+                        <Button type="button" onClick={() => removeAddress(index)} label="Remove Address" />
+                    </div>
+                ))}
+                <Button type="button" onClick={() => appendAddress({ province: "", municipality: "", ward: "", country: "", addressTypeId: 1 })} label="Add Address" />
             </div>
-
-            <div className="bg-slate-50 p-4 rounded-md">
-              <h3 className="font-bold mb-2">Mother&apos;s Details</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="Name"
-                  {...register("motherName")}
-                  error={errors.motherName?.message}
-                />
-                <Input
-                  label="Mobile"
-                  {...register("motherMobile")}
-                  error={errors.motherMobile?.message}
-                />
-                <Input
-                  label="Occupation (optional)"
-                  {...register("motherOccupation")}
-                  error={errors.motherOccupation?.message}
-                />
-              </div>
-            </div>
-
-            {/* Guardian (optional) */}
-            <div className="bg-slate-50 p-4 rounded-md">
-              <h3 className="font-bold mb-2">Guardian (optional)</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="Name"
-                  {...register("guardianName")}
-                  error={errors.guardianName?.message}
-                />
-                <Input
-                  label="Relation"
-                  {...register("guardianRelation")}
-                  error={errors.guardianRelation?.message}
-                />
-                <Input
-                  label="Mobile"
-                  {...register("guardianMobile")}
-                  error={errors.guardianMobile?.message}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Select
-                label="Annual Family Income"
-                name="annualIncome"
-                register={register}
-                options={incomeOptions}
-                error={errors.annualIncome?.message}
-              />
-
-              <Select
-                label="Family Type (optional)"
-                name="familyType"
-                register={register}
-                options={[
-                  { label: "Joint", value: "joint" },
-                  { label: "Nuclear", value: "nuclear" },
-                ]}
-                error={errors.familyType?.message}
-              />
-            </div>
-          </div>
         )}
 
-        {/* STEP 4 - Academics & Documents */}
+        {/* STEP 4 - Family */}
         {currentStep === 4 && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold border-b pb-2">
-              Academics & Documents
-            </h2>
-
-            <Input
-              label="School Name"
-              {...register("schoolName")}
-              error={errors.schoolName?.message}
-            />
-
-            <Input
-              label="College Name (optional)"
-              {...register("collegeName")}
-              error={errors.collegeName?.message}
-            />
-
-            <Input
-              label="School Address"
-              {...register("schoolAddress")}
-              error={errors.schoolAddress?.message}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <Select
-                label="Previous Grade/Class"
-                name="previousGrade"
-                register={register}
-                options={previousacademic}
-                error={errors.previousGrade?.message}
-              />
-
-              <Input
-                label="Percentage / GPA"
-                type="number"
-                {...register("percentage", { valueAsNumber: true })}
-                error={errors.percentage?.message}
-              />
+            <div className="space-y-4">
+                <h2 className="text-xl font-semibold border-b pb-2">Family Details</h2>
+                {parentFields.map((field, index) => (
+                    <div key={field.id} className="border p-4 rounded-md">
+                        <div className="grid grid-cols-2 gap-4">
+                            <Input
+                                label="First Name"
+                                {...register(`parents.${index}.firstName`)}
+                                error={errors.parents?.[index]?.firstName?.message}
+                            />
+                            <Input
+                                label="Last Name"
+                                {...register(`parents.${index}.lastName`)}
+                                error={errors.parents?.[index]?.lastName?.message}
+                            />
+                             <Input
+                                label="Relation"
+                                {...register(`parents.${index}.relation`)}
+                                error={errors.parents?.[index]?.relation?.message}
+                            />
+                        </div>
+                        <Button type="button" onClick={() => removeParent(index)} label="Remove Parent" />
+                    </div>
+                ))}
+                 <Button type="button" onClick={() => appendParent({ firstName: "", lastName: "", relation: "" })} label="Add Parent" />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Passing Year (optional)"
-                type="number"
-                {...register("passingYear", { valueAsNumber: true })}
-                error={errors.passingYear?.message}
-              />
-              <Input
-                label="Extra Curricular (optional)"
-                {...register("extraCurricular")}
-                error={errors.extraCurricular?.message}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <ImageUpload
-                label="Upload Profile Image (optional)"
-                name="profile"
-                register={register}
-                error={errors.profile?.message as string}
-              />
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Additional Documents (optional)
-                </label>
-                <input
-                  type="file"
-                  multiple
-                  {...register("additionalDocuments")}
-                  className="mt-1 block w-full"
-                />
-                {errors.additionalDocuments && (
-                  <p className="text-red-600 text-sm mt-1">
-                    {String(errors.additionalDocuments.message)}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <Checkbox
-              label="I agree to the terms and conditions"
-              name="agree"
-              register={register}
-              error={errors.agree?.message}
-            />
-          </div>
         )}
+
+        {/* STEP 9 - Documents & Confirmation */}
+        {currentStep === 9 && (
+            <div className="space-y-6">
+                <h2 className="text-xl font-semibold border-b pb-2">
+                Documents & Confirmation
+                </h2>
+                <Checkbox
+                label="I agree to the terms and conditions"
+                name="agree"
+                register={register}
+                error={errors.agree?.message}
+                />
+            </div>
+        )}
+
 
         <div className="mt-8 flex justify-between gap-4">
           {currentStep > 1 && (

@@ -328,3 +328,4 @@ C:\Users\ZEUS\Desktop\solvetech\FORM\Backend\obj\Debug\net9.0\refint\FormBackend
 C:\Users\ZEUS\Desktop\solvetech\FORM\Backend\obj\Debug\net9.0\FormBackend.pdb
 C:\Users\ZEUS\Desktop\solvetech\FORM\Backend\obj\Debug\net9.0\FormBackend.genruntimeconfig.cache
 C:\Users\ZEUS\Desktop\solvetech\FORM\Backend\obj\Debug\net9.0\ref\FormBackend.dll
+C:\Users\ZEUS\Desktop\solvetech\FORM\Backend\obj\Debug\net9.0\FormBackend.sourcelink.json

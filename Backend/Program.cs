@@ -11,7 +11,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IApplicationFormService, ApplicationFormService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
 builder.Services.AddCors(options =>
 {
@@ -50,6 +51,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 */
 
 var app = builder.Build();
+
+// Seed the database
+if (app.Environment.IsDevelopment())
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var initializer = services.GetRequiredService<IDbInitializer>();
+        initializer.Initialize();
+    }
+}
 
 app.UseCors("AllowAll");
 // app.UseHttpsRedirection();
