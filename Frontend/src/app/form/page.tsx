@@ -19,19 +19,26 @@ const FormPage: React.FC = () => {
     handleSubmit,
     trigger,
     formState: { errors },
+    watch,
+    setValue,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: "onSubmit",
     defaultValues: {
-      addresses: [
-        {
-          province: "",
-          municipality: "",
-          ward: "",
-          country: "",
-          addressTypeId: 1,
-        },
-      ],
+      permanentAddress: {
+        province: "",
+        municipality: "",
+        ward: "",
+        country: "",
+        addressTypeId: 1,
+      },
+      temporaryAddress: {
+        province: "",
+        municipality: "",
+        ward: "",
+        country: "",
+        addressTypeId: 2,
+      },
       parents: [{ firstName: "", lastName: "", relation: "" }],
       academicHistories: [
         {
@@ -46,12 +53,29 @@ const FormPage: React.FC = () => {
 
   const [currentStep, setCurrentStep] = React.useState(1);
 
-  const processForm = async (data: FieldValues) => {
-    try {
-      const submissionData = {
-        ...data,
-      };
+  const permanentAddress = watch("permanentAddress");
+  const [sameAsPermanent, setSameAsPermanent] = React.useState(false);
 
+  React.useEffect(() => {
+    if (sameAsPermanent) {
+      setValue("temporaryAddress", { ...permanentAddress, addressTypeId: 2 });
+    }
+  }, [permanentAddress, sameAsPermanent, setValue]);
+
+
+  const processForm = async (data: FieldValues) => {
+    const { permanentAddress, temporaryAddress, ...rest } = data;
+
+    const addresses = [];
+    if (permanentAddress) addresses.push(permanentAddress);
+    if (temporaryAddress) addresses.push(temporaryAddress);
+
+    const submissionData = {
+      ...rest,
+      addresses,
+    };
+
+    try {
       const response = await fetch("http://localhost:5000/api/Student", {
         method: "POST",
         headers: {
@@ -87,7 +111,7 @@ const FormPage: React.FC = () => {
       fields: ["firstName", "lastName", "dateOfBirth", "gender", "bloodGroup"],
     },
     { name: "Contact Info", fields: ["contactInfo"] },
-    { name: "Address", fields: ["addresses"] },
+    { name: "Address", fields: ["permanentAddress", "temporaryAddress"] },
     { name: "Family Details", fields: ["parents"] },
     { name: "Academic History", fields: ["academicHistories"] },
     { name: "Enrollment", fields: ["academicEnrollment"] },
@@ -242,41 +266,71 @@ const FormPage: React.FC = () => {
         {currentStep === 3 && (
           <div className="space-y-4">
             <h2 className="text-xl font-semibold border-b pb-2">
-              Address Information
+              Permanent Address
             </h2>
             <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Province"
-                {...register("addresses.0.province")}
-                error={errors.addresses?.[0]?.province?.message}
-              />
-              <Input
-                label="Municipality"
-                {...register("addresses.0.municipality")}
-                error={errors.addresses?.[0]?.municipality?.message}
-              />
-              <Input
-                label="Ward"
-                {...register("addresses.0.ward")}
-                error={errors.addresses?.[0]?.ward?.message}
-              />
-              <Input label="Street" {...register("addresses.0.street")} />
-              <Input
-                label="Country"
-                {...register("addresses.0.country")}
-                error={errors.addresses?.[0]?.country?.message}
-              />
-              <Select
-                label="Address Type"
-                name="addresses.0.addressTypeId"
-                register={register}
-                options={[
-                  { label: "Permanent", value: 1 },
-                  { label: "Temporary", value: 2 },
-                ]}
-                error={errors.addresses?.[0]?.addressTypeId?.message}
-                valueAsNumber
-              />
+                <Input
+                    label="Province"
+                    {...register("permanentAddress.province")}
+                    error={errors.permanentAddress?.province?.message}
+                />
+                <Input
+                    label="Municipality"
+                    {...register("permanentAddress.municipality")}
+                    error={errors.permanentAddress?.municipality?.message}
+                />
+                <Input
+                    label="Ward"
+                    {...register("permanentAddress.ward")}
+                    error={errors.permanentAddress?.ward?.message}
+                />
+                <Input label="Street" {...register("permanentAddress.street")} />
+                <Input
+                    label="Country"
+                    {...register("permanentAddress.country")}
+                    error={errors.permanentAddress?.country?.message}
+                />
+            </div>
+
+            <h2 className="text-xl font-semibold border-b pb-2 mt-6">
+              Temporary Address
+            </h2>
+            <Checkbox
+                label="Same as Permanent Address"
+                checked={sameAsPermanent}
+                onChange={(e) => {
+                    setSameAsPermanent(e.target.checked);
+                    if (e.target.checked) {
+                        setValue("temporaryAddress", { ...permanentAddress, addressTypeId: 2 });
+                    }
+                }}
+            />
+            <div className="grid grid-cols-2 gap-4 mt-4">
+                <Input
+                    label="Province"
+                    {...register("temporaryAddress.province")}
+                    error={errors.temporaryAddress?.province?.message}
+                    disabled={sameAsPermanent}
+                />
+                <Input
+                    label="Municipality"
+                    {...register("temporaryAddress.municipality")}
+                    error={errors.temporaryAddress?.municipality?.message}
+                    disabled={sameAsPermanent}
+                />
+                <Input
+                    label="Ward"
+                    {...register("temporaryAddress.ward")}
+                    error={errors.temporaryAddress?.ward?.message}
+                    disabled={sameAsPermanent}
+                />
+                <Input label="Street" {...register("temporaryAddress.street")} disabled={sameAsPermanent} />
+                <Input
+                    label="Country"
+                    {...register("temporaryAddress.country")}
+                    error={errors.temporaryAddress?.country?.message}
+                    disabled={sameAsPermanent}
+                />
             </div>
           </div>
         )}

@@ -74,7 +74,8 @@ export const formSchema = z.object({
     .optional(),
 
   // Addresses
-  addresses: z.array(addressSchema).optional(),
+  permanentAddress: addressSchema,
+  temporaryAddress: addressSchema.optional(),
 
   // Parents
   parents: z.array(parentSchema).optional(),

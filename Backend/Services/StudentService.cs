@@ -3,6 +3,8 @@ using FormBackend.DTOs;
 using FormBackend.Models;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System;
 
 namespace FormBackend.Services
 {
@@ -136,6 +138,120 @@ namespace FormBackend.Services
             await _unitOfWork.CompleteAsync();
 
             return student;
+        }
+
+        public async Task<StudentDTO?> GetStudentByIdAsync(int id)
+        {
+            var student = await _unitOfWork.GetRepository<Student>()
+                                            .GetByIdAsync(id, includeProperties: "Citizenship,ContactInfo,Addresses.AddressType,Parents,AcademicHistories,AcademicEnrollment.Faculty,Achievements,Hobbies,Disability,BankDetails,FinancialDetails,Scholarship");
+
+            if (student == null)
+            {
+                return null;
+            }
+
+            // Map Student entity to StudentDTO
+            var studentDto = new StudentDTO
+            {
+                // Personal Details
+                FirstName = student.FirstName,
+                MiddleName = student.MiddleName,
+                LastName = student.LastName,
+                DateOfBirth = student.DateOfBirth,
+                Gender = student.Gender,
+                BloodGroup = student.BloodGroup,
+
+                // Relationships - map to respective DTOs
+                Citizenship = student.Citizenship != null ? new CitizenshipDTO
+                {
+                    CitizenshipNumber = student.Citizenship.CitizenshipNumber,
+                    CountryOfIssuance = student.Citizenship.CountryOfIssuance,
+                    DateOfIssuance = student.Citizenship.DateOfIssuance,
+                    PlaceOfIssuance = student.Citizenship.PlaceOfIssuance
+                } : null,
+                ContactInfo = student.ContactInfo != null ? new ContactInfoDTO
+                {
+                    PrimaryMobile = student.ContactInfo.PrimaryMobile,
+                    AlternateMobile = student.ContactInfo.AlternateMobile,
+                    PrimaryEmail = student.ContactInfo.PrimaryEmail,
+                    AlternateEmail = student.ContactInfo.AlternateEmail
+                } : null,
+                Addresses = student.Addresses?.Select(a => new AddressDTO
+                {
+                    Province = a.Province,
+                    Municipality = a.Municipality,
+                    Ward = a.Ward,
+                    Street = a.Street,
+                    Country = a.Country,
+                    AddressTypeId = a.AddressTypeId // Include AddressTypeId
+                }).ToList(),
+                Parents = student.Parents?.Select(p => new ParentDTO
+                {
+                    FirstName = p.FirstName!,
+                    MiddleName = p.MiddleName,
+                    LastName = p.LastName!,
+                    Relation = p.Relation!,
+                    Occupation = p.Occupation,
+                    AnnualIncome = p.AnnualIncome,
+                    MobileNumber = p.MobileNumber,
+                    Email = p.Email
+                }).ToList(),
+                AcademicHistories = student.AcademicHistories?.Select(ah => new AcademicHistoryDTO
+                {
+                    InstitutionName = ah.InstitutionName!,
+                    Level = ah.Level!,
+                    Board = ah.Board,
+                    PercentageOrGPA = ah.PercentageOrGPA,
+                    PassingYear = ah.PassingYear
+                }).ToList(),
+                AcademicEnrollment = student.AcademicEnrollment != null ? new AcademicEnrollmentDTO
+                {
+                    FacultyId = student.AcademicEnrollment.FacultyId,
+                    ProgramName = student.AcademicEnrollment.ProgramName,
+                    EnrollmentDate = student.AcademicEnrollment.EnrollmentDate,
+                    StudentIdNumber = student.AcademicEnrollment.StudentIdNumber
+                } : null,
+                Achievements = student.Achievements?.Select(a => new AchievementDTO
+                {
+                    Title = a.Title!,
+                    Description = a.Description,
+                    DateOfAchievement = a.DateOfAchievement
+                }).ToList(),
+                Hobbies = student.Hobbies?.Select(h => new HobbyDTO
+                {
+                    Name = h.Name!
+                }).ToList(),
+                Disability = student.Disability != null ? new DisabilityDTO
+                {
+                    DisabilityType = student.Disability.DisabilityType!,
+                    Description = student.Disability.Description,
+                    DisabilityPercentage = student.Disability.DisabilityPercentage
+                } : null,
+                BankDetails = student.BankDetails != null ? new BankDetailsDTO
+                {
+                    BankName = student.BankDetails.BankName,
+                    AccountNumber = student.BankDetails.AccountNumber,
+                    AccountHolderName = student.BankDetails.AccountHolderName,
+                    Branch = student.BankDetails.Branch,
+                    SwiftCode = student.BankDetails.SwiftCode
+                } : null,
+                FinancialDetails = student.FinancialDetails != null ? new FinancialDetailsDTO
+                {
+                    AnnualIncome = student.FinancialDetails.AnnualIncome,
+                    IncomeSource = student.FinancialDetails.IncomeSource,
+                    IsTaxPayer = student.FinancialDetails.IsTaxPayer,
+                    PanNumber = student.FinancialDetails.PanNumber
+                } : null,
+                Scholarship = student.Scholarship != null ? new ScholarshipDTO
+                {
+                    ScholarshipName = student.Scholarship.ScholarshipName,
+                    Amount = student.Scholarship.Amount,
+                    StartDate = student.Scholarship.StartDate,
+                    EndDate = student.Scholarship.EndDate
+                } : null
+            };
+
+            return studentDto;
         }
     }
 }

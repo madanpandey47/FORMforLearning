@@ -31,10 +31,14 @@ namespace FormBackend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetStudent(int id)
         {
-            // This is just a placeholder to make CreatedAtAction work.
-            // You should implement a proper GetStudent method.
-            await Task.Yield();
-            return Ok(new { Id = id });
+            var studentDto = await _studentService.GetStudentByIdAsync(id);
+
+            if (studentDto == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(studentDto);
         }
     }
 }
