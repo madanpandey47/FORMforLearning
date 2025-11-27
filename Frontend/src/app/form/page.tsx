@@ -23,7 +23,7 @@ const FormPage: React.FC = () => {
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    mode: "onChange",
+    mode: "onSubmit",
     defaultValues: {
       addresses: [{ province: "", municipality: "", ward: "", country: "", addressTypeId: 1 }],
       parents: [{ firstName: "", lastName: "", relation: "" }],
