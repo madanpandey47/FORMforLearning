@@ -114,7 +114,25 @@ namespace FormBackend.Services
                 } : null
             };
 
+            var studentAcademicEnrollment = studentDto.AcademicEnrollment; // Store AcademicEnrollment from DTO
+
             await _unitOfWork.GetRepository<Student>().AddAsync(student);
+            
+            // After adding the student, ensure AcademicEnrollment's Faculty is correctly handled
+            if (studentAcademicEnrollment != null)
+            {
+                var faculty = await _unitOfWork.GetRepository<Faculty>()
+                                            .GetByIdAsync(studentAcademicEnrollment.FacultyId);
+
+                if (faculty == null)
+                {
+                    throw new ArgumentException($"Faculty with ID {studentAcademicEnrollment.FacultyId} not found. Please provide a valid Faculty ID.");
+                }
+                // Assign the retrieved Faculty object to the navigation property
+                // This assumes AcademicEnrollment is already part of the student object after AddAsync
+                student.AcademicEnrollment.Faculty = faculty;
+            }
+
             await _unitOfWork.CompleteAsync();
 
             return student;

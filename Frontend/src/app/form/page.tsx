@@ -102,6 +102,9 @@ const FormPage: React.FC = () => {
   const handleNext = async () => {
     const fields = steps[currentStep - 1].fields;
     const ok = await trigger(fields as (keyof FormData)[]);
+    if (!ok) {
+      console.log("Validation errors:", errors);
+    }
     if (ok) setCurrentStep((s) => s + 1);
   };
 
@@ -375,7 +378,7 @@ const FormPage: React.FC = () => {
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <Input
-                label="Faculty ID"
+                label="Faculty ID (e.g., 1 or 2)"
                 type="number"
                 {...register("academicEnrollment.facultyId", {
                   valueAsNumber: true,

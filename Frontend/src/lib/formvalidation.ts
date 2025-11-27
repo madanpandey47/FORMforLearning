@@ -85,7 +85,7 @@ export const formSchema = z.object({
   // Academic Enrollment
   academicEnrollment: z
     .object({
-      facultyId: z.number().int("Faculty ID must be an integer"),
+      facultyId: z.number().int().min(1, "Please select a valid faculty"),
       programName: z.string().min(1, "Program Name is required"),
       enrollmentDate: z
         .string()
