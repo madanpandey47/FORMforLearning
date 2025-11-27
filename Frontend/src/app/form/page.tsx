@@ -5,7 +5,6 @@ import Input from "../../components/ui/input";
 import Radio from "../../components/ui/radio";
 import Select from "../../components/ui/select";
 import Checkbox from "../../components/ui/checkbox";
-import ImageUpload from "../../components/ui/upload";
 import Button from "../../components/ui/button";
 import { useForm, FieldValues, useFieldArray } from "react-hook-form";
 import { z } from "zod";
@@ -25,53 +24,45 @@ const FormPage: React.FC = () => {
     resolver: zodResolver(formSchema),
     mode: "onSubmit",
     defaultValues: {
-      addresses: [{ province: "", municipality: "", ward: "", country: "", addressTypeId: 1 }],
+      addresses: [
+        {
+          province: "",
+          municipality: "",
+          ward: "",
+          country: "",
+          addressTypeId: 1,
+        },
+      ],
       parents: [{ firstName: "", lastName: "", relation: "" }],
-      academicHistories: [{ institutionName: "", level: "", percentageOrGPA: 0, passingYear: 2020 }],
+      academicHistories: [
+        {
+          institutionName: "",
+          level: "",
+          percentageOrGPA: 0,
+          passingYear: 2020,
+        },
+      ],
     },
   });
 
-  const { fields: addressFields, append: appendAddress, remove: removeAddress } = useFieldArray({
+  const {
+    fields: addressFields,
+    append: appendAddress,
+    remove: removeAddress,
+  } = useFieldArray({
     control,
     name: "addresses",
   });
-  const { fields: parentFields, append: appendParent, remove: removeParent } = useFieldArray({
+  const {
+    fields: parentFields,
+    append: appendParent,
+    remove: removeParent,
+  } = useFieldArray({
     control,
     name: "parents",
   });
-  const { fields: academicHistoryFields, append: appendAcademicHistory, remove: removeAcademicHistory } = useFieldArray({
-    control,
-    name: "academicHistories",
-  });
-  const { fields: achievementFields, append: appendAchievement, remove: removeAchievement } = useFieldArray({
-    control,
-    name: "achievements",
-  });
-  const { fields: hobbyFields, append: appendHobby, remove: removeHobby } = useFieldArray({
-    control,
-    name: "hobbies",
-  });
-
 
   const [currentStep, setCurrentStep] = React.useState(1);
-
-  const toBase64 = (file: File) =>
-    new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
-
-  const toBase64Array = async (fileList: FileList | null) => {
-    if (!fileList || fileList.length === 0) return [];
-    const arr: string[] = [];
-    for (let i = 0; i < fileList.length; i++) {
-      const b = await toBase64(fileList[i]);
-      arr.push(b);
-    }
-    return arr;
-  };
 
   const processForm = async (data: FieldValues) => {
     try {
@@ -79,16 +70,13 @@ const FormPage: React.FC = () => {
         ...data,
       };
 
-      const response = await fetch(
-        "http://localhost:5000/api/Student",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(submissionData),
-        }
-      );
+      const response = await fetch("http://localhost:5000/api/Student", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(submissionData),
+      });
 
       if (response.ok) {
         alert("Form Submitted Successfully!");
@@ -112,13 +100,19 @@ const FormPage: React.FC = () => {
 
   // ---- fields grouped per step ----
   const steps = [
-    { name: "Personal Details", fields: ["firstName", "lastName", "dateOfBirth", "gender", "bloodGroup"] },
+    {
+      name: "Personal Details",
+      fields: ["firstName", "lastName", "dateOfBirth", "gender", "bloodGroup"],
+    },
     { name: "Contact Info", fields: ["contactInfo"] },
     { name: "Address", fields: ["addresses"] },
     { name: "Family Details", fields: ["parents"] },
     { name: "Academic History", fields: ["academicHistories"] },
     { name: "Enrollment", fields: ["academicEnrollment"] },
-    { name: "Financial & Scholarship", fields: ["financialDetails", "scholarship"] },
+    {
+      name: "Financial & Scholarship",
+      fields: ["financialDetails", "scholarship"],
+    },
     { name: "Other", fields: ["disability", "hobbies", "achievements"] },
     { name: "Documents & Confirmation", fields: ["agree"] },
   ];
@@ -141,12 +135,12 @@ const FormPage: React.FC = () => {
     { label: "O+", value: "O+" },
     { label: "O-", value: "O-" },
   ];
-  
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-slate-300 p-4">
       <Form onSubmit={handleSubmit(processForm)}>
         <div className="mb-1 text-right text-gray-500 text-sm font-bold">
-          Step {currentStep} of {steps.length}: {steps[currentStep-1].name}
+          Step {currentStep} of {steps.length}: {steps[currentStep - 1].name}
         </div>
 
         <h1 className="text-2xl font-bold text-center mb-4">
@@ -199,30 +193,28 @@ const FormPage: React.FC = () => {
                 options={bloodGroups}
               />
             </div>
-            <h2 className="text-xl font-semibold border-b pb-2">
-              Citizenship
-            </h2>
+            <h2 className="text-xl font-semibold border-b pb-2">Citizenship</h2>
             <div className="grid grid-cols-2 gap-4">
-                <Input
-                    label="Citizenship Number"
-                    {...register("citizenship.citizenshipNumber")}
-                    error={errors.citizenship?.citizenshipNumber?.message}
-                />
-                <Input
-                    label="Country of Issuance"
-                    {...register("citizenship.countryOfIssuance")}
-                    error={errors.citizenship?.countryOfIssuance?.message}
-                />
-                <Input
-                    label="Date of Issuance"
-                    {...register("citizenship.dateOfIssuance")}
-                    error={errors.citizenship?.dateOfIssuance?.message}
-                />
-                <Input
-                    label="Place of Issuance"
-                    {...register("citizenship.placeOfIssuance")}
-                    error={errors.citizenship?.placeOfIssuance?.message}
-                />
+              <Input
+                label="Citizenship Number"
+                {...register("citizenship.citizenshipNumber")}
+                error={errors.citizenship?.citizenshipNumber?.message}
+              />
+              <Input
+                label="Country of Issuance"
+                {...register("citizenship.countryOfIssuance")}
+                error={errors.citizenship?.countryOfIssuance?.message}
+              />
+              <Input
+                label="Date of Issuance"
+                {...register("citizenship.dateOfIssuance")}
+                error={errors.citizenship?.dateOfIssuance?.message}
+              />
+              <Input
+                label="Place of Issuance"
+                {...register("citizenship.placeOfIssuance")}
+                error={errors.citizenship?.placeOfIssuance?.message}
+              />
             </div>
           </div>
         )}
@@ -260,98 +252,131 @@ const FormPage: React.FC = () => {
             </div>
           </div>
         )}
-        
+
         {/* STEP 3 - Address */}
         {currentStep === 3 && (
-            <div className="space-y-4">
-                <h2 className="text-xl font-semibold border-b pb-2">Address Information</h2>
-                {addressFields.map((field, index) => (
-                    <div key={field.id} className="border p-4 rounded-md">
-                        <div className="grid grid-cols-2 gap-4">
-                            <Input
-                                label="Province"
-                                {...register(`addresses.${index}.province`)}
-                                error={errors.addresses?.[index]?.province?.message}
-                            />
-                            <Input
-                                label="Municipality"
-                                {...register(`addresses.${index}.municipality`)}
-                                error={errors.addresses?.[index]?.municipality?.message}
-                            />
-                            <Input
-                                label="Ward"
-                                {...register(`addresses.${index}.ward`)}
-                                error={errors.addresses?.[index]?.ward?.message}
-                            />
-                             <Input
-                                label="Street"
-                                {...register(`addresses.${index}.street`)}
-                            />
-                            <Input
-                                label="Country"
-                                {...register(`addresses.${index}.country`)}
-                                error={errors.addresses?.[index]?.country?.message}
-                            />
-                            <Select
-                                label="Address Type"
-                                name={`addresses.${index}.addressTypeId`}
-                                register={register}
-                                options={[{label: "Permanent", value: 1}, {label: "Temporary", value: 2}]}
-                                error={errors.addresses?.[index]?.addressTypeId?.message}
-                            />
-                        </div>
-                        <Button type="button" onClick={() => removeAddress(index)} label="Remove Address" />
-                    </div>
-                ))}
-                <Button type="button" onClick={() => appendAddress({ province: "", municipality: "", ward: "", country: "", addressTypeId: 1 })} label="Add Address" />
-            </div>
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold border-b pb-2">
+              Address Information
+            </h2>
+            {addressFields.map((field, index) => (
+              <div key={field.id} className="border p-4 rounded-md">
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    label="Province"
+                    {...register(`addresses.${index}.province`)}
+                    error={errors.addresses?.[index]?.province?.message}
+                  />
+                  <Input
+                    label="Municipality"
+                    {...register(`addresses.${index}.municipality`)}
+                    error={errors.addresses?.[index]?.municipality?.message}
+                  />
+                  <Input
+                    label="Ward"
+                    {...register(`addresses.${index}.ward`)}
+                    error={errors.addresses?.[index]?.ward?.message}
+                  />
+                  <Input
+                    label="Street"
+                    {...register(`addresses.${index}.street`)}
+                  />
+                  <Input
+                    label="Country"
+                    {...register(`addresses.${index}.country`)}
+                    error={errors.addresses?.[index]?.country?.message}
+                  />
+                  <Select
+                    label="Address Type"
+                    name={`addresses.${index}.addressTypeId`}
+                    register={register}
+                    options={[
+                      { label: "Permanent", value: 1 },
+                      { label: "Temporary", value: 2 },
+                    ]}
+                    error={errors.addresses?.[index]?.addressTypeId?.message}
+                    valueAsNumber
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => removeAddress(index)}
+                  label="Remove Address"
+                />
+              </div>
+            ))}
+            <Button
+              type="button"
+              onClick={() =>
+                appendAddress({
+                  province: "",
+                  municipality: "",
+                  ward: "",
+                  country: "",
+                  addressTypeId: 1,
+                })
+              }
+              label="Add Address"
+            />
+          </div>
         )}
 
         {/* STEP 4 - Family */}
         {currentStep === 4 && (
-            <div className="space-y-4">
-                <h2 className="text-xl font-semibold border-b pb-2">Family Details</h2>
-                {parentFields.map((field, index) => (
-                    <div key={field.id} className="border p-4 rounded-md">
-                        <div className="grid grid-cols-2 gap-4">
-                            <Input
-                                label="First Name"
-                                {...register(`parents.${index}.firstName`)}
-                                error={errors.parents?.[index]?.firstName?.message}
-                            />
-                            <Input
-                                label="Last Name"
-                                {...register(`parents.${index}.lastName`)}
-                                error={errors.parents?.[index]?.lastName?.message}
-                            />
-                             <Input
-                                label="Relation"
-                                {...register(`parents.${index}.relation`)}
-                                error={errors.parents?.[index]?.relation?.message}
-                            />
-                        </div>
-                        <Button type="button" onClick={() => removeParent(index)} label="Remove Parent" />
-                    </div>
-                ))}
-                 <Button type="button" onClick={() => appendParent({ firstName: "", lastName: "", relation: "" })} label="Add Parent" />
-            </div>
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold border-b pb-2">
+              Family Details
+            </h2>
+            {parentFields.map((field, index) => (
+              <div key={field.id} className="border p-4 rounded-md">
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    label="First Name"
+                    {...register(`parents.${index}.firstName`)}
+                    error={errors.parents?.[index]?.firstName?.message}
+                  />
+                  <Input
+                    label="Last Name"
+                    {...register(`parents.${index}.lastName`)}
+                    error={errors.parents?.[index]?.lastName?.message}
+                  />
+                  <Input
+                    label="Relation"
+                    {...register(`parents.${index}.relation`)}
+                    error={errors.parents?.[index]?.relation?.message}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => removeParent(index)}
+                  label="Remove Parent"
+                />
+              </div>
+            ))}
+            <Button
+              type="button"
+              onClick={() =>
+                appendParent({ firstName: "", lastName: "", relation: "" })
+              }
+              label="Add Parent"
+            />
+          </div>
         )}
 
         {/* STEP 9 - Documents & Confirmation */}
         {currentStep === 9 && (
-            <div className="space-y-6">
-                <h2 className="text-xl font-semibold border-b pb-2">
-                Documents & Confirmation
-                </h2>
-                <Checkbox
-                label="I agree to the terms and conditions"
-                name="agree"
-                register={register}
-                error={errors.agree?.message}
-                />
-            </div>
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold border-b pb-2">
+              Documents & Confirmation
+            </h2>
+            <Checkbox
+              label="I agree to the terms and conditions"
+              name="agree"
+              register={register}
+              error={errors.agree?.message}
+            />
+          </div>
         )}
-
 
         <div className="mt-8 flex justify-between gap-4">
           {currentStep > 1 && (
