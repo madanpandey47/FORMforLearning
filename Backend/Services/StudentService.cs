@@ -46,14 +46,14 @@ namespace FormBackend.Services
                     Ward = a.Ward,
                     Street = a.Street,
                     Country = a.Country,
-                    AddressTypeId = int.Parse(a.AddressTypeId)
+                    AddressTypeId = a.AddressTypeId
                 }).ToList(),
                 Parents = studentDto.Parents?.Select(p => new Parent
                 {
-                    FirstName = p.FirstName,
+                    FirstName = p.FirstName!,
                     MiddleName = p.MiddleName,
-                    LastName = p.LastName,
-                    Relation = p.Relation,
+                    LastName = p.LastName!,
+                    Relation = p.Relation!,
                     Occupation = p.Occupation,
                     AnnualIncome = p.AnnualIncome,
                     MobileNumber = p.MobileNumber,
@@ -61,8 +61,8 @@ namespace FormBackend.Services
                 }).ToList(),
                 AcademicHistories = studentDto.AcademicHistories?.Select(ah => new AcademicHistory
                 {
-                    InstitutionName = ah.InstitutionName,
-                    Level = ah.Level,
+                    InstitutionName = ah.InstitutionName!,
+                    Level = ah.Level!,
                     Board = ah.Board,
                     PercentageOrGPA = ah.PercentageOrGPA,
                     PassingYear = ah.PassingYear
@@ -76,17 +76,17 @@ namespace FormBackend.Services
                 } : null,
                 Achievements = studentDto.Achievements?.Select(a => new Achievement
                 {
-                    Title = a.Title,
+                    Title = a.Title!,
                     Description = a.Description,
                     DateOfAchievement = a.DateOfAchievement
                 }).ToList(),
                 Hobbies = studentDto.Hobbies?.Select(h => new Hobby
                 {
-                    Name = h.Name
+                    Name = h.Name!
                 }).ToList(),
                 Disability = studentDto.Disability != null ? new Disability
                 {
-                    DisabilityType = studentDto.Disability.DisabilityType,
+                    DisabilityType = studentDto.Disability.DisabilityType!,
                     Description = studentDto.Disability.Description,
                     DisabilityPercentage = studentDto.Disability.DisabilityPercentage
                 } : null,

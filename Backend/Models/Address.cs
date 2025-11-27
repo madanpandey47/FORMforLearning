@@ -17,6 +17,7 @@ namespace FormBackend.Models
         public string Country { get; set; }
 
         public int AddressTypeId { get; set; }
+        
         public virtual AddressType AddressType { get; set; }
     }
 }
