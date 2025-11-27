@@ -46,13 +46,13 @@ namespace FormBackend.Data
             modelBuilder.Entity<Student>()
                 .HasOne(s => s.Citizenship)
                 .WithOne()
-                .HasForeignKey<Student>(s => s.Id)
+                .HasForeignKey<Citizenship>("StudentId")
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Student>()
                 .HasOne(s => s.ContactInfo)
                 .WithOne()
-                .HasForeignKey<Student>(s => s.Id)
+                .HasForeignKey<ContactInfo>("StudentId")
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Student>()
@@ -94,25 +94,25 @@ namespace FormBackend.Data
             modelBuilder.Entity<Student>()
                 .HasOne(s => s.Disability)
                 .WithOne()
-                .HasForeignKey<Student>(s => s.Id)
+                .HasForeignKey<Disability>("StudentId")
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Student>()
                 .HasOne(s => s.BankDetails)
                 .WithOne()
-                .HasForeignKey<Student>(s => s.Id)
+                .HasForeignKey<BankDetails>("StudentId")
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Student>()
                 .HasOne(s => s.FinancialDetails)
                 .WithOne()
-                .HasForeignKey<Student>(s => s.Id)
+                .HasForeignKey<FinancialDetails>("StudentId")
                 .OnDelete(DeleteBehavior.Cascade);
             
             modelBuilder.Entity<Student>()
                 .HasOne(s => s.Scholarship)
                 .WithOne()
-                .HasForeignKey<Student>(s => s.Id)
+                .HasForeignKey<Scholarship>("StudentId")
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Faculty>()

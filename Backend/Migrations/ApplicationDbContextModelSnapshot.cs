@@ -201,10 +201,17 @@ namespace FormBackend.Migrations
                     b.Property<string>("Branch")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("StudentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("SwiftCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("StudentId")
+                        .IsUnique()
+                        .HasFilter("[StudentId] IS NOT NULL");
 
                     b.ToTable("BankDetails");
                 });
@@ -231,7 +238,14 @@ namespace FormBackend.Migrations
                     b.Property<string>("PlaceOfIssuance")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("StudentId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("StudentId")
+                        .IsUnique()
+                        .HasFilter("[StudentId] IS NOT NULL");
 
                     b.ToTable("Citizenships");
                 });
@@ -258,7 +272,14 @@ namespace FormBackend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("StudentId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("StudentId")
+                        .IsUnique()
+                        .HasFilter("[StudentId] IS NOT NULL");
 
                     b.ToTable("ContactInfos");
                 });
@@ -281,7 +302,14 @@ namespace FormBackend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("StudentId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("StudentId")
+                        .IsUnique()
+                        .HasFilter("[StudentId] IS NOT NULL");
 
                     b.ToTable("Disabilities");
                 });
@@ -353,7 +381,14 @@ namespace FormBackend.Migrations
                     b.Property<string>("PanNumber")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("StudentId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("StudentId")
+                        .IsUnique()
+                        .HasFilter("[StudentId] IS NOT NULL");
 
                     b.ToTable("FinancialDetails");
                 });
@@ -448,7 +483,14 @@ namespace FormBackend.Migrations
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("StudentId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("StudentId")
+                        .IsUnique()
+                        .HasFilter("[StudentId] IS NOT NULL");
 
                     b.ToTable("Scholarships");
                 });
@@ -456,7 +498,10 @@ namespace FormBackend.Migrations
             modelBuilder.Entity("FormBackend.Models.Student", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("BloodGroup")
                         .HasColumnType("nvarchar(max)");
@@ -535,6 +580,38 @@ namespace FormBackend.Migrations
                     b.Navigation("AddressType");
                 });
 
+            modelBuilder.Entity("FormBackend.Models.BankDetails", b =>
+                {
+                    b.HasOne("FormBackend.Models.Student", null)
+                        .WithOne("BankDetails")
+                        .HasForeignKey("FormBackend.Models.BankDetails", "StudentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("FormBackend.Models.Citizenship", b =>
+                {
+                    b.HasOne("FormBackend.Models.Student", null)
+                        .WithOne("Citizenship")
+                        .HasForeignKey("FormBackend.Models.Citizenship", "StudentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("FormBackend.Models.ContactInfo", b =>
+                {
+                    b.HasOne("FormBackend.Models.Student", null)
+                        .WithOne("ContactInfo")
+                        .HasForeignKey("FormBackend.Models.ContactInfo", "StudentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("FormBackend.Models.Disability", b =>
+                {
+                    b.HasOne("FormBackend.Models.Student", null)
+                        .WithOne("Disability")
+                        .HasForeignKey("FormBackend.Models.Disability", "StudentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("FormBackend.Models.FacultyMember", b =>
                 {
                     b.HasOne("FormBackend.Models.Faculty", "Faculty")
@@ -544,6 +621,14 @@ namespace FormBackend.Migrations
                         .IsRequired();
 
                     b.Navigation("Faculty");
+                });
+
+            modelBuilder.Entity("FormBackend.Models.FinancialDetails", b =>
+                {
+                    b.HasOne("FormBackend.Models.Student", null)
+                        .WithOne("FinancialDetails")
+                        .HasForeignKey("FormBackend.Models.FinancialDetails", "StudentId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("FormBackend.Models.Hobby", b =>
@@ -562,55 +647,12 @@ namespace FormBackend.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("FormBackend.Models.Student", b =>
+            modelBuilder.Entity("FormBackend.Models.Scholarship", b =>
                 {
-                    b.HasOne("FormBackend.Models.BankDetails", "BankDetails")
-                        .WithOne()
-                        .HasForeignKey("FormBackend.Models.Student", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FormBackend.Models.Citizenship", "Citizenship")
-                        .WithOne()
-                        .HasForeignKey("FormBackend.Models.Student", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FormBackend.Models.ContactInfo", "ContactInfo")
-                        .WithOne()
-                        .HasForeignKey("FormBackend.Models.Student", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FormBackend.Models.Disability", "Disability")
-                        .WithOne()
-                        .HasForeignKey("FormBackend.Models.Student", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FormBackend.Models.FinancialDetails", "FinancialDetails")
-                        .WithOne()
-                        .HasForeignKey("FormBackend.Models.Student", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FormBackend.Models.Scholarship", "Scholarship")
-                        .WithOne()
-                        .HasForeignKey("FormBackend.Models.Student", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BankDetails");
-
-                    b.Navigation("Citizenship");
-
-                    b.Navigation("ContactInfo");
-
-                    b.Navigation("Disability");
-
-                    b.Navigation("FinancialDetails");
-
-                    b.Navigation("Scholarship");
+                    b.HasOne("FormBackend.Models.Student", null)
+                        .WithOne("Scholarship")
+                        .HasForeignKey("FormBackend.Models.Scholarship", "StudentId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("FormBackend.Models.Faculty", b =>
@@ -628,9 +670,21 @@ namespace FormBackend.Migrations
 
                     b.Navigation("Addresses");
 
+                    b.Navigation("BankDetails");
+
+                    b.Navigation("Citizenship");
+
+                    b.Navigation("ContactInfo");
+
+                    b.Navigation("Disability");
+
+                    b.Navigation("FinancialDetails");
+
                     b.Navigation("Hobbies");
 
                     b.Navigation("Parents");
+
+                    b.Navigation("Scholarship");
                 });
 #pragma warning restore 612, 618
         }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FormBackend.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class FixedRelationships : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -25,70 +25,6 @@ namespace FormBackend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BankDetails",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    BankName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AccountNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AccountHolderName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Branch = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SwiftCode = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BankDetails", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Citizenships",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CitizenshipNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CountryOfIssuance = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateOfIssuance = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PlaceOfIssuance = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Citizenships", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ContactInfos",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PrimaryMobile = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AlternateMobile = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PrimaryEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AlternateEmail = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ContactInfos", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Disabilities",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DisabilityType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DisabilityPercentage = table.Column<double>(type: "float", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Disabilities", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Faculties",
                 columns: table => new
                 {
@@ -103,35 +39,21 @@ namespace FormBackend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FinancialDetails",
+                name: "Students",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AnnualIncome = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
-                    IncomeSource = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsTaxPayer = table.Column<bool>(type: "bit", nullable: true),
-                    PanNumber = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MiddleName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BloodGroup = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FinancialDetails", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Scholarships",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ScholarshipName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Scholarships", x => x.Id);
+                    table.PrimaryKey("PK_Students", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -151,59 +73,6 @@ namespace FormBackend.Migrations
                         name: "FK_FacultyMembers_Faculties_FacultyId",
                         column: x => x.FacultyId,
                         principalTable: "Faculties",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Students",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MiddleName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BloodGroup = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Students", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Students_BankDetails_Id",
-                        column: x => x.Id,
-                        principalTable: "BankDetails",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Students_Citizenships_Id",
-                        column: x => x.Id,
-                        principalTable: "Citizenships",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Students_ContactInfos_Id",
-                        column: x => x.Id,
-                        principalTable: "ContactInfos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Students_Disabilities_Id",
-                        column: x => x.Id,
-                        principalTable: "Disabilities",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Students_FinancialDetails_Id",
-                        column: x => x.Id,
-                        principalTable: "FinancialDetails",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Students_Scholarships_Id",
-                        column: x => x.Id,
-                        principalTable: "Scholarships",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -315,6 +184,121 @@ namespace FormBackend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BankDetails",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BankName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AccountNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AccountHolderName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Branch = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SwiftCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StudentId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BankDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BankDetails_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Citizenships",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CitizenshipNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CountryOfIssuance = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateOfIssuance = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PlaceOfIssuance = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StudentId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Citizenships", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Citizenships_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ContactInfos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PrimaryMobile = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AlternateMobile = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PrimaryEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AlternateEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StudentId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContactInfos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ContactInfos_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Disabilities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DisabilityType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DisabilityPercentage = table.Column<double>(type: "float", nullable: true),
+                    StudentId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Disabilities", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Disabilities_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FinancialDetails",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AnnualIncome = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    IncomeSource = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsTaxPayer = table.Column<bool>(type: "bit", nullable: true),
+                    PanNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StudentId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FinancialDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FinancialDetails_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Hobbies",
                 columns: table => new
                 {
@@ -361,6 +345,29 @@ namespace FormBackend.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Scholarships",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ScholarshipName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    StudentId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Scholarships", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Scholarships_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AcademicEnrollments_FacultyId",
                 table: "AcademicEnrollments",
@@ -393,9 +400,44 @@ namespace FormBackend.Migrations
                 column: "StudentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BankDetails_StudentId",
+                table: "BankDetails",
+                column: "StudentId",
+                unique: true,
+                filter: "[StudentId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Citizenships_StudentId",
+                table: "Citizenships",
+                column: "StudentId",
+                unique: true,
+                filter: "[StudentId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ContactInfos_StudentId",
+                table: "ContactInfos",
+                column: "StudentId",
+                unique: true,
+                filter: "[StudentId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Disabilities_StudentId",
+                table: "Disabilities",
+                column: "StudentId",
+                unique: true,
+                filter: "[StudentId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FacultyMembers_FacultyId",
                 table: "FacultyMembers",
                 column: "FacultyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FinancialDetails_StudentId",
+                table: "FinancialDetails",
+                column: "StudentId",
+                unique: true,
+                filter: "[StudentId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Hobbies_StudentId",
@@ -406,6 +448,13 @@ namespace FormBackend.Migrations
                 name: "IX_Parents_StudentId",
                 table: "Parents",
                 column: "StudentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Scholarships_StudentId",
+                table: "Scholarships",
+                column: "StudentId",
+                unique: true,
+                filter: "[StudentId] IS NOT NULL");
         }
 
         /// <inheritdoc />
@@ -424,24 +473,6 @@ namespace FormBackend.Migrations
                 name: "Addresses");
 
             migrationBuilder.DropTable(
-                name: "FacultyMembers");
-
-            migrationBuilder.DropTable(
-                name: "Hobbies");
-
-            migrationBuilder.DropTable(
-                name: "Parents");
-
-            migrationBuilder.DropTable(
-                name: "AddressTypes");
-
-            migrationBuilder.DropTable(
-                name: "Faculties");
-
-            migrationBuilder.DropTable(
-                name: "Students");
-
-            migrationBuilder.DropTable(
                 name: "BankDetails");
 
             migrationBuilder.DropTable(
@@ -454,10 +485,28 @@ namespace FormBackend.Migrations
                 name: "Disabilities");
 
             migrationBuilder.DropTable(
+                name: "FacultyMembers");
+
+            migrationBuilder.DropTable(
                 name: "FinancialDetails");
 
             migrationBuilder.DropTable(
+                name: "Hobbies");
+
+            migrationBuilder.DropTable(
+                name: "Parents");
+
+            migrationBuilder.DropTable(
                 name: "Scholarships");
+
+            migrationBuilder.DropTable(
+                name: "AddressTypes");
+
+            migrationBuilder.DropTable(
+                name: "Faculties");
+
+            migrationBuilder.DropTable(
+                name: "Students");
         }
     }
 }
