@@ -33,25 +33,45 @@ export const formSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   middleName: z.string().optional(),
   lastName: z.string().min(1, "Last name is required"),
-  dateOfBirth: z.string().refine((s) => /^\d{4}-\d{2}-\d{2}$/.test(s), "Date must be in YYYY-MM-DD format"),
-  gender: z.enum(["male", "female", "other"], { message: "please select an option" }),
+  dateOfBirth: z
+    .string()
+    .refine(
+      (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
+      "Date must be in YYYY-MM-DD format"
+    ),
+  gender: z.enum(["male", "female", "other"], {
+    message: "please select an option",
+  }),
   bloodGroup: z.enum(["A+", "A-", "B+", "B-", "AB+", "O+", "O-"]).optional(),
 
   // Citizenship
-  citizenship: z.object({
-    citizenshipNumber: z.string().min(1, "Citizenship number is required"),
-    countryOfIssuance: z.string().min(1, "Country of issuance is required"),
-    dateOfIssuance: z.string().refine((s) => /^\d{4}-\d{2}-\d{2}$/.test(s), "Date must be in YYYY-MM-DD format"),
-    placeOfIssuance: z.string().optional(),
-  }).optional(),
+  citizenship: z
+    .object({
+      citizenshipNumber: z.string().min(1, "Citizenship number is required"),
+      countryOfIssuance: z.string().min(1, "Country of issuance is required"),
+      dateOfIssuance: z
+        .string()
+        .refine(
+          (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
+          "Date must be in YYYY-MM-DD format"
+        ),
+      placeOfIssuance: z.string().optional(),
+    })
+    .optional(),
 
   // Contact Info
-  contactInfo: z.object({
-    primaryMobile: z.string().min(7, "Enter a valid mobile number"),
-    alternateMobile: z.string().optional(),
-    primaryEmail: z.string().email("Invalid email"),
-    alternateEmail: z.string().email("Invalid alternate email").optional(),
-  }).optional(),
+  contactInfo: z
+    .object({
+      primaryMobile: z.string().min(7, "Enter a valid mobile number"),
+      alternateMobile: z.string().optional(),
+      primaryEmail: z.string().email("Invalid email"),
+      alternateEmail: z
+        .string()
+        .email("Invalid alternate email")
+        .optional()
+        .or(z.literal("")),
+    })
+    .optional(),
 
   // Addresses
   addresses: z.array(addressSchema).optional(),
@@ -63,57 +83,98 @@ export const formSchema = z.object({
   academicHistories: z.array(academicHistorySchema).optional(),
 
   // Academic Enrollment
-  academicEnrollment: z.object({
-    facultyId: z.number().int(),
-    programName: z.string().min(1, "Program name is required"),
-    enrollmentDate: z.string().refine((s) => /^\d{4}-\d{2}-\d{2}$/.test(s), "Date must be in YYYY-MM-DD format"),
-    studentIdNumber: z.string().optional(),
-  }).optional(),
+  academicEnrollment: z
+    .object({
+      facultyId: z.number().int(),
+      programName: z.string().min(1, "Program name is required"),
+      enrollmentDate: z
+        .string()
+        .refine(
+          (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
+          "Date must be in YYYY-MM-DD format"
+        ),
+      studentIdNumber: z.string().optional(),
+    })
+    .optional(),
 
   // Achievements
-  achievements: z.array(z.object({
-    title: z.string().min(1, "Title is required"),
-    description: z.string().optional(),
-    dateOfAchievement: z.string().refine((s) => /^\d{4}-\d{2}-\d{2}$/.test(s), "Date must be in YYYY-MM-DD format").optional(),
-  })).optional(),
+  achievements: z
+    .array(
+      z.object({
+        title: z.string().min(1, "Title is required"),
+        description: z.string().optional(),
+        dateOfAchievement: z
+          .string()
+          .refine(
+            (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
+            "Date must be in YYYY-MM-DD format"
+          )
+          .optional(),
+      })
+    )
+    .optional(),
 
   // Hobbies
-  hobbies: z.array(z.object({
-    name: z.string().min(1, "Hobby name is required"),
-  })).optional(),
+  hobbies: z
+    .array(
+      z.object({
+        name: z.string().min(1, "Hobby name is required"),
+      })
+    )
+    .optional(),
 
   // Disability
-  disability: z.object({
-    disabilityType: z.string().min(1, "Disability type is required"),
-    description: z.string().optional(),
-    disabilityPercentage: z.number().min(0).max(100).optional(),
-  }).optional(),
+  disability: z
+    .object({
+      disabilityType: z.string().min(1, "Disability type is required"),
+      description: z.string().optional(),
+      disabilityPercentage: z.number().min(0).max(100).optional(),
+    })
+    .optional(),
 
   // Bank Details
-  bankDetails: z.object({
-    bankName: z.string().min(1, "Bank name is required"),
-    accountNumber: z.string().min(1, "Account number is required"),
-    accountHolderName: z.string().min(1, "Account holder name is required"),
-    branch: z.string().optional(),
-    swiftCode: z.string().optional(),
-  }).optional(),
+  bankDetails: z
+    .object({
+      bankName: z.string().min(1, "Bank name is required"),
+      accountNumber: z.string().min(1, "Account number is required"),
+      accountHolderName: z.string().min(1, "Account holder name is required"),
+      branch: z.string().optional(),
+      swiftCode: z.string().optional(),
+    })
+    .optional(),
 
   // Financial Details
-  financialDetails: z.object({
-    annualIncome: z.number().optional(),
-    incomeSource: z.string().optional(),
-    isTaxPayer: z.boolean().optional(),
-    panNumber: z.string().optional(),
-  }).optional(),
+  financialDetails: z
+    .object({
+      annualIncome: z.number().optional(),
+      incomeSource: z.string().optional(),
+      isTaxPayer: z.boolean().optional(),
+      panNumber: z.string().optional(),
+    })
+    .optional(),
 
   // Scholarship
-  scholarship: z.object({
-    scholarshipName: z.string().min(1, "Scholarship name is required"),
-    amount: z.number().optional(),
-    startDate: z.string().refine((s) => /^\d{4}-\d{2}-\d{2}$/.test(s), "Date must be in YYYY-MM-DD format").optional(),
-    endDate: z.string().refine((s) => /^\d{4}-\d{2}-\d{2}$/.test(s), "Date must be in YYYY-MM-DD format").optional(),
-  }).optional(),
-  
+  scholarship: z
+    .object({
+      scholarshipName: z.string().min(1, "Scholarship name is required"),
+      amount: z.number().optional(),
+      startDate: z
+        .string()
+        .refine(
+          (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
+          "Date must be in YYYY-MM-DD format"
+        )
+        .optional(),
+      endDate: z
+        .string()
+        .refine(
+          (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
+          "Date must be in YYYY-MM-DD format"
+        )
+        .optional(),
+    })
+    .optional(),
+
   agree: z
     .boolean()
     .refine((v) => v === true, { message: "You must agree to continue" }),
@@ -121,4 +182,3 @@ export const formSchema = z.object({
 
 export type FormData = z.infer<typeof formSchema>;
 export default formSchema;
-

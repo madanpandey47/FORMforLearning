@@ -6,7 +6,7 @@ import Radio from "../../components/ui/radio";
 import Select from "../../components/ui/select";
 import Checkbox from "../../components/ui/checkbox";
 import Button from "../../components/ui/button";
-import { useForm, FieldValues, useFieldArray } from "react-hook-form";
+import { useForm, FieldValues } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "../../lib/formvalidation";
@@ -16,7 +16,6 @@ type FormData = z.infer<typeof formSchema>;
 const FormPage: React.FC = () => {
   const {
     register,
-    control,
     handleSubmit,
     trigger,
     formState: { errors },
@@ -43,23 +42,6 @@ const FormPage: React.FC = () => {
         },
       ],
     },
-  });
-
-  const {
-    fields: addressFields,
-    append: appendAddress,
-    remove: removeAddress,
-  } = useFieldArray({
-    control,
-    name: "addresses",
-  });
-  const {
-    fields: parentFields,
-    append: appendParent,
-    remove: removeParent,
-  } = useFieldArray({
-    control,
-    name: "parents",
   });
 
   const [currentStep, setCurrentStep] = React.useState(1);
@@ -259,65 +241,40 @@ const FormPage: React.FC = () => {
             <h2 className="text-xl font-semibold border-b pb-2">
               Address Information
             </h2>
-            {addressFields.map((field, index) => (
-              <div key={field.id} className="border p-4 rounded-md">
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    label="Province"
-                    {...register(`addresses.${index}.province`)}
-                    error={errors.addresses?.[index]?.province?.message}
-                  />
-                  <Input
-                    label="Municipality"
-                    {...register(`addresses.${index}.municipality`)}
-                    error={errors.addresses?.[index]?.municipality?.message}
-                  />
-                  <Input
-                    label="Ward"
-                    {...register(`addresses.${index}.ward`)}
-                    error={errors.addresses?.[index]?.ward?.message}
-                  />
-                  <Input
-                    label="Street"
-                    {...register(`addresses.${index}.street`)}
-                  />
-                  <Input
-                    label="Country"
-                    {...register(`addresses.${index}.country`)}
-                    error={errors.addresses?.[index]?.country?.message}
-                  />
-                  <Select
-                    label="Address Type"
-                    name={`addresses.${index}.addressTypeId`}
-                    register={register}
-                    options={[
-                      { label: "Permanent", value: 1 },
-                      { label: "Temporary", value: 2 },
-                    ]}
-                    error={errors.addresses?.[index]?.addressTypeId?.message}
-                    valueAsNumber
-                  />
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => removeAddress(index)}
-                  label="Remove Address"
-                />
-              </div>
-            ))}
-            <Button
-              type="button"
-              onClick={() =>
-                appendAddress({
-                  province: "",
-                  municipality: "",
-                  ward: "",
-                  country: "",
-                  addressTypeId: 1,
-                })
-              }
-              label="Add Address"
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Province"
+                {...register("addresses.0.province")}
+                error={errors.addresses?.[0]?.province?.message}
+              />
+              <Input
+                label="Municipality"
+                {...register("addresses.0.municipality")}
+                error={errors.addresses?.[0]?.municipality?.message}
+              />
+              <Input
+                label="Ward"
+                {...register("addresses.0.ward")}
+                error={errors.addresses?.[0]?.ward?.message}
+              />
+              <Input label="Street" {...register("addresses.0.street")} />
+              <Input
+                label="Country"
+                {...register("addresses.0.country")}
+                error={errors.addresses?.[0]?.country?.message}
+              />
+              <Select
+                label="Address Type"
+                name="addresses.0.addressTypeId"
+                register={register}
+                options={[
+                  { label: "Permanent", value: 1 },
+                  { label: "Temporary", value: 2 },
+                ]}
+                error={errors.addresses?.[0]?.addressTypeId?.message}
+                valueAsNumber
+              />
+            </div>
           </div>
         )}
 
@@ -327,39 +284,224 @@ const FormPage: React.FC = () => {
             <h2 className="text-xl font-semibold border-b pb-2">
               Family Details
             </h2>
-            {parentFields.map((field, index) => (
-              <div key={field.id} className="border p-4 rounded-md">
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    label="First Name"
-                    {...register(`parents.${index}.firstName`)}
-                    error={errors.parents?.[index]?.firstName?.message}
-                  />
-                  <Input
-                    label="Last Name"
-                    {...register(`parents.${index}.lastName`)}
-                    error={errors.parents?.[index]?.lastName?.message}
-                  />
-                  <Input
-                    label="Relation"
-                    {...register(`parents.${index}.relation`)}
-                    error={errors.parents?.[index]?.relation?.message}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => removeParent(index)}
-                  label="Remove Parent"
-                />
-              </div>
-            ))}
-            <Button
-              type="button"
-              onClick={() =>
-                appendParent({ firstName: "", lastName: "", relation: "" })
-              }
-              label="Add Parent"
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="First Name"
+                {...register("parents.0.firstName")}
+                error={errors.parents?.[0]?.firstName?.message}
+              />
+              <Input
+                label="Middle Name (optional)"
+                {...register("parents.0.middleName")}
+              />
+              <Input
+                label="Last Name"
+                {...register("parents.0.lastName")}
+                error={errors.parents?.[0]?.lastName?.message}
+              />
+              <Input
+                label="Relation"
+                {...register("parents.0.relation")}
+                error={errors.parents?.[0]?.relation?.message}
+              />
+              <Input
+                label="Occupation (optional)"
+                {...register("parents.0.occupation")}
+              />
+              <Input
+                label="Annual Income (optional)"
+                type="number"
+                {...register("parents.0.annualIncome", { valueAsNumber: true })}
+              />
+              <Input
+                label="Mobile Number (optional)"
+                {...register("parents.0.mobileNumber")}
+              />
+              <Input
+                label="Email (optional)"
+                type="email"
+                {...register("parents.0.email")}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* STEP 5 - Academic History */}
+        {currentStep === 5 && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold border-b pb-2">
+              Academic History
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Institution Name"
+                {...register("academicHistories.0.institutionName")}
+                error={errors.academicHistories?.[0]?.institutionName?.message}
+              />
+              <Input
+                label="Level"
+                {...register("academicHistories.0.level")}
+                error={errors.academicHistories?.[0]?.level?.message}
+              />
+              <Input
+                label="Board (optional)"
+                {...register("academicHistories.0.board")}
+              />
+              <Input
+                label="Percentage or GPA"
+                type="number"
+                {...register("academicHistories.0.percentageOrGPA", {
+                  valueAsNumber: true,
+                })}
+                error={errors.academicHistories?.[0]?.percentageOrGPA?.message}
+              />
+              <Input
+                label="Passing Year"
+                type="number"
+                {...register("academicHistories.0.passingYear", {
+                  valueAsNumber: true,
+                })}
+                error={errors.academicHistories?.[0]?.passingYear?.message}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* STEP 6 - Academic Enrollment */}
+        {currentStep === 6 && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold border-b pb-2">
+              Academic Enrollment
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Faculty ID"
+                type="number"
+                {...register("academicEnrollment.facultyId", {
+                  valueAsNumber: true,
+                })}
+                error={errors.academicEnrollment?.facultyId?.message}
+              />
+              <Input
+                label="Program Name"
+                {...register("academicEnrollment.programName")}
+                error={errors.academicEnrollment?.programName?.message}
+              />
+              <Input
+                label="Enrollment Date (YYYY-MM-DD)"
+                {...register("academicEnrollment.enrollmentDate")}
+                error={errors.academicEnrollment?.enrollmentDate?.message}
+              />
+              <Input
+                label="Student ID Number (optional)"
+                {...register("academicEnrollment.studentIdNumber")}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* STEP 7 - Financial & Scholarship */}
+        {currentStep === 7 && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold border-b pb-2">
+              Financial Details
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Annual Income (optional)"
+                type="number"
+                {...register("financialDetails.annualIncome", {
+                  valueAsNumber: true,
+                })}
+              />
+              <Input
+                label="Income Source (optional)"
+                {...register("financialDetails.incomeSource")}
+              />
+              <Input
+                label="PAN Number (optional)"
+                {...register("financialDetails.panNumber")}
+              />
+              <Checkbox
+                label="Are you a taxpayer?"
+                name="financialDetails.isTaxPayer"
+                register={register}
+              />
+            </div>
+
+            <h2 className="text-xl font-semibold border-b pb-2 mt-6">
+              Scholarship Details
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Scholarship Name (optional)"
+                {...register("scholarship.scholarshipName")}
+              />
+              <Input
+                label="Amount (optional)"
+                type="number"
+                {...register("scholarship.amount", { valueAsNumber: true })}
+              />
+              <Input
+                label="Start Date (YYYY-MM-DD)"
+                {...register("scholarship.startDate")}
+              />
+              <Input
+                label="End Date (YYYY-MM-DD)"
+                {...register("scholarship.endDate")}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* STEP 8 - Other Details */}
+        {currentStep === 8 && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold border-b pb-2">
+              Disability Information
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Disability Type (optional)"
+                {...register("disability.disabilityType")}
+              />
+              <Input
+                label="Description (optional)"
+                {...register("disability.description")}
+              />
+              <Input
+                label="Disability Percentage (optional)"
+                type="number"
+                {...register("disability.disabilityPercentage", {
+                  valueAsNumber: true,
+                })}
+              />
+            </div>
+
+            <h2 className="text-xl font-semibold border-b pb-2 mt-6">
+              Hobbies
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="Hobby (optional)" {...register("hobbies.0.name")} />
+            </div>
+
+            <h2 className="text-xl font-semibold border-b pb-2 mt-6">
+              Achievements
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Title (optional)"
+                {...register("achievements.0.title")}
+              />
+              <Input
+                label="Description (optional)"
+                {...register("achievements.0.description")}
+              />
+              <Input
+                label="Date of Achievement (YYYY-MM-DD)"
+                {...register("achievements.0.dateOfAchievement")}
+              />
+            </div>
           </div>
         )}
 
