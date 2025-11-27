@@ -17,7 +17,7 @@ export const parentSchema = z.object({
   occupation: z.string().optional(),
   annualIncome: z.number().optional(),
   mobileNumber: z.string().optional(),
-  email: z.string().email().optional(),
+  email: z.string().email().optional().or(z.literal("")),
 });
 
 export const academicHistorySchema = z.object({
@@ -47,8 +47,8 @@ export const formSchema = z.object({
   // Citizenship
   citizenship: z
     .object({
-      citizenshipNumber: z.string().min(1, "Citizenship number is required"),
-      countryOfIssuance: z.string().min(1, "Country of issuance is required"),
+      citizenshipNumber: z.string().min(1, "Citizenship Number is required"),
+      countryOfIssuance: z.string().min(1, "Country of Issuance is required"),
       dateOfIssuance: z
         .string()
         .refine(
@@ -85,13 +85,13 @@ export const formSchema = z.object({
   // Academic Enrollment
   academicEnrollment: z
     .object({
-      facultyId: z.number().int(),
-      programName: z.string().min(1, "Program name is required"),
+      facultyId: z.number().int("Faculty ID must be an integer"),
+      programName: z.string().min(1, "Program Name is required"),
       enrollmentDate: z
         .string()
         .refine(
           (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
-          "Date must be in YYYY-MM-DD format"
+          "Enrollment Date must be in YYYY-MM-DD format"
         ),
       studentIdNumber: z.string().optional(),
     })
@@ -106,7 +106,7 @@ export const formSchema = z.object({
         dateOfAchievement: z
           .string()
           .refine(
-            (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
+            (s) => s === "" || /^\d{4}-\d{2}-\d{2}$/.test(s),
             "Date must be in YYYY-MM-DD format"
           )
           .optional(),
@@ -126,7 +126,7 @@ export const formSchema = z.object({
   // Disability
   disability: z
     .object({
-      disabilityType: z.string().min(1, "Disability type is required"),
+      disabilityType: z.string().min(1, "Disability Type is required"),
       description: z.string().optional(),
       disabilityPercentage: z.number().min(0).max(100).optional(),
     })
@@ -135,9 +135,9 @@ export const formSchema = z.object({
   // Bank Details
   bankDetails: z
     .object({
-      bankName: z.string().min(1, "Bank name is required"),
-      accountNumber: z.string().min(1, "Account number is required"),
-      accountHolderName: z.string().min(1, "Account holder name is required"),
+      bankName: z.string().min(1, "Bank Name is required"),
+      accountNumber: z.string().min(1, "Account Number is required"),
+      accountHolderName: z.string().min(1, "Account Holder Name is required"),
       branch: z.string().optional(),
       swiftCode: z.string().optional(),
     })
@@ -156,19 +156,19 @@ export const formSchema = z.object({
   // Scholarship
   scholarship: z
     .object({
-      scholarshipName: z.string().min(1, "Scholarship name is required"),
+      scholarshipName: z.string().min(1, "Scholarship Name is required"),
       amount: z.number().optional(),
       startDate: z
         .string()
         .refine(
-          (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
+          (s) => s === "" || /^\d{4}-\d{2}-\d{2}$/.test(s),
           "Date must be in YYYY-MM-DD format"
         )
         .optional(),
       endDate: z
         .string()
         .refine(
-          (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
+          (s) => s === "" || /^\d{4}-\d{2}-\d{2}$/.test(s),
           "Date must be in YYYY-MM-DD format"
         )
         .optional(),
