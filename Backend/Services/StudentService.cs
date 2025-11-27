@@ -132,7 +132,7 @@ namespace FormBackend.Services
                 }
                 // Assign the retrieved Faculty object to the navigation property
                 // This assumes AcademicEnrollment is already part of the student object after AddAsync
-                student.AcademicEnrollment.Faculty = faculty;
+                student.AcademicEnrollment!.Faculty = faculty;
             }
 
             await _unitOfWork.CompleteAsync();
@@ -142,8 +142,7 @@ namespace FormBackend.Services
 
         public async Task<StudentDTO?> GetStudentByIdAsync(int id)
         {
-            var student = await _unitOfWork.GetRepository<Student>()
-                                            .GetByIdAsync(id, includeProperties: "Citizenship,ContactInfo,Addresses.AddressType,Parents,AcademicHistories,AcademicEnrollment.Faculty,Achievements,Hobbies,Disability,BankDetails,FinancialDetails,Scholarship");
+            var student = await _unitOfWork.GetRepository<Student>().GetByIdAsync(id);
 
             if (student == null)
             {

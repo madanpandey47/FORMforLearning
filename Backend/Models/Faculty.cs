@@ -8,8 +8,8 @@ namespace FormBackend.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        public string Name { get; set; } // e.g., "Faculty of Science", "Faculty of Arts"
+        public required string Name { get; set; } // e.g., "Faculty of Science", "Faculty of Arts"
         public string? Dean { get; set; }
-        public virtual ICollection<FacultyMember> FacultyMembers { get; set; }
+        public virtual ICollection<FacultyMember> FacultyMembers { get; set; } = new List<FacultyMember>();
     }
 }

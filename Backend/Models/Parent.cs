@@ -7,12 +7,12 @@ namespace FormBackend.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        public string FirstName { get; set; }
+        public required string FirstName { get; set; }
         public string? MiddleName { get; set; }
         [Required]
-        public string LastName { get; set; }
+        public required string LastName { get; set; }
         [Required]
-        public string Relation { get; set; } // "Father", "Mother", "Guardian"
+        public required string Relation { get; set; } // "Father", "Mother", "Guardian"
         public string? Occupation { get; set; }
         public decimal? AnnualIncome { get; set; }
         [Phone]

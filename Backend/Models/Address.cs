@@ -7,17 +7,17 @@ namespace FormBackend.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        public string Province { get; set; }
+        public required string Province { get; set; }
         [Required]
-        public string Municipality { get; set; }
+        public required string Municipality { get; set; }
         [Required]
-        public string Ward { get; set; }
+        public required string Ward { get; set; }
         public string? Street { get; set; }
         [Required]
-        public string Country { get; set; }
+        public required string Country { get; set; }
 
         public int AddressTypeId { get; set; }
         
-        public virtual AddressType AddressType { get; set; }
+        public virtual AddressType? AddressType { get; set; }
     }
 }

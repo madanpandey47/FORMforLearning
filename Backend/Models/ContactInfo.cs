@@ -8,12 +8,12 @@ namespace FormBackend.Models
         public int Id { get; set; }
         [Required]
         [Phone]
-        public string PrimaryMobile { get; set; }
+        public required string PrimaryMobile { get; set; }
         [Phone]
         public string? AlternateMobile { get; set; }
         [Required]
         [EmailAddress]
-        public string PrimaryEmail { get; set; }
+        public required string PrimaryEmail { get; set; }
         [EmailAddress]
         public string? AlternateEmail { get; set; }
     }

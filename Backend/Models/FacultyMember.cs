@@ -7,11 +7,11 @@ namespace FormBackend.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        public string Name { get; set; }
+        public required string Name { get; set; }
         [Required]
-        public string Position { get; set; } // e.g., "Professor", "Associate Professor"
+        public required string Position { get; set; } // e.g., "Professor", "Associate Professor"
         [Required]
         public int FacultyId { get; set; }
-        public virtual Faculty Faculty { get; set; }
+        public virtual Faculty? Faculty { get; set; }
     }
 }

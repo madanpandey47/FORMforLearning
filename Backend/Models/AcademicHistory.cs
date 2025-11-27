@@ -7,9 +7,9 @@ namespace FormBackend.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        public string InstitutionName { get; set; }
+        public required string InstitutionName { get; set; }
         [Required]
-        public string Level { get; set; } // e.g., "High School", "Bachelor's"
+        public required string Level { get; set; } // e.g., "High School", "Bachelor's"
         public string? Board { get; set; }
         [Required]
         public double PercentageOrGPA { get; set; }

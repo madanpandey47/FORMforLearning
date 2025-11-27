@@ -8,9 +8,9 @@ namespace FormBackend.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        public string CitizenshipNumber { get; set; }
+        public required string CitizenshipNumber { get; set; }
         [Required]
-        public string CountryOfIssuance { get; set; }
+        public required string CountryOfIssuance { get; set; }
         [Required]
         public DateTime DateOfIssuance { get; set; }
         public string? PlaceOfIssuance { get; set; }

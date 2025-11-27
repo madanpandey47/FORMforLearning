@@ -53,6 +53,7 @@ const FormPage: React.FC = () => {
 
   const [currentStep, setCurrentStep] = React.useState(1);
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const permanentAddress = watch("permanentAddress");
   const [sameAsPermanent, setSameAsPermanent] = React.useState(false);
 
@@ -61,7 +62,6 @@ const FormPage: React.FC = () => {
       setValue("temporaryAddress", { ...permanentAddress, addressTypeId: 2 });
     }
   }, [permanentAddress, sameAsPermanent, setValue]);
-
 
   const processForm = async (data: FieldValues) => {
     const { permanentAddress, temporaryAddress, ...rest } = data;
@@ -269,68 +269,85 @@ const FormPage: React.FC = () => {
               Permanent Address
             </h2>
             <div className="grid grid-cols-2 gap-4">
-                <Input
-                    label="Province"
-                    {...register("permanentAddress.province")}
-                    error={errors.permanentAddress?.province?.message}
-                />
-                <Input
-                    label="Municipality"
-                    {...register("permanentAddress.municipality")}
-                    error={errors.permanentAddress?.municipality?.message}
-                />
-                <Input
-                    label="Ward"
-                    {...register("permanentAddress.ward")}
-                    error={errors.permanentAddress?.ward?.message}
-                />
-                <Input label="Street" {...register("permanentAddress.street")} />
-                <Input
-                    label="Country"
-                    {...register("permanentAddress.country")}
-                    error={errors.permanentAddress?.country?.message}
-                />
+              <Input
+                label="Province"
+                {...register("permanentAddress.province")}
+                error={errors.permanentAddress?.province?.message}
+              />
+              <Input
+                label="Municipality"
+                {...register("permanentAddress.municipality")}
+                error={errors.permanentAddress?.municipality?.message}
+              />
+              <Input
+                label="Ward"
+                {...register("permanentAddress.ward")}
+                error={errors.permanentAddress?.ward?.message}
+              />
+              <Input label="Street" {...register("permanentAddress.street")} />
+              <Input
+                label="Country"
+                {...register("permanentAddress.country")}
+                error={errors.permanentAddress?.country?.message}
+              />
             </div>
 
             <h2 className="text-xl font-semibold border-b pb-2 mt-6">
               Temporary Address
             </h2>
-            <Checkbox
-                label="Same as Permanent Address"
+            <div className="flex items-center mb-4">
+              <input
+                id="sameAsPermanent"
+                type="checkbox"
                 checked={sameAsPermanent}
-                onChange={(e) => {
-                    setSameAsPermanent(e.target.checked);
-                    if (e.target.checked) {
-                        setValue("temporaryAddress", { ...permanentAddress, addressTypeId: 2 });
-                    }
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setSameAsPermanent(e.target.checked);
+                  if (e.target.checked) {
+                    setValue("temporaryAddress", {
+                      ...permanentAddress,
+                      addressTypeId: 2,
+                    });
+                  }
                 }}
-            />
+                className="w-4 h-4 accent-black rounded"
+              />
+              <label
+                htmlFor="sameAsPermanent"
+                className="block ml-3 text-sm font-medium text-gray-700"
+              >
+                Same as Permanent Address
+              </label>
+            </div>
             <div className="grid grid-cols-2 gap-4 mt-4">
-                <Input
-                    label="Province"
-                    {...register("temporaryAddress.province")}
-                    error={errors.temporaryAddress?.province?.message}
-                    disabled={sameAsPermanent}
-                />
-                <Input
-                    label="Municipality"
-                    {...register("temporaryAddress.municipality")}
-                    error={errors.temporaryAddress?.municipality?.message}
-                    disabled={sameAsPermanent}
-                />
-                <Input
-                    label="Ward"
-                    {...register("temporaryAddress.ward")}
-                    error={errors.temporaryAddress?.ward?.message}
-                    disabled={sameAsPermanent}
-                />
-                <Input label="Street" {...register("temporaryAddress.street")} disabled={sameAsPermanent} />
-                <Input
-                    label="Country"
-                    {...register("temporaryAddress.country")}
-                    error={errors.temporaryAddress?.country?.message}
-                    disabled={sameAsPermanent}
-                />
+              <Input
+                label="Province"
+                {...register("temporaryAddress.province")}
+                error={errors.temporaryAddress?.province?.message}
+                disabled={sameAsPermanent}
+              />
+              <Input
+                label="Municipality"
+                {...register("temporaryAddress.municipality")}
+                error={errors.temporaryAddress?.municipality?.message}
+                disabled={sameAsPermanent}
+              />
+              <Input
+                label="Ward"
+                {...register("temporaryAddress.ward")}
+                error={errors.temporaryAddress?.ward?.message}
+                disabled={sameAsPermanent}
+              />
+              <Input
+                label="Street"
+                {...register("temporaryAddress.street")}
+                disabled={sameAsPermanent}
+              />
+              <Input
+                label="Country"
+                {...register("temporaryAddress.country")}
+                error={errors.temporaryAddress?.country?.message}
+                disabled={sameAsPermanent}
+              />
             </div>
           </div>
         )}
