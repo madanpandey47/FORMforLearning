@@ -2,7 +2,6 @@
 import React from "react";
 import Form from "../../components/ui/form";
 import Input from "../../components/ui/input";
-import Radio from "../../components/ui/radio";
 import Select from "../../components/ui/select";
 import Checkbox from "../../components/ui/checkbox";
 import Button from "../../components/ui/button";
@@ -10,6 +9,14 @@ import { useForm, FieldValues } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "../../lib/formvalidation";
+import {
+  getBloodTypes,
+  getAcademicLevels,
+  getAddressTypes,
+  getGenders,
+  Option,
+} from "../../lib/api/lookups";
+import { submitStudent } from "../../lib/api/student";
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -30,20 +37,20 @@ const FormPage: React.FC = () => {
         municipality: "",
         ward: "",
         country: "",
-        addressTypeId: 1,
+        type: 1,
       },
       temporaryAddress: {
         province: "",
         municipality: "",
         ward: "",
         country: "",
-        addressTypeId: 2,
+        type: 2,
       },
       parents: [{ firstName: "", lastName: "", relation: "" }],
       academicHistories: [
         {
           institutionName: "",
-          level: "",
+          level: 0,
           percentageOrGPA: 0,
           passingYear: 2020,
         },
@@ -56,46 +63,50 @@ const FormPage: React.FC = () => {
   // eslint-disable-next-line react-hooks/incompatible-library
   const permanentAddress = watch("permanentAddress");
   const [sameAsPermanent, setSameAsPermanent] = React.useState(false);
+  const [bloodTypeOptions, setBloodTypeOptions] = React.useState<Option[]>([]);
+  const [academicLevelOptions, setAcademicLevelOptions] = React.useState<
+    Option[]
+  >([]);
+  const [addressTypeOptions, setAddressTypeOptions] = React.useState<Option[]>(
+    []
+  );
+  const [genderOptions, setGenderOptions] = React.useState<Option[]>([]);
+
+  React.useEffect(() => {
+    // Load lookup options from backend
+    (async () => {
+      try {
+        const [bt, al, at, g] = await Promise.all([
+          getBloodTypes(),
+          getAcademicLevels(),
+          getAddressTypes(),
+          getGenders(),
+        ]);
+        setBloodTypeOptions(bt);
+        setAcademicLevelOptions(al);
+        setAddressTypeOptions(at);
+        setGenderOptions(g);
+      } catch (e) {
+        console.error("Failed to load lookup options", e);
+      }
+    })();
+  }, []);
 
   React.useEffect(() => {
     if (sameAsPermanent) {
-      setValue("temporaryAddress", { ...permanentAddress, addressTypeId: 2 });
+      setValue("temporaryAddress", { ...permanentAddress, type: 2 });
     }
   }, [permanentAddress, sameAsPermanent, setValue]);
 
   const processForm = async (data: FieldValues) => {
-    const { permanentAddress, temporaryAddress, ...rest } = data;
-
-    const addresses = [];
-    if (permanentAddress) addresses.push(permanentAddress);
-    if (temporaryAddress) addresses.push(temporaryAddress);
-
-    const submissionData = {
-      ...rest,
-      addresses,
-    };
-
     try {
-      const response = await fetch("http://localhost:5000/api/Student", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(submissionData),
-      });
-
-      if (response.ok) {
+      const result = await submitStudent(data);
+      if (result) {
         alert("Form Submitted Successfully!");
         // Reset form to initial state
         window.location.reload();
       } else {
-        let errorData = {};
-        try {
-          errorData = await response.json();
-        } catch {
-          // ignore parse error
-        }
-        console.error("Form submission error:", errorData);
+        console.error("Form submission error: unknown error");
         alert("Form submission failed. Please check the console for details.");
       }
     } catch (error) {
@@ -136,27 +147,22 @@ const FormPage: React.FC = () => {
 
   const handleBack = () => setCurrentStep((s) => s - 1);
 
-  // select options
-  const bloodGroups = [
-    { label: "A+", value: "A+" },
-    { label: "A-", value: "A-" },
-    { label: "B+", value: "B+" },
-    { label: "B-", value: "B-" },
-    { label: "AB+", value: "AB+" },
-    { label: "O+", value: "O+" },
-    { label: "O-", value: "O-" },
-  ];
+  // lookup-backed select options are loaded via useEffect above
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-300 p-4">
+    <div className="flex items-start justify-center bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 py-6">
       <Form onSubmit={handleSubmit(processForm)}>
-        <div className="mb-1 text-right text-gray-500 text-sm font-bold">
-          Step {currentStep} of {steps.length}: {steps[currentStep - 1].name}
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-900">
+              Student Application Form
+            </h1>
+            <p className="mt-1 text-xs text-slate-500">
+              Step {currentStep} of {steps.length} ·{" "}
+              {steps[currentStep - 1].name}
+            </p>
+          </div>
         </div>
-
-        <h1 className="text-2xl font-bold text-center mb-4">
-          Student Application Form
-        </h1>
 
         {/* STEP 1 - Personal */}
         {currentStep === 1 && (
@@ -186,22 +192,19 @@ const FormPage: React.FC = () => {
                 {...register("dateOfBirth")}
                 error={errors.dateOfBirth?.message}
               />
-              <Radio
+              <Select
                 label="Gender"
                 name="gender"
                 register={register}
-                options={[
-                  { label: "Male", value: "male" },
-                  { label: "Female", value: "female" },
-                  { label: "Other", value: "other" },
-                ]}
-                error={errors.gender?.message}
+                options={genderOptions}
+                valueAsNumber
               />
               <Select
-                label="Blood Group (optional)"
+                label="Blood Group"
                 name="bloodGroup"
                 register={register}
-                options={bloodGroups}
+                options={bloodTypeOptions}
+                valueAsNumber
               />
             </div>
             <h2 className="text-xl font-semibold border-b pb-2">Citizenship</h2>
@@ -271,6 +274,16 @@ const FormPage: React.FC = () => {
               Permanent Address
             </h2>
             <div className="grid grid-cols-2 gap-4">
+              <Select
+                label="Address Type"
+                name="permanentAddress.type"
+                register={register}
+                options={addressTypeOptions}
+                valueAsNumber
+                error={
+                  errors.permanentAddress?.type?.message as string | undefined
+                }
+              />
               <Input
                 label="Province"
                 {...register("permanentAddress.province")}
@@ -307,7 +320,7 @@ const FormPage: React.FC = () => {
                   if (e.target.checked) {
                     setValue("temporaryAddress", {
                       ...permanentAddress,
-                      addressTypeId: 2,
+                      type: 2,
                     });
                   }
                 }}
@@ -321,6 +334,16 @@ const FormPage: React.FC = () => {
               </label>
             </div>
             <div className="grid grid-cols-2 gap-4 mt-4">
+              <Select
+                label="Address Type"
+                name="temporaryAddress.type"
+                register={register}
+                options={addressTypeOptions}
+                valueAsNumber
+                error={
+                  errors.temporaryAddress?.type?.message as string | undefined
+                }
+              />
               <Input
                 label="Province"
                 {...register("temporaryAddress.province")}
@@ -414,9 +437,12 @@ const FormPage: React.FC = () => {
                 {...register("academicHistories.0.institutionName")}
                 error={errors.academicHistories?.[0]?.institutionName?.message}
               />
-              <Input
-                label="Level"
-                {...register("academicHistories.0.level")}
+              <Select
+                label="Academic Level"
+                name="academicHistories.0.level"
+                register={register}
+                options={academicLevelOptions}
+                valueAsNumber
                 error={errors.academicHistories?.[0]?.level?.message}
               />
               <Input

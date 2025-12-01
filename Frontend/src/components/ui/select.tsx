@@ -13,27 +13,25 @@ interface SelectProps<T extends FieldValues = FieldValues> {
 const Select = <T extends FieldValues = FieldValues>(props: SelectProps<T>) => {
   const { label, name, options, register, error, valueAsNumber } = props;
   return (
-    <div>
+    <div className="flex flex-col gap-1">
       <label
         htmlFor={name}
-        className="block text-sm font-medium text-stone-700"
+        className="text-xs font-medium uppercase tracking-wide text-slate-600"
       >
         {label}
       </label>
-      <div className="mt-1">
-        <select
-          id={name}
-          {...register(name, { valueAsNumber })}
-          className="block w-full px-3 py-2 border border-gray-400 rounded-md"
-        >
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      <select
+        id={name}
+        {...register(name, { valueAsNumber })}
+        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-xs outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 };

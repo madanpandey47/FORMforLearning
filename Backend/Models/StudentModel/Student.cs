@@ -18,8 +18,8 @@ namespace FormBackend.Models
         [Required]
         public DateTime DateOfBirth { get; set; }
         [Required]
-        public required string Gender { get; set; }
-                [Required]
+        public Gender Gender { get; set; }
+        [Required]
         [Phone]
         public required string PrimaryMobile { get; set; }
         [Required]

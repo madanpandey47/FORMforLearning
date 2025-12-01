@@ -6,7 +6,7 @@ export const addressSchema = z.object({
   ward: z.string().min(1, "Ward is required"),
   street: z.string().optional(),
   country: z.string().min(1, "Country is required"),
-  addressTypeId: z.number().int(),
+  type: z.number().int(),
 });
 
 export const parentSchema = z.object({
@@ -22,7 +22,8 @@ export const parentSchema = z.object({
 
 export const academicHistorySchema = z.object({
   institutionName: z.string().min(1, "Institution name is required"),
-  level: z.string().min(1, "Level is required"),
+  // Backend expects enum AcademicLevel; send numeric value here
+  level: z.number().int(),
   board: z.string().optional(),
   percentageOrGPA: z.number().min(0).max(100),
   passingYear: z.number().int().min(1900).max(new Date().getFullYear()),
@@ -39,10 +40,10 @@ export const formSchema = z.object({
       (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
       "Date must be in YYYY-MM-DD format"
     ),
-  gender: z.enum(["male", "female", "other"], {
-    message: "please select an option",
-  }),
-  bloodGroup: z.enum(["A+", "A-", "B+", "B-", "AB+", "O+", "O-"]).optional(),
+  // Backend expects enum Gender; send numeric value here
+  gender: z.number().int(),
+  // Backend expects enum BloodType; send numeric value here (required)
+  bloodGroup: z.number().int(),
 
   // Citizenship
   citizenship: z

@@ -10,7 +10,7 @@ namespace FormBackend.Models
         [Required]
         public required string InstitutionName { get; set; }
         [Required]
-        public AcademicLevel Level { get; set; } // e.g., "High School", "Bachelor's"
+        public AcademicLevel Level { get; set; }
         public string? Board { get; set; }
         [Required]
         public double PercentageOrGPA { get; set; }

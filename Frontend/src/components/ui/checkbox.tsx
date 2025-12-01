@@ -13,22 +13,22 @@ const Checkbox = <T extends FieldValues = FieldValues>(
 ) => {
   const { label, name, register, error } = props;
   return (
-    <div>
-      <div className="flex items-center">
+    <div className="space-y-1">
+      <div className="flex items-center gap-2">
         <input
           id={name}
           type="checkbox"
           {...register(name)}
-          className="w-4 h-4 accent-black rounded"
+          className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
         />
         <label
           htmlFor={name}
-          className="block ml-3 text-sm font-medium text-gray-700"
+          className="text-sm font-medium text-slate-700"
         >
           {label}
         </label>
       </div>
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 };
