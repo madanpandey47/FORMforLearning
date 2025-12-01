@@ -60,19 +60,17 @@ export const formSchema = z.object({
     })
     .optional(),
 
-  // Contact Info
-  contactInfo: z
-    .object({
-      primaryMobile: z.string().min(7, "Enter a valid mobile number"),
-      alternateMobile: z.string().optional(),
-      primaryEmail: z.string().email("Invalid email"),
-      alternateEmail: z
-        .string()
-        .email("Invalid alternate email")
-        .optional()
-        .or(z.literal("")),
-    })
-    .optional(),
+  // Contact Info (required with required fields inside)
+  contactInfo: z.object({
+    primaryMobile: z.string().min(7, "Enter a valid mobile number"),
+    alternateMobile: z.string().optional(),
+    primaryEmail: z.string().email("Invalid email"),
+    alternateEmail: z
+      .string()
+      .email("Invalid alternate email")
+      .optional()
+      .or(z.literal("")),
+  }),
 
   // Addresses
   permanentAddress: addressSchema,

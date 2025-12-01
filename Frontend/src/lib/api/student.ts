@@ -1,17 +1,34 @@
 import { FieldValues } from "react-hook-form";
 
-export async function submitStudent(data: FieldValues) {
-  const { permanentAddress, temporaryAddress, ...rest } = data as any;
+interface Address {
+  province: string;
+  municipality: string;
+  ward: string;
+  street?: string;
+  country: string;
+  type: number;
+}
 
-  const addresses: any[] = [];
+interface SubmissionData extends Record<string, unknown> {
+  addresses: Address[];
+}
+
+export async function submitStudent(data: FieldValues) {
+  const { permanentAddress, temporaryAddress, ...rest } = data as {
+    permanentAddress?: Address;
+    temporaryAddress?: Address;
+    [key: string]: unknown;
+  };
+
+  const addresses: Address[] = [];
   if (permanentAddress) addresses.push(permanentAddress);
   if (temporaryAddress) addresses.push(temporaryAddress);
 
-  const submissionData = {
+  const submissionData: SubmissionData = {
     ...rest,
     addresses,
   };
-
+  debugger;
   const res = await fetch("http://localhost:5000/api/Student", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -19,10 +36,12 @@ export async function submitStudent(data: FieldValues) {
   });
 
   if (!res.ok) {
-    let err: any = undefined;
+    let err: unknown = undefined;
     try {
       err = await res.json();
-    } catch {}
+    } catch {
+      // ignore parse error
+    }
     throw new Error(err ? JSON.stringify(err) : "Submission failed");
   }
   return res.json();

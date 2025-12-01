@@ -16,14 +16,13 @@ import Input from "../../components/ui/input";
 import Select from "../../components/ui/select";
 import Checkbox from "../../components/ui/checkbox";
 import Button from "../../components/ui/button";
-import { useForm, FieldValues } from "react-hook-form";
+import { useForm, FieldValues, FieldErrors } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "../../lib/formvalidation";
 import {
   getBloodTypes,
   getAcademicLevels,
-  getAddressTypes,
   getGenders,
   Option,
 } from "../../lib/api/lookups";
@@ -36,13 +35,18 @@ const FormPage: React.FC = () => {
     register,
     handleSubmit,
     trigger,
-    formState: { errors },
+    formState: { errors, isValid, isSubmitting, isValidating },
     watch,
     setValue,
+    getValues,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: "onSubmit",
     defaultValues: {
+      contactInfo: {
+        primaryMobile: "",
+        primaryEmail: "",
+      },
       permanentAddress: {
         province: "",
         municipality: "",
@@ -78,24 +82,19 @@ const FormPage: React.FC = () => {
   const [academicLevelOptions, setAcademicLevelOptions] = React.useState<
     Option[]
   >([]);
-  const [addressTypeOptions, setAddressTypeOptions] = React.useState<Option[]>(
-    []
-  );
   const [genderOptions, setGenderOptions] = React.useState<Option[]>([]);
 
   React.useEffect(() => {
     // Load lookup options from backend
     (async () => {
       try {
-        const [bt, al, at, g] = await Promise.all([
+        const [bt, al, g] = await Promise.all([
           getBloodTypes(),
           getAcademicLevels(),
-          getAddressTypes(),
           getGenders(),
         ]);
         setBloodTypeOptions(bt);
         setAcademicLevelOptions(al);
-        setAddressTypeOptions(at);
         setGenderOptions(g);
       } catch (e) {
         console.error("Failed to load lookup options", e);
@@ -110,8 +109,12 @@ const FormPage: React.FC = () => {
   }, [permanentAddress, sameAsPermanent, setValue]);
 
   const processForm = async (data: FieldValues) => {
+    console.log("🚀 processForm called - form is submitting!");
+    console.log("📋 Form data:", data);
     try {
+      debugger;
       const result = await submitStudent(data);
+      console.log("✅ submitStudent returned:", result);
       if (result) {
         alert("Form Submitted Successfully!");
         // Reset form to initial state
@@ -134,16 +137,34 @@ const FormPage: React.FC = () => {
       name: "Personal Details",
       fields: ["firstName", "lastName", "dateOfBirth", "gender", "bloodGroup"],
     },
-    { name: "Contact Info", fields: ["contactInfo"] },
-    { name: "Address", fields: ["permanentAddress", "temporaryAddress"] },
-    { name: "Family Details", fields: ["parents"] },
+    {
+      name: "Contact Info",
+      fields: ["contactInfo.primaryMobile", "contactInfo.primaryEmail"],
+    },
+    {
+      name: "Address",
+      fields: [
+        "permanentAddress.province",
+        "permanentAddress.municipality",
+        "permanentAddress.ward",
+        "permanentAddress.country",
+      ],
+    },
+    {
+      name: "Family Details",
+      fields: [
+        "parents.0.firstName",
+        "parents.0.lastName",
+        "parents.0.relation",
+      ],
+    },
     { name: "Academic History", fields: ["academicHistories"] },
     { name: "Enrollment", fields: ["academicEnrollment"] },
     {
       name: "Scholarship",
-      fields: ["scholarship"],
+      fields: [],
     },
-    { name: "Other", fields: ["disability", "hobbies", "achievements"] },
+    { name: "Other", fields: [] },
     { name: "Documents & Confirmation", fields: ["agree"] },
   ];
 
@@ -158,11 +179,26 @@ const FormPage: React.FC = () => {
 
   const handleBack = () => setCurrentStep((s) => s - 1);
 
+  const onSubmitError = (validationErrors: FieldErrors<FormData>) => {
+    console.error("Form validation failed! Cannot submit.");
+    console.error("Validation errors:", validationErrors);
+    console.error("Number of errors:", Object.keys(validationErrors).length);
+
+    // If no validation errors, it might be a different issue
+    if (Object.keys(validationErrors).length === 0) {
+      console.warn("⚠️ onSubmitError called but no validation errors found!");
+      console.log("Current form values:", getValues());
+      console.log("Form state:", { isValid, isSubmitting, isValidating });
+    }
+
+    alert("Please fix the validation errors before submitting.");
+  };
+
   // lookup-backed select options are loaded via useEffect above
 
   return (
     <div className="flex items-start justify-center bg-linear-to-br from-slate-100 via-slate-50 to-slate-100 py-6">
-      <Form onSubmit={handleSubmit(processForm)}>
+      <Form onSubmit={handleSubmit(processForm, onSubmitError)}>
         <div className="mb-4 flex items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-slate-900">
@@ -293,16 +329,6 @@ const FormPage: React.FC = () => {
               Permanent Address
             </h2>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Select
-                label="Address Type"
-                name="permanentAddress.type"
-                register={register}
-                options={addressTypeOptions}
-                valueAsNumber
-                error={
-                  errors.permanentAddress?.type?.message as string | undefined
-                }
-              />
               <Input
                 label="Province"
                 {...register("permanentAddress.province")}
@@ -354,16 +380,6 @@ const FormPage: React.FC = () => {
               </label>
             </div>
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Select
-                label="Address Type"
-                name="temporaryAddress.type"
-                register={register}
-                options={addressTypeOptions}
-                valueAsNumber
-                error={
-                  errors.temporaryAddress?.type?.message as string | undefined
-                }
-              />
               <Input
                 label="Province"
                 {...register("temporaryAddress.province")}
