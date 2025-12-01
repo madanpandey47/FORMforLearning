@@ -10,7 +10,6 @@ import {
   FiDollarSign,
   FiSettings,
   FiFileText,
-  FiHash,
 } from "react-icons/fi";
 import Form from "../../components/ui/form";
 import Input from "../../components/ui/input";
@@ -162,7 +161,7 @@ const FormPage: React.FC = () => {
   // lookup-backed select options are loaded via useEffect above
 
   return (
-    <div className="flex items-start justify-center bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 py-6">
+    <div className="flex items-start justify-center bg-linear-to-br from-slate-100 via-slate-50 to-slate-100 py-6">
       <Form onSubmit={handleSubmit(processForm)}>
         <div className="mb-4 flex items-center justify-between gap-4">
           <div>
