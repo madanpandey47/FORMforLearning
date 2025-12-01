@@ -22,11 +22,12 @@ namespace FormBackend.Services
             var student = new Student
             {
                 FirstName = studentDto.FirstName,
-                MiddleName = studentDto.MiddleName,
                 LastName = studentDto.LastName,
                 DateOfBirth = studentDto.DateOfBirth,
                 Gender = studentDto.Gender,
                 BloodGroup = studentDto.BloodGroup,
+                PrimaryMobile = studentDto.ContactInfo?.PrimaryMobile ?? "",
+                PrimaryEmail = studentDto.ContactInfo?.PrimaryEmail ?? "",
                 Citizenship = studentDto.Citizenship != null ? new Citizenship
                 {
                     CitizenshipNumber = studentDto.Citizenship.CitizenshipNumber,
@@ -34,11 +35,10 @@ namespace FormBackend.Services
                     DateOfIssuance = studentDto.Citizenship.DateOfIssuance,
                     PlaceOfIssuance = studentDto.Citizenship.PlaceOfIssuance
                 } : null,
-                ContactInfo = studentDto.ContactInfo != null ? new ContactInfo
+                ContactInfo = studentDto.ContactInfo != null ? new SecondaryInfos
                 {
-                    PrimaryMobile = studentDto.ContactInfo.PrimaryMobile,
+                    MiddleName = studentDto.MiddleName,
                     AlternateMobile = studentDto.ContactInfo.AlternateMobile,
-                    PrimaryEmail = studentDto.ContactInfo.PrimaryEmail,
                     AlternateEmail = studentDto.ContactInfo.AlternateEmail
                 } : null,
                 Addresses = studentDto.Addresses?.Select(a => new Address
@@ -48,8 +48,8 @@ namespace FormBackend.Services
                     Ward = a.Ward,
                     Street = a.Street,
                     Country = a.Country,
-                    AddressTypeId = a.AddressTypeId
-                }).ToList(),
+                    Type = a.Type
+                }).ToList() ?? new List<Address>(),
                 Parents = studentDto.Parents?.Select(p => new Parent
                 {
                     FirstName = p.FirstName!,
@@ -60,15 +60,15 @@ namespace FormBackend.Services
                     AnnualIncome = p.AnnualIncome,
                     MobileNumber = p.MobileNumber,
                     Email = p.Email
-                }).ToList(),
+                }).ToList() ?? new List<Parent>(),
                 AcademicHistories = studentDto.AcademicHistories?.Select(ah => new AcademicHistory
                 {
                     InstitutionName = ah.InstitutionName!,
                     Level = ah.Level!,
                     Board = ah.Board,
                     PercentageOrGPA = ah.PercentageOrGPA,
-                    PassingYear = ah.PassingYear
-                }).ToList(),
+                    PassedYear = new DateOnly(ah.PassingYear, 1, 1)
+                }).ToList() ?? new List<AcademicHistory>(),
                 AcademicEnrollment = studentDto.AcademicEnrollment != null ? new AcademicEnrollment
                 {
                     FacultyId = studentDto.AcademicEnrollment.FacultyId,
@@ -81,11 +81,11 @@ namespace FormBackend.Services
                     Title = a.Title!,
                     Description = a.Description,
                     DateOfAchievement = a.DateOfAchievement
-                }).ToList(),
+                }).ToList() ?? new List<Achievement>(),
                 Hobbies = studentDto.Hobbies?.Select(h => new Hobby
                 {
                     Name = h.Name!
-                }).ToList(),
+                }).ToList() ?? new List<Hobby>(),
                 Disability = studentDto.Disability != null ? new Disability
                 {
                     DisabilityType = studentDto.Disability.DisabilityType!,
@@ -96,9 +96,7 @@ namespace FormBackend.Services
                 {
                     BankName = studentDto.BankDetails.BankName,
                     AccountNumber = studentDto.BankDetails.AccountNumber,
-                    AccountHolderName = studentDto.BankDetails.AccountHolderName,
-                    Branch = studentDto.BankDetails.Branch,
-                    SwiftCode = studentDto.BankDetails.SwiftCode
+                    AccountHolderName = studentDto.BankDetails.AccountHolderName
                 } : null,
                 FinancialDetails = studentDto.FinancialDetails != null ? new FinancialDetails
                 {
@@ -154,7 +152,7 @@ namespace FormBackend.Services
             {
                 // Personal Details
                 FirstName = student.FirstName,
-                MiddleName = student.MiddleName,
+                MiddleName = student.ContactInfo?.MiddleName,
                 LastName = student.LastName,
                 DateOfBirth = student.DateOfBirth,
                 Gender = student.Gender,
@@ -170,9 +168,9 @@ namespace FormBackend.Services
                 } : null,
                 ContactInfo = student.ContactInfo != null ? new ContactInfoDTO
                 {
-                    PrimaryMobile = student.ContactInfo.PrimaryMobile,
+                    PrimaryMobile = student.PrimaryMobile,
                     AlternateMobile = student.ContactInfo.AlternateMobile,
-                    PrimaryEmail = student.ContactInfo.PrimaryEmail,
+                    PrimaryEmail = student.PrimaryEmail,
                     AlternateEmail = student.ContactInfo.AlternateEmail
                 } : null,
                 Addresses = student.Addresses?.Select(a => new AddressDTO
@@ -182,8 +180,8 @@ namespace FormBackend.Services
                     Ward = a.Ward,
                     Street = a.Street,
                     Country = a.Country,
-                    AddressTypeId = a.AddressTypeId // Include AddressTypeId
-                }).ToList(),
+                    Type = a.Type
+                }).ToList() ?? new List<AddressDTO>(),
                 Parents = student.Parents?.Select(p => new ParentDTO
                 {
                     FirstName = p.FirstName!,
@@ -194,15 +192,15 @@ namespace FormBackend.Services
                     AnnualIncome = p.AnnualIncome,
                     MobileNumber = p.MobileNumber,
                     Email = p.Email
-                }).ToList(),
+                }).ToList() ?? new List<ParentDTO>(),
                 AcademicHistories = student.AcademicHistories?.Select(ah => new AcademicHistoryDTO
                 {
                     InstitutionName = ah.InstitutionName!,
                     Level = ah.Level!,
                     Board = ah.Board,
                     PercentageOrGPA = ah.PercentageOrGPA,
-                    PassingYear = ah.PassingYear
-                }).ToList(),
+                    PassingYear = ah.PassedYear.Year
+                }).ToList() ?? new List<AcademicHistoryDTO>(),
                 AcademicEnrollment = student.AcademicEnrollment != null ? new AcademicEnrollmentDTO
                 {
                     FacultyId = student.AcademicEnrollment.FacultyId,
@@ -215,11 +213,11 @@ namespace FormBackend.Services
                     Title = a.Title!,
                     Description = a.Description,
                     DateOfAchievement = a.DateOfAchievement
-                }).ToList(),
+                }).ToList() ?? new List<AchievementDTO>(),
                 Hobbies = student.Hobbies?.Select(h => new HobbyDTO
                 {
                     Name = h.Name!
-                }).ToList(),
+                }).ToList() ?? new List<HobbyDTO>(),
                 Disability = student.Disability != null ? new DisabilityDTO
                 {
                     DisabilityType = student.Disability.DisabilityType!,
@@ -230,9 +228,7 @@ namespace FormBackend.Services
                 {
                     BankName = student.BankDetails.BankName,
                     AccountNumber = student.BankDetails.AccountNumber,
-                    AccountHolderName = student.BankDetails.AccountHolderName,
-                    Branch = student.BankDetails.Branch,
-                    SwiftCode = student.BankDetails.SwiftCode
+                    AccountHolderName = student.BankDetails.AccountHolderName
                 } : null,
                 FinancialDetails = student.FinancialDetails != null ? new FinancialDetailsDTO
                 {

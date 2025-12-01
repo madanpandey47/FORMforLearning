@@ -2,18 +2,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FormBackend.Models
 {
-    public class ContactInfo
+    public class SecondaryInfos
     {
         [Key]
         public int Id { get; set; }
-        [Required]
-        [Phone]
-        public required string PrimaryMobile { get; set; }
+
+        public string? MiddleName { get; set; }
         [Phone]
         public string? AlternateMobile { get; set; }
-        [Required]
-        [EmailAddress]
-        public required string PrimaryEmail { get; set; }
         [EmailAddress]
         public string? AlternateEmail { get; set; }
     }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FormBackend.Migrations
 {
     /// <inheritdoc />
-    public partial class FixedRelationships : Migration
+    public partial class InitialCreateWithEnums : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -45,11 +45,12 @@ namespace FormBackend.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MiddleName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BloodGroup = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    PrimaryMobile = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PrimaryEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BloodGroup = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -113,10 +114,10 @@ namespace FormBackend.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     InstitutionName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Level = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Level = table.Column<int>(type: "int", nullable: false),
                     Board = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PercentageOrGPA = table.Column<double>(type: "float", nullable: false),
-                    PassingYear = table.Column<int>(type: "int", nullable: false),
+                    PassedYear = table.Column<DateOnly>(type: "date", nullable: false),
                     StudentId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -192,8 +193,6 @@ namespace FormBackend.Migrations
                     BankName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AccountNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AccountHolderName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Branch = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SwiftCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StudentId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -236,9 +235,8 @@ namespace FormBackend.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    PrimaryMobile = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MiddleName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AlternateMobile = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PrimaryEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AlternateEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StudentId = table.Column<int>(type: "int", nullable: true)
                 },

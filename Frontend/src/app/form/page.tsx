@@ -86,6 +86,8 @@ const FormPage: React.FC = () => {
 
       if (response.ok) {
         alert("Form Submitted Successfully!");
+        // Reset form to initial state
+        window.location.reload();
       } else {
         let errorData = {};
         try {

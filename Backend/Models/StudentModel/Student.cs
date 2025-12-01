@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using FormBackend.Models.Enum;
 
 namespace FormBackend.Models
 {
@@ -12,18 +13,24 @@ namespace FormBackend.Models
         // Personal Details
         [Required]
         public required string FirstName { get; set; }
-        public string? MiddleName { get; set; }
         [Required]
         public required string LastName { get; set; }
         [Required]
         public DateTime DateOfBirth { get; set; }
         [Required]
         public required string Gender { get; set; }
-        public string? BloodGroup { get; set; }
+                [Required]
+        [Phone]
+        public required string PrimaryMobile { get; set; }
+        [Required]
+        [EmailAddress]
+        public required string PrimaryEmail { get; set; }
+        [Required]
+        public BloodType BloodGroup { get; set; }
 
         // Relationships
         public virtual Citizenship? Citizenship { get; set; }
-        public virtual ContactInfo? ContactInfo { get; set; }
+        public virtual SecondaryInfos? ContactInfo { get; set; }
         public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
         public virtual ICollection<Parent> Parents { get; set; } = new List<Parent>();
         public virtual ICollection<AcademicHistory> AcademicHistories { get; set; } = new List<AcademicHistory>();

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using FormBackend.Models.Enum;
 
 namespace FormBackend.Models
 {
@@ -16,8 +17,7 @@ namespace FormBackend.Models
         [Required]
         public required string Country { get; set; }
 
-        public int AddressTypeId { get; set; }
+        public AddressType Type { get; set; }
         
-        public virtual AddressType? AddressType { get; set; }
     }
 }

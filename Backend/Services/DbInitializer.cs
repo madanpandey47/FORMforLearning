@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FormBackend.Models.Enum;
 
 namespace FormBackend.Services
 {
@@ -19,20 +20,12 @@ namespace FormBackend.Services
 
         public void Initialize()
         {
-            _context.Database.EnsureCreated();
+            // _context.Database.EnsureCreated();
 
             if (_context.Students.Any())
             {
                 return; // DB has been seeded
             }
-
-            var addressTypes = new AddressType[]
-            {
-                new AddressType{Type="Permanent"},
-                new AddressType{Type="Temporary"}
-            };
-            _context.AddressTypes.AddRange(addressTypes);
-            _context.SaveChanges();
 
             var faculties = new Faculty[]
             {
@@ -65,20 +58,22 @@ namespace FormBackend.Services
                 new Student
                 {
                     FirstName = "Ram",
-                    MiddleName = "Bahadur",
                     LastName = "Thapa",
                     DateOfBirth = new DateTime(1998, 5, 15),
                     Gender = "Male",
-                    BloodGroup = "O+",
-                    ContactInfo = new ContactInfo
+                    BloodGroup = BloodType.OPositive,
+                    PrimaryMobile = "9841234567",
+                    PrimaryEmail = "ram.thapa@example.com",
+                    ContactInfo = new SecondaryInfos
                     {
-                        PrimaryMobile = "9841234567",
-                        PrimaryEmail = "ram.thapa@example.com"
+                        MiddleName = "Bahadur",
+                        AlternateMobile = null,
+                        AlternateEmail = null
                     },
                     Addresses = new List<Address>
                     {
-                        new Address { Province = "Bagmati", Municipality = "Kathmandu", Ward = "10", Street = "Baneshwor", Country = "Nepal", AddressTypeId = addressTypes[0].Id },
-                        new Address { Province = "Gandaki", Municipality = "Pokhara", Ward = "5", Street = "Lakeside", Country = "Nepal", AddressTypeId = addressTypes[1].Id }
+                        new Address { Province = "Bagmati", Municipality = "Kathmandu", Ward = "10", Street = "Baneshwor", Country = "Nepal", Type = AddressType.Permanent },
+                        new Address { Province = "Gandaki", Municipality = "Pokhara", Ward = "5", Street = "Lakeside", Country = "Nepal", Type = AddressType.Temporary }
                     },
                     Parents = new List<Parent>
                     {
@@ -87,8 +82,8 @@ namespace FormBackend.Services
                     },
                     AcademicHistories = new List<AcademicHistory>
                     {
-                        new AcademicHistory { InstitutionName = "Little Angels' School", Level = "SEE", PercentageOrGPA = 85, PassingYear = 2014 },
-                        new AcademicHistory { InstitutionName = "St. Xavier's College", Level = "+2", PercentageOrGPA = 78, PassingYear = 2016 }
+                        new AcademicHistory { InstitutionName = "Little Angels' School", Level = AcademicLevel.HighSchool, PercentageOrGPA = 85, PassedYear = new DateOnly(2014, 1, 1) },
+                        new AcademicHistory { InstitutionName = "St. Xavier's College", Level = AcademicLevel.HighSchool, PercentageOrGPA = 78, PassedYear = new DateOnly(2016, 1, 1) }
                     },
                     AcademicEnrollment = new AcademicEnrollment
                     {
@@ -103,15 +98,18 @@ namespace FormBackend.Services
                     LastName = "Sharma",
                     DateOfBirth = new DateTime(2000, 2, 20),
                     Gender = "Female",
-                    BloodGroup = "A+",
-                    ContactInfo = new ContactInfo
+                    BloodGroup = BloodType.APositive,
+                    PrimaryMobile = "9818765432",
+                    PrimaryEmail = "gita.sharma@example.com",
+                    ContactInfo = new SecondaryInfos
                     {
-                        PrimaryMobile = "9818765432",
-                        PrimaryEmail = "gita.sharma@example.com"
+                        MiddleName = null,
+                        AlternateMobile = null,
+                        AlternateEmail = null
                     },
                     Addresses = new List<Address>
                     {
-                        new Address { Province = "Province 1", Municipality = "Biratnagar", Ward = "3", Street = "Main Road", Country = "Nepal", AddressTypeId = addressTypes[0].Id }
+                        new Address { Province = "Province 1", Municipality = "Biratnagar", Ward = "3", Street = "Main Road", Country = "Nepal", Type = AddressType.Permanent }
                     },
                     Parents = new List<Parent>
                     {
@@ -119,8 +117,8 @@ namespace FormBackend.Services
                     },
                     AcademicHistories = new List<AcademicHistory>
                     {
-                        new AcademicHistory { InstitutionName = "Sainik Awasiya Mahavidyalaya", Level = "SEE", PercentageOrGPA = 92, PassingYear = 2016 },
-                        new AcademicHistory { InstitutionName = "Prasadi Academy", Level = "+2", PercentageOrGPA = 85, PassingYear = 2018 }
+                        new AcademicHistory { InstitutionName = "Sainik Awasiya Mahavidyalaya", Level = AcademicLevel.HighSchool, PercentageOrGPA = 92, PassedYear = new DateOnly(2016, 1, 1) },
+                        new AcademicHistory { InstitutionName = "Prasadi Academy", Level = AcademicLevel.HighSchool, PercentageOrGPA = 85, PassedYear = new DateOnly(2018, 1, 1) }
                     },
                     AcademicEnrollment = new AcademicEnrollment
                     {

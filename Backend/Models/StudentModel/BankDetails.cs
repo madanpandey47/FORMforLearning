@@ -12,7 +12,5 @@ namespace FormBackend.Models
         public required string AccountNumber { get; set; }
         [Required]
         public required string AccountHolderName { get; set; }
-        public string? Branch { get; set; }
-        public string? SwiftCode { get; set; }
     }
 }

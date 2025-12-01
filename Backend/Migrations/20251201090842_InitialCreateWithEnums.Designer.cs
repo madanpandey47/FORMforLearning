@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FormBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251127084010_FixedRelationships")]
-    partial class FixedRelationships
+    [Migration("20251201090842_InitialCreateWithEnums")]
+    partial class InitialCreateWithEnums
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -74,12 +74,11 @@ namespace FormBackend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Level")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PassingYear")
+                    b.Property<int>("Level")
                         .HasColumnType("int");
+
+                    b.Property<DateOnly>("PassedYear")
+                        .HasColumnType("date");
 
                     b.Property<double>("PercentageOrGPA")
                         .HasColumnType("float");
@@ -201,14 +200,8 @@ namespace FormBackend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Branch")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("StudentId")
                         .HasColumnType("int");
-
-                    b.Property<string>("SwiftCode")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -251,40 +244,6 @@ namespace FormBackend.Migrations
                         .HasFilter("[StudentId] IS NOT NULL");
 
                     b.ToTable("Citizenships");
-                });
-
-            modelBuilder.Entity("FormBackend.Models.ContactInfo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AlternateEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AlternateMobile")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PrimaryEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PrimaryMobile")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudentId")
-                        .IsUnique()
-                        .HasFilter("[StudentId] IS NOT NULL");
-
-                    b.ToTable("ContactInfos");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Disability", b =>
@@ -498,6 +457,35 @@ namespace FormBackend.Migrations
                     b.ToTable("Scholarships");
                 });
 
+            modelBuilder.Entity("FormBackend.Models.SecondaryInfos", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AlternateEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AlternateMobile")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MiddleName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId")
+                        .IsUnique()
+                        .HasFilter("[StudentId] IS NOT NULL");
+
+                    b.ToTable("ContactInfos");
+                });
+
             modelBuilder.Entity("FormBackend.Models.Student", b =>
                 {
                     b.Property<int>("Id")
@@ -506,8 +494,8 @@ namespace FormBackend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("BloodGroup")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("BloodGroup")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
@@ -524,7 +512,12 @@ namespace FormBackend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MiddleName")
+                    b.Property<string>("PrimaryEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PrimaryMobile")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -599,14 +592,6 @@ namespace FormBackend.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("FormBackend.Models.ContactInfo", b =>
-                {
-                    b.HasOne("FormBackend.Models.Student", null)
-                        .WithOne("ContactInfo")
-                        .HasForeignKey("FormBackend.Models.ContactInfo", "StudentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("FormBackend.Models.Disability", b =>
                 {
                     b.HasOne("FormBackend.Models.Student", null)
@@ -655,6 +640,14 @@ namespace FormBackend.Migrations
                     b.HasOne("FormBackend.Models.Student", null)
                         .WithOne("Scholarship")
                         .HasForeignKey("FormBackend.Models.Scholarship", "StudentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("FormBackend.Models.SecondaryInfos", b =>
+                {
+                    b.HasOne("FormBackend.Models.Student", null)
+                        .WithOne("ContactInfo")
+                        .HasForeignKey("FormBackend.Models.SecondaryInfos", "StudentId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using FormBackend.Models;
+using FormBackend.Models.Enum;
 
 namespace FormBackend.DTOs
 {
@@ -10,8 +12,8 @@ namespace FormBackend.DTOs
         public required string Municipality { get; set; }
         public required string Ward { get; set; }
         public string? Street { get; set; }
-        public required string Country { get; set; }
-        public int AddressTypeId { get; set; }
+        public required string Country { get; set; } = "Nepal";
+        public AddressType Type { get; set; }
     }
 
     public class ParentDTO
@@ -29,7 +31,7 @@ namespace FormBackend.DTOs
     public class AcademicHistoryDTO
     {
         public required string InstitutionName { get; set; }
-        public required string Level { get; set; }
+        public required AcademicLevel Level { get; set; }
         public string? Board { get; set; }
         public double PercentageOrGPA { get; set; }
         public int PassingYear { get; set; }
@@ -43,7 +45,7 @@ namespace FormBackend.DTOs
         public required string LastName { get; set; }
         public DateTime DateOfBirth { get; set; }
         public required string Gender { get; set; }
-        public string? BloodGroup { get; set; }
+        public BloodType BloodGroup { get; set; }
 
         // Relationships
         public CitizenshipDTO? Citizenship { get; set; }
@@ -108,8 +110,6 @@ namespace FormBackend.DTOs
         public required string BankName { get; set; }
         public required string AccountNumber { get; set; }
         public required string AccountHolderName { get; set; }
-        public string? Branch { get; set; }
-        public string? SwiftCode { get; set; }
     }
 
     public class FinancialDetailsDTO

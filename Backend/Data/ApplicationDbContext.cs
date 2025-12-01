@@ -11,14 +11,13 @@ namespace FormBackend.Data
 
         public DbSet<Student> Students { get; set; }
         public DbSet<Address> Addresses { get; set; }
-        public DbSet<AddressType> AddressTypes { get; set; }
         public DbSet<Parent> Parents { get; set; }
         public DbSet<AcademicHistory> AcademicHistories { get; set; }
         public DbSet<AcademicEnrollment> AcademicEnrollments { get; set; }
         public DbSet<Achievement> Achievements { get; set; }
         public DbSet<BankDetails> BankDetails { get; set; }
         public DbSet<Citizenship> Citizenships { get; set; }
-        public DbSet<ContactInfo> ContactInfos { get; set; }
+        public DbSet<SecondaryInfos> ContactInfos { get; set; }
         public DbSet<Disability> Disabilities { get; set; }
         public DbSet<Hobby> Hobbies { get; set; }
         public DbSet<Faculty> Faculties { get; set; }
@@ -52,7 +51,7 @@ namespace FormBackend.Data
             modelBuilder.Entity<Student>()
                 .HasOne(s => s.ContactInfo)
                 .WithOne()
-                .HasForeignKey<ContactInfo>("StudentId")
+                .HasForeignKey<SecondaryInfos>("StudentId")
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Student>()
@@ -120,12 +119,6 @@ namespace FormBackend.Data
                 .WithOne(fm => fm.Faculty)
                 .HasForeignKey(fm => fm.FacultyId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Address>()
-                .HasOne(a => a.AddressType)
-                .WithMany()
-                .HasForeignKey(a => a.AddressTypeId)
-                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

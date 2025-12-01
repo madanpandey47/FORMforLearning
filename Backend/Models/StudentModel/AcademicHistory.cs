@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using FormBackend.Models.Enum;
 
 namespace FormBackend.Models
 {
@@ -9,11 +10,11 @@ namespace FormBackend.Models
         [Required]
         public required string InstitutionName { get; set; }
         [Required]
-        public required string Level { get; set; } // e.g., "High School", "Bachelor's"
+        public AcademicLevel Level { get; set; } // e.g., "High School", "Bachelor's"
         public string? Board { get; set; }
         [Required]
         public double PercentageOrGPA { get; set; }
         [Required]
-        public int PassingYear { get; set; }
+        public DateOnly PassedYear { get; set; }
     }
 }
