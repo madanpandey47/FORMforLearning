@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { FiEdit3 } from "react-icons/fi";
 
 const Navbar: React.FC = () => {
   return (
@@ -15,9 +16,10 @@ const Navbar: React.FC = () => {
           <li>
             <Link
               href="/form"
-              className="rounded-full border border-transparent px-3 py-1.5 text-slate-700 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900"
+              className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-600 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2"
             >
-              Open Form
+              <FiEdit3 className="h-4 w-4" />
+              Form
             </Link>
           </li>
         </ul>

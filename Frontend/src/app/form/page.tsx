@@ -1,5 +1,17 @@
 "use client";
 import React from "react";
+import {
+  FiUser,
+  FiPhone,
+  FiMapPin,
+  FiUsers,
+  FiBookOpen,
+  FiBriefcase,
+  FiDollarSign,
+  FiSettings,
+  FiFileText,
+  FiHash,
+} from "react-icons/fi";
 import Form from "../../components/ui/form";
 import Input from "../../components/ui/input";
 import Select from "../../components/ui/select";
@@ -167,10 +179,11 @@ const FormPage: React.FC = () => {
         {/* STEP 1 - Personal */}
         {currentStep === 1 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold border-b pb-2">
+            <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
+              <FiUser className="h-4 w-4 text-sky-500" />
               Personal Information
             </h2>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <Input
                 label="First Name"
                 {...register("firstName")}
@@ -186,7 +199,7 @@ const FormPage: React.FC = () => {
                 error={errors.lastName?.message}
               />
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <Input
                 label="Date of Birth (YYYY-MM-DD)"
                 {...register("dateOfBirth")}
@@ -207,8 +220,11 @@ const FormPage: React.FC = () => {
                 valueAsNumber
               />
             </div>
-            <h2 className="text-xl font-semibold border-b pb-2">Citizenship</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
+              <FiFileText className="h-4 w-4 text-sky-500" />
+              Citizenship
+            </h2>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 label="Citizenship Number"
                 {...register("citizenship.citizenshipNumber")}
@@ -236,11 +252,12 @@ const FormPage: React.FC = () => {
         {/* STEP 2 - Contact */}
         {currentStep === 2 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold border-b pb-2">
+            <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
+              <FiPhone className="h-4 w-4 text-sky-500" />
               Contact Details
             </h2>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 label="Primary Mobile"
                 {...register("contactInfo.primaryMobile")}
@@ -251,7 +268,7 @@ const FormPage: React.FC = () => {
                 {...register("contactInfo.alternateMobile")}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 label="Primary Email"
                 type="email"
@@ -270,10 +287,11 @@ const FormPage: React.FC = () => {
         {/* STEP 3 - Address */}
         {currentStep === 3 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold border-b pb-2">
+            <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
+              <FiMapPin className="h-4 w-4 text-sky-500" />
               Permanent Address
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Select
                 label="Address Type"
                 name="permanentAddress.type"
@@ -307,10 +325,11 @@ const FormPage: React.FC = () => {
               />
             </div>
 
-            <h2 className="text-xl font-semibold border-b pb-2 mt-6">
+            <h2 className="mt-6 flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
+              <FiMapPin className="h-4 w-4 text-emerald-500" />
               Temporary Address
             </h2>
-            <div className="flex items-center mb-4">
+            <div className="mb-4 flex items-center">
               <input
                 id="sameAsPermanent"
                 type="checkbox"
@@ -333,7 +352,7 @@ const FormPage: React.FC = () => {
                 Same as Permanent Address
               </label>
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <Select
                 label="Address Type"
                 name="temporaryAddress.type"
@@ -380,10 +399,11 @@ const FormPage: React.FC = () => {
         {/* STEP 4 - Family */}
         {currentStep === 4 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold border-b pb-2">
+            <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
+              <FiUsers className="h-4 w-4 text-sky-500" />
               Family Details
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 label="First Name"
                 {...register("parents.0.firstName")}
@@ -428,10 +448,11 @@ const FormPage: React.FC = () => {
         {/* STEP 5 - Academic History */}
         {currentStep === 5 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold border-b pb-2">
+            <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
+              <FiBookOpen className="h-4 w-4 text-sky-500" />
               Academic History
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 label="Institution Name"
                 {...register("academicHistories.0.institutionName")}
@@ -472,10 +493,11 @@ const FormPage: React.FC = () => {
         {/* STEP 6 - Academic Enrollment */}
         {currentStep === 6 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold border-b pb-2">
+            <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
+              <FiBriefcase className="h-4 w-4 text-sky-500" />
               Academic Enrollment
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 label="Faculty ID (e.g., 1 or 2)"
                 type="number"
@@ -505,10 +527,11 @@ const FormPage: React.FC = () => {
         {/* STEP 7 - Financial & Scholarship */}
         {currentStep === 7 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold border-b pb-2">
+            <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
+              <FiDollarSign className="h-4 w-4 text-sky-500" />
               Financial Details
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 label="Annual Income (optional)"
                 type="number"
@@ -531,10 +554,11 @@ const FormPage: React.FC = () => {
               />
             </div>
 
-            <h2 className="text-xl font-semibold border-b pb-2 mt-6">
+            <h2 className="mt-6 flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
+              <FiDollarSign className="h-4 w-4 text-emerald-500" />
               Scholarship Details
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 label="Scholarship Name (optional)"
                 {...register("scholarship.scholarshipName")}
@@ -559,10 +583,11 @@ const FormPage: React.FC = () => {
         {/* STEP 8 - Other Details */}
         {currentStep === 8 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold border-b pb-2">
+            <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
+              <FiSettings className="h-4 w-4 text-sky-500" />
               Disability Information
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 label="Disability Type (optional)"
                 {...register("disability.disabilityType")}
@@ -580,17 +605,19 @@ const FormPage: React.FC = () => {
               />
             </div>
 
-            <h2 className="text-xl font-semibold border-b pb-2 mt-6">
+            <h2 className="mt-6 flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
+              <FiSettings className="h-4 w-4 text-amber-500" />
               Hobbies
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input label="Hobby (optional)" {...register("hobbies.0.name")} />
             </div>
 
-            <h2 className="text-xl font-semibold border-b pb-2 mt-6">
+            <h2 className="mt-6 flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
+              <FiSettings className="h-4 w-4 text-purple-500" />
               Achievements
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
                 label="Title (optional)"
                 {...register("achievements.0.title")}
@@ -610,7 +637,8 @@ const FormPage: React.FC = () => {
         {/* STEP 9 - Documents & Confirmation */}
         {currentStep === 9 && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold border-b pb-2">
+            <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
+              <FiFileText className="h-4 w-4 text-sky-500" />
               Documents & Confirmation
             </h2>
             <Checkbox
