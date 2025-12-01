@@ -21,18 +21,12 @@ namespace FormBackend.Data
         public DbSet<Disability> Disabilities { get; set; }
         public DbSet<Hobby> Hobbies { get; set; }
         public DbSet<Faculty> Faculties { get; set; }
-        public DbSet<FacultyMember> FacultyMembers { get; set; }
-        public DbSet<FinancialDetails> FinancialDetails { get; set; }
         public DbSet<Scholarship> Scholarships { get; set; }
         
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<FinancialDetails>()
-                .Property(fd => fd.AnnualIncome)
-                .HasPrecision(18, 2);
 
             modelBuilder.Entity<Parent>()
                 .Property(p => p.AnnualIncome)
@@ -101,23 +95,11 @@ namespace FormBackend.Data
                 .WithOne()
                 .HasForeignKey<BankDetails>("StudentId")
                 .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Student>()
-                .HasOne(s => s.FinancialDetails)
-                .WithOne()
-                .HasForeignKey<FinancialDetails>("StudentId")
-                .OnDelete(DeleteBehavior.Cascade);
             
             modelBuilder.Entity<Student>()
                 .HasOne(s => s.Scholarship)
                 .WithOne()
                 .HasForeignKey<Scholarship>("StudentId")
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Faculty>()
-                .HasMany(f => f.FacultyMembers)
-                .WithOne(fm => fm.Faculty)
-                .HasForeignKey(fm => fm.FacultyId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

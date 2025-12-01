@@ -140,8 +140,8 @@ const FormPage: React.FC = () => {
     { name: "Academic History", fields: ["academicHistories"] },
     { name: "Enrollment", fields: ["academicEnrollment"] },
     {
-      name: "Financial & Scholarship",
-      fields: ["financialDetails", "scholarship"],
+      name: "Scholarship",
+      fields: ["scholarship"],
     },
     { name: "Other", fields: ["disability", "hobbies", "achievements"] },
     { name: "Documents & Confirmation", fields: ["agree"] },
@@ -200,7 +200,8 @@ const FormPage: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <Input
-                label="Date of Birth (YYYY-MM-DD)"
+                label="Date of Birth"
+                type="date"
                 {...register("dateOfBirth")}
                 error={errors.dateOfBirth?.message}
               />
@@ -236,6 +237,7 @@ const FormPage: React.FC = () => {
               />
               <Input
                 label="Date of Issuance"
+                type="date"
                 {...register("citizenship.dateOfIssuance")}
                 error={errors.citizenship?.dateOfIssuance?.message}
               />
@@ -511,7 +513,8 @@ const FormPage: React.FC = () => {
                 error={errors.academicEnrollment?.programName?.message}
               />
               <Input
-                label="Enrollment Date (YYYY-MM-DD)"
+                label="Enrollment Date"
+                type="date"
                 {...register("academicEnrollment.enrollmentDate")}
                 error={errors.academicEnrollment?.enrollmentDate?.message}
               />
@@ -523,37 +526,10 @@ const FormPage: React.FC = () => {
           </div>
         )}
 
-        {/* STEP 7 - Financial & Scholarship */}
+        {/* STEP 7 - Scholarship */}
         {currentStep === 7 && (
           <div className="space-y-4">
             <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
-              <FiDollarSign className="h-4 w-4 text-sky-500" />
-              Financial Details
-            </h2>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Input
-                label="Annual Income (optional)"
-                type="number"
-                {...register("financialDetails.annualIncome", {
-                  valueAsNumber: true,
-                })}
-              />
-              <Input
-                label="Income Source (optional)"
-                {...register("financialDetails.incomeSource")}
-              />
-              <Input
-                label="PAN Number (optional)"
-                {...register("financialDetails.panNumber")}
-              />
-              <Checkbox
-                label="Are you a taxpayer?"
-                name="financialDetails.isTaxPayer"
-                register={register}
-              />
-            </div>
-
-            <h2 className="mt-6 flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
               <FiDollarSign className="h-4 w-4 text-emerald-500" />
               Scholarship Details
             </h2>
@@ -568,11 +544,13 @@ const FormPage: React.FC = () => {
                 {...register("scholarship.amount", { valueAsNumber: true })}
               />
               <Input
-                label="Start Date (YYYY-MM-DD)"
+                label="Start Date"
+                type="date"
                 {...register("scholarship.startDate")}
               />
               <Input
-                label="End Date (YYYY-MM-DD)"
+                label="End Date"
+                type="date"
                 {...register("scholarship.endDate")}
               />
             </div>
@@ -626,7 +604,8 @@ const FormPage: React.FC = () => {
                 {...register("achievements.0.description")}
               />
               <Input
-                label="Date of Achievement (YYYY-MM-DD)"
+                label="Date of Achievement"
+                type="date"
                 {...register("achievements.0.dateOfAchievement")}
               />
             </div>

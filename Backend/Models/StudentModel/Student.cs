@@ -39,7 +39,6 @@ namespace FormBackend.Models
         public virtual ICollection<Hobby> Hobbies { get; set; } = new List<Hobby>();
         public virtual Disability? Disability { get; set; }
         public virtual BankDetails? BankDetails { get; set; }
-        public virtual FinancialDetails? FinancialDetails { get; set; }
         public virtual Scholarship? Scholarship { get; set; }
     }
 }

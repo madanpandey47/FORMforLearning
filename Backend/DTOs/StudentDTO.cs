@@ -58,7 +58,6 @@ namespace FormBackend.DTOs
         public ICollection<HobbyDTO> Hobbies { get; set; } = new List<HobbyDTO>();
         public DisabilityDTO? Disability { get; set; }
         public BankDetailsDTO? BankDetails { get; set; }
-        public FinancialDetailsDTO? FinancialDetails { get; set; }
         public ScholarshipDTO? Scholarship { get; set; }
     }
 
@@ -88,19 +87,19 @@ namespace FormBackend.DTOs
 
     public class AchievementDTO
     {
-        public required string Title { get; set; }
+        public string? Title { get; set; }
         public string? Description { get; set; }
         public DateTime? DateOfAchievement { get; set; }
     }
 
     public class HobbyDTO
     {
-        public required string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     public class DisabilityDTO
     {
-        public required string DisabilityType { get; set; }
+        public string? DisabilityType { get; set; }
         public string? Description { get; set; }
         public double? DisabilityPercentage { get; set; }
     }
@@ -112,17 +111,9 @@ namespace FormBackend.DTOs
         public required string AccountHolderName { get; set; }
     }
 
-    public class FinancialDetailsDTO
-    {
-        public decimal? AnnualIncome { get; set; }
-        public string? IncomeSource { get; set; }
-        public bool? IsTaxPayer { get; set; }
-        public string? PanNumber { get; set; }
-    }
-
     public class ScholarshipDTO
     {
-        public required string ScholarshipName { get; set; }
+        public string? ScholarshipName { get; set; }
         public decimal? Amount { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }

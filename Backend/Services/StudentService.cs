@@ -98,16 +98,9 @@ namespace FormBackend.Services
                     AccountNumber = studentDto.BankDetails.AccountNumber,
                     AccountHolderName = studentDto.BankDetails.AccountHolderName
                 } : null,
-                FinancialDetails = studentDto.FinancialDetails != null ? new FinancialDetails
-                {
-                    AnnualIncome = studentDto.FinancialDetails.AnnualIncome,
-                    IncomeSource = studentDto.FinancialDetails.IncomeSource,
-                    IsTaxPayer = studentDto.FinancialDetails.IsTaxPayer,
-                    PanNumber = studentDto.FinancialDetails.PanNumber
-                } : null,
                 Scholarship = studentDto.Scholarship != null ? new Scholarship
                 {
-                    ScholarshipName = studentDto.Scholarship.ScholarshipName,
+                    ScholarshipName = studentDto.Scholarship.ScholarshipName = "",
                     Amount = studentDto.Scholarship.Amount,
                     StartDate = studentDto.Scholarship.StartDate,
                     EndDate = studentDto.Scholarship.EndDate
@@ -229,13 +222,6 @@ namespace FormBackend.Services
                     BankName = student.BankDetails.BankName,
                     AccountNumber = student.BankDetails.AccountNumber,
                     AccountHolderName = student.BankDetails.AccountHolderName
-                } : null,
-                FinancialDetails = student.FinancialDetails != null ? new FinancialDetailsDTO
-                {
-                    AnnualIncome = student.FinancialDetails.AnnualIncome,
-                    IncomeSource = student.FinancialDetails.IncomeSource,
-                    IsTaxPayer = student.FinancialDetails.IsTaxPayer,
-                    PanNumber = student.FinancialDetails.PanNumber
                 } : null,
                 Scholarship = student.Scholarship != null ? new ScholarshipDTO
                 {

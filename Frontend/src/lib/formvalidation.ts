@@ -103,7 +103,7 @@ export const formSchema = z.object({
   achievements: z
     .array(
       z.object({
-        title: z.string().min(1, "Title is required"),
+        title: z.string().optional(),
         description: z.string().optional(),
         dateOfAchievement: z
           .string()
@@ -120,7 +120,7 @@ export const formSchema = z.object({
   hobbies: z
     .array(
       z.object({
-        name: z.string().min(1, "Hobby name is required"),
+        name: z.string().optional(),
       })
     )
     .optional(),
@@ -128,7 +128,7 @@ export const formSchema = z.object({
   // Disability
   disability: z
     .object({
-      disabilityType: z.string().min(1, "Disability Type is required"),
+      disabilityType: z.string().optional(),
       description: z.string().optional(),
       disabilityPercentage: z.number().min(0).max(100).optional(),
     })
@@ -140,25 +140,13 @@ export const formSchema = z.object({
       bankName: z.string().min(1, "Bank Name is required"),
       accountNumber: z.string().min(1, "Account Number is required"),
       accountHolderName: z.string().min(1, "Account Holder Name is required"),
-      branch: z.string().optional(),
-      swiftCode: z.string().optional(),
-    })
-    .optional(),
-
-  // Financial Details
-  financialDetails: z
-    .object({
-      annualIncome: z.number().optional(),
-      incomeSource: z.string().optional(),
-      isTaxPayer: z.boolean().optional(),
-      panNumber: z.string().optional(),
     })
     .optional(),
 
   // Scholarship
   scholarship: z
     .object({
-      scholarshipName: z.string().min(1, "Scholarship Name is required"),
+      scholarshipName: z.string().optional(),
       amount: z.number().optional(),
       startDate: z
         .string()
