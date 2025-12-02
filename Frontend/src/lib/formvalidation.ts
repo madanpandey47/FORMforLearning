@@ -101,14 +101,6 @@ export const formSchema = z.object({
     })
     .optional(),
 
-  bankDetails: z
-    .object({
-      bankName: z.string().min(1, "Bank Name is required"),
-      accountNumber: z.string().min(1, "Account Number is required"),
-      accountHolderName: z.string().min(1, "Account Holder Name is required"),
-    })
-    .optional(),
-
   scholarship: z
     .object({
       scholarshipName: z.string().optional(),

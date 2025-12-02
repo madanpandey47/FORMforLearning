@@ -38,7 +38,6 @@ namespace FormBackend.Models
         public virtual ICollection<Achievement> Achievements { get; set; } = new List<Achievement>();
         public virtual ICollection<Hobby> Hobbies { get; set; } = new List<Hobby>();
         public virtual Disability? Disability { get; set; }
-        public virtual BankDetails? BankDetails { get; set; }
         public virtual Scholarship? Scholarship { get; set; }
     }
 }

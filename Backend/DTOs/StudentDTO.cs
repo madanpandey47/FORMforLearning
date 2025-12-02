@@ -58,7 +58,6 @@ namespace FormBackend.DTOs
         public ICollection<AchievementDTO> Achievements { get; set; } = new List<AchievementDTO>();
         public ICollection<HobbyDTO> Hobbies { get; set; } = new List<HobbyDTO>();
         public DisabilityDTO? Disability { get; set; }
-        public BankDetailsDTO? BankDetails { get; set; }
         public ScholarshipDTO? Scholarship { get; set; }
     }
 
@@ -103,13 +102,6 @@ namespace FormBackend.DTOs
         public string? DisabilityType { get; set; }
         public string? Description { get; set; }
         public double? DisabilityPercentage { get; set; }
-    }
-
-    public class BankDetailsDTO
-    {
-        public required string BankName { get; set; }
-        public required string AccountNumber { get; set; }
-        public required string AccountHolderName { get; set; }
     }
 
     public class ScholarshipDTO

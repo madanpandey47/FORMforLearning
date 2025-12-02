@@ -92,12 +92,6 @@ namespace FormBackend.Services
                     Description = studentDto.Disability.Description,
                     DisabilityPercentage = studentDto.Disability.DisabilityPercentage
                 } : null,
-                BankDetails = studentDto.BankDetails != null ? new BankDetails
-                {
-                    BankName = studentDto.BankDetails.BankName,
-                    AccountNumber = studentDto.BankDetails.AccountNumber,
-                    AccountHolderName = studentDto.BankDetails.AccountHolderName
-                } : null,
                 Scholarship = studentDto.Scholarship != null ? new Scholarship
                 {
                     ScholarshipName = studentDto.Scholarship.ScholarshipName ?? "",
@@ -217,12 +211,6 @@ namespace FormBackend.Services
                     DisabilityType = student.Disability.DisabilityType!,
                     Description = student.Disability.Description,
                     DisabilityPercentage = student.Disability.DisabilityPercentage
-                } : null,
-                BankDetails = student.BankDetails != null ? new BankDetailsDTO
-                {
-                    BankName = student.BankDetails.BankName,
-                    AccountNumber = student.BankDetails.AccountNumber,
-                    AccountHolderName = student.BankDetails.AccountHolderName
                 } : null,
                 Scholarship = student.Scholarship != null ? new ScholarshipDTO
                 {

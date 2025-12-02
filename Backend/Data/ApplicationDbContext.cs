@@ -15,7 +15,6 @@ namespace FormBackend.Data
         public DbSet<AcademicHistory> AcademicHistories { get; set; }
         public DbSet<AcademicEnrollment> AcademicEnrollments { get; set; }
         public DbSet<Achievement> Achievements { get; set; }
-        public DbSet<BankDetails> BankDetails { get; set; }
         public DbSet<Citizenship> Citizenships { get; set; }
         public DbSet<SecondaryInfos> ContactInfos { get; set; }
         public DbSet<Disability> Disabilities { get; set; }
@@ -88,12 +87,6 @@ namespace FormBackend.Data
                 .HasOne(s => s.Disability)
                 .WithOne()
                 .HasForeignKey<Disability>("StudentId")
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Student>()
-                .HasOne(s => s.BankDetails)
-                .WithOne()
-                .HasForeignKey<BankDetails>("StudentId")
                 .OnDelete(DeleteBehavior.Cascade);
             
             modelBuilder.Entity<Student>()
