@@ -12,14 +12,14 @@ export const addressSchema = z.object({
   municipality: z.string().min(1, "Municipality is required"),
   ward: z.string().min(1, "Ward is required"),
   street: z.string().optional(),
-  country: z.string().min(1, "Country is required"),
+  country: z.string().min(3, "Country is required"),
   type: z.number().int(),
 });
 
 export const parentSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
+  firstName: z.string().min(2, "First name is required"),
   middleName: z.string().optional(),
-  lastName: z.string().min(1, "Last name is required"),
+  lastName: z.string().min(2, "Last name is required"),
   relation: z.string().min(1, "Relation is required"),
   occupation: z.string().optional(),
   annualIncome: z.number().optional(),
@@ -28,7 +28,7 @@ export const parentSchema = z.object({
 });
 
 export const academicHistorySchema = z.object({
-  institutionName: z.string().min(1, "Institution name is required"),
+  institutionName: z.string().min(4, "Institution name is required"),
   level: z.number().int(),
   board: z.string().optional(),
   percentageOrGPA: z.number().min(0).max(100),
@@ -36,9 +36,9 @@ export const academicHistorySchema = z.object({
 });
 
 export const formSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
+  firstName: z.string().min(2, "First name is required"),
   middleName: z.string().optional(),
-  lastName: z.string().min(1, "Last name is required"),
+  lastName: z.string().min(2, "Last name is required"),
   dateOfBirth: dateSchema,
   gender: z.number().int(),
   bloodGroup: z.number().int(),
@@ -47,7 +47,7 @@ export const formSchema = z.object({
     citizenshipNumber: z.string().min(1, "Citizenship Number is required"),
     countryOfIssuance: z.string().min(1, "Country of Issuance is required"),
     dateOfIssuance: dateSchema,
-    placeOfIssuance: z.string().optional(),
+    placeOfIssuance: z.string().min(3, "Place of Issuance is required"),
   }),
 
   contactInfo: z.object({
@@ -84,7 +84,7 @@ export const formSchema = z.object({
           .string()
           .refine(
             (s) => s === "" || /^\d{4}-\d{2}-\d{2}$/.test(s),
-            "Date must be in YYYY-MM-DD format"
+            "Date must be in correct format"
           )
           .optional(),
       })
@@ -117,14 +117,14 @@ export const formSchema = z.object({
         .string()
         .refine(
           (s) => s === "" || /^\d{4}-\d{2}-\d{2}$/.test(s),
-          "Date must be in YYYY-MM-DD format"
+          "Date must be in ok format"
         )
         .optional(),
       endDate: z
         .string()
         .refine(
           (s) => s === "" || /^\d{4}-\d{2}-\d{2}$/.test(s),
-          "Date must be in YYYY-MM-DD format"
+          "Date must be in ok format"
         )
         .optional(),
     })

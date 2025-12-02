@@ -39,6 +39,7 @@ const FormPage: React.FC = () => {
     watch,
     setValue,
     getValues,
+    reset,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: "onSubmit",
@@ -75,7 +76,7 @@ const FormPage: React.FC = () => {
           institutionName: "",
           level: 0,
           percentageOrGPA: 0,
-          passingYear: 2020,
+          passingYear: 0,
         },
       ],
     },
@@ -122,15 +123,16 @@ const FormPage: React.FC = () => {
   }, [permanentAddress, sameAsPermanent, setValue, currentStep]);
 
   const processForm = async (data: FieldValues) => {
-    console.log("🚀 processForm called - form is submitting!");
-    console.log("📋 Form data:", data);
+    console.log("ProcessForm called - form is submitting!");
+    console.log("Form data:", data);
     try {
       const result = await submitStudent(data);
       console.log("✅ submitStudent returned:", result);
       if (result) {
         alert("Form Submitted Successfully!");
         // Reset form to initial state
-        window.location.reload();
+        reset();
+        setCurrentStep(1);
       } else {
         console.error("Form submission error: unknown error");
         alert("Form submission failed. Please check the console for details.");
@@ -147,7 +149,17 @@ const FormPage: React.FC = () => {
   const steps = [
     {
       name: "Personal Details",
-      fields: ["firstName", "lastName", "dateOfBirth", "gender", "bloodGroup"],
+      fields: [
+        "firstName",
+        "lastName",
+        "dateOfBirth",
+        "gender",
+        "bloodGroup",
+        "citizenship.citizenshipNumber",
+        "citizenship.countryOfIssuance",
+        "citizenship.dateOfIssuance",
+        "citizenship.placeOfIssuance",
+      ],
     },
     {
       name: "Contact Info",
@@ -192,7 +204,7 @@ const FormPage: React.FC = () => {
   const handleBack = () => setCurrentStep((s) => s - 1);
 
   const onSubmitError = (validationErrors: FieldErrors<FormData>) => {
-    console.error("❌ Form validation failed! Cannot submit.");
+    console.error("Form validation failed! Cannot submit.");
     console.error("Validation errors:", validationErrors);
 
     // Flatten nested errors for easier debugging
@@ -212,13 +224,13 @@ const FormPage: React.FC = () => {
     };
     extractErrors(validationErrors as unknown as Record<string, unknown>);
 
-    console.error("📋 Error Summary:", errorMessages);
+    console.error("Error Summary:", errorMessages);
     console.error("Number of errors:", errorMessages.length);
 
     if (errorMessages.length > 0) {
       alert(`Please fix the following errors:\n\n${errorMessages.join("\n")}`);
     } else {
-      console.warn("⚠️ onSubmitError called but no validation errors found!");
+      console.warn("OnSubmitError called but no validation errors found!");
       console.log("Current form values:", getValues());
       console.log("Form state:", { isValid, isSubmitting, isValidating });
       alert("Please check all required fields before submitting.");
@@ -680,7 +692,7 @@ const FormPage: React.FC = () => {
               <FiFileText className="h-4 w-4 text-sky-500" />
               Documents & Confirmation
             </h2>
-            <Checkbox
+            <Checkbox<FormData>
               label="I agree to the terms and conditions"
               name="agree"
               register={register}
