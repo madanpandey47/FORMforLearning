@@ -26,8 +26,12 @@ namespace FormBackend.Controllers
 
             try
             {
-                var student = await _studentService.CreateStudentAsync(studentDto);
-                return CreatedAtAction(nameof(GetStudent), new { id = student.Id }, student);
+                var createdStudentDto = await _studentService.CreateStudentAsync(studentDto);
+                if (createdStudentDto == null)
+                {
+                    return BadRequest("Student could not be created.");
+                }
+                return CreatedAtAction(nameof(GetStudent), new { id = createdStudentDto.Id }, createdStudentDto);
             }
             catch (ArgumentException ex)
             {

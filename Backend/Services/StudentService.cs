@@ -17,7 +17,7 @@ namespace FormBackend.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Student> CreateStudentAsync(StudentDTO studentDto)
+        public async Task<StudentDTO?> CreateStudentAsync(StudentDTO studentDto)
         {
             var student = new Student
             {
@@ -100,7 +100,7 @@ namespace FormBackend.Services
                 } : null,
                 Scholarship = studentDto.Scholarship != null ? new Scholarship
                 {
-                    ScholarshipName = studentDto.Scholarship.ScholarshipName,
+                    ScholarshipName = studentDto.Scholarship.ScholarshipName ?? "",
                     Amount = studentDto.Scholarship.Amount,
                     StartDate = studentDto.Scholarship.StartDate,
                     EndDate = studentDto.Scholarship.EndDate
@@ -128,7 +128,7 @@ namespace FormBackend.Services
 
             await _unitOfWork.CompleteAsync();
 
-            return student;
+            return await GetStudentByIdAsync(student.Id);
         }
 
         public async Task<StudentDTO?> GetStudentByIdAsync(int id)
@@ -143,6 +143,7 @@ namespace FormBackend.Services
             // Map Student entity to StudentDTO
             var studentDto = new StudentDTO
             {
+                Id = student.Id,
                 // Personal Details
                 FirstName = student.FirstName,
                 MiddleName = student.ContactInfo?.MiddleName,

@@ -272,7 +272,7 @@ const FormPage: React.FC = () => {
                 {...register("dateOfBirth")}
                 error={errors.dateOfBirth?.message}
               />
-              <Select
+              <Select<FormData>
                 label="Gender"
                 name="gender"
                 register={register}
@@ -280,7 +280,7 @@ const FormPage: React.FC = () => {
                 valueAsNumber
                 error={errors.gender?.message}
               />
-              <Select
+              <Select<FormData>
                 label="Blood Group"
                 name="bloodGroup"
                 register={register}
@@ -505,7 +505,7 @@ const FormPage: React.FC = () => {
                 {...register("academicHistories.0.institutionName")}
                 error={errors.academicHistories?.[0]?.institutionName?.message}
               />
-              <Select
+              <Select<FormData>
                 label="Academic Level"
                 name="academicHistories.0.level"
                 register={register}

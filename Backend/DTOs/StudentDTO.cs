@@ -39,6 +39,7 @@ namespace FormBackend.DTOs
 
     public class StudentDTO
     {
+        public int Id { get; set; }
         // Personal Details
         public required string FirstName { get; set; }
         public string? MiddleName { get; set; }
