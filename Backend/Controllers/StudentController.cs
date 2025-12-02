@@ -24,8 +24,15 @@ namespace FormBackend.Controllers
                 return BadRequest(ModelState);
             }
 
-            var student = await _studentService.CreateStudentAsync(studentDto);
-            return CreatedAtAction(nameof(GetStudent), new { id = student.Id }, student);
+            try
+            {
+                var student = await _studentService.CreateStudentAsync(studentDto);
+                return CreatedAtAction(nameof(GetStudent), new { id = student.Id }, student);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("{id}")]

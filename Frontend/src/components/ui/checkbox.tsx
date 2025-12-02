@@ -12,13 +12,14 @@ const Checkbox = <T extends FieldValues = FieldValues>(
   props: CheckboxProps<T>
 ) => {
   const { label, name, register, error } = props;
+  const registeredProps = register(name);
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-2">
         <input
           id={name}
           type="checkbox"
-          {...register(name)}
+          {...registeredProps}
           className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
         />
         <label

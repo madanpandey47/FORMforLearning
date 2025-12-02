@@ -46,19 +46,17 @@ export const formSchema = z.object({
   bloodGroup: z.number().int(),
 
   // Citizenship
-  citizenship: z
-    .object({
-      citizenshipNumber: z.string().min(1, "Citizenship Number is required"),
-      countryOfIssuance: z.string().min(1, "Country of Issuance is required"),
-      dateOfIssuance: z
-        .string()
-        .refine(
-          (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
-          "Date must be in YYYY-MM-DD format"
-        ),
-      placeOfIssuance: z.string().optional(),
-    })
-    .optional(),
+  citizenship: z.object({
+    citizenshipNumber: z.string().min(1, "Citizenship Number is required"),
+    countryOfIssuance: z.string().min(1, "Country of Issuance is required"),
+    dateOfIssuance: z
+      .string()
+      .refine(
+        (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
+        "Date must be in YYYY-MM-DD format"
+      ),
+    placeOfIssuance: z.string().optional(),
+  }),
 
   // Contact Info (required with required fields inside)
   contactInfo: z.object({
@@ -83,19 +81,18 @@ export const formSchema = z.object({
   academicHistories: z.array(academicHistorySchema).optional(),
 
   // Academic Enrollment
-  academicEnrollment: z
-    .object({
-      facultyId: z.number().int().min(1, "Please select a valid faculty"),
-      programName: z.string().min(1, "Program Name is required"),
-      enrollmentDate: z
-        .string()
-        .refine(
-          (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
-          "Enrollment Date must be in YYYY-MM-DD format"
-        ),
-      studentIdNumber: z.string().optional(),
-    })
-    .optional(),
+  academicEnrollment: z.object({
+    facultyId: z.number().int().min(1, "Please select a valid faculty"),
+    programName: z.string().min(1, "Program Name is required"),
+    enrollmentDate: z
+      .string()
+      .refine(
+        (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
+        "Enrollment Date must be in YYYY-MM-DD format"
+      )
+      .optional(),
+    studentIdNumber: z.string().optional(),
+  }),
 
   // Achievements
   achievements: z

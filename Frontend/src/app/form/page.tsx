@@ -42,10 +42,18 @@ const FormPage: React.FC = () => {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: "onSubmit",
+    reValidateMode: "onSubmit",
+    shouldFocusError: false,
     defaultValues: {
       contactInfo: {
         primaryMobile: "",
         primaryEmail: "",
+      },
+      citizenship: {
+        citizenshipNumber: "",
+        countryOfIssuance: "",
+        dateOfIssuance: "",
+        placeOfIssuance: "",
       },
       permanentAddress: {
         province: "",
@@ -103,16 +111,20 @@ const FormPage: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    if (sameAsPermanent) {
-      setValue("temporaryAddress", { ...permanentAddress, type: 2 });
+    // Only sync addresses when on address step and sameAsPermanent is checked
+    if (sameAsPermanent && permanentAddress && currentStep === 3) {
+      setValue(
+        "temporaryAddress",
+        { ...permanentAddress, type: 2 },
+        { shouldValidate: false, shouldDirty: false, shouldTouch: false }
+      );
     }
-  }, [permanentAddress, sameAsPermanent, setValue]);
+  }, [permanentAddress, sameAsPermanent, setValue, currentStep]);
 
   const processForm = async (data: FieldValues) => {
     console.log("🚀 processForm called - form is submitting!");
     console.log("📋 Form data:", data);
     try {
-      debugger;
       const result = await submitStudent(data);
       console.log("✅ submitStudent returned:", result);
       if (result) {
@@ -180,18 +192,37 @@ const FormPage: React.FC = () => {
   const handleBack = () => setCurrentStep((s) => s - 1);
 
   const onSubmitError = (validationErrors: FieldErrors<FormData>) => {
-    console.error("Form validation failed! Cannot submit.");
+    console.error("❌ Form validation failed! Cannot submit.");
     console.error("Validation errors:", validationErrors);
-    console.error("Number of errors:", Object.keys(validationErrors).length);
 
-    // If no validation errors, it might be a different issue
-    if (Object.keys(validationErrors).length === 0) {
+    // Flatten nested errors for easier debugging
+    const errorMessages: string[] = [];
+    const extractErrors = (obj: Record<string, unknown>, prefix = ""): void => {
+      Object.keys(obj).forEach((key) => {
+        const fullKey = prefix ? `${prefix}.${key}` : key;
+        const value = obj[key];
+        if (value && typeof value === "object" && "message" in value) {
+          errorMessages.push(
+            `${fullKey}: ${(value as { message: string }).message}`
+          );
+        } else if (value && typeof value === "object" && value !== null) {
+          extractErrors(value as Record<string, unknown>, fullKey);
+        }
+      });
+    };
+    extractErrors(validationErrors as unknown as Record<string, unknown>);
+
+    console.error("📋 Error Summary:", errorMessages);
+    console.error("Number of errors:", errorMessages.length);
+
+    if (errorMessages.length > 0) {
+      alert(`Please fix the following errors:\n\n${errorMessages.join("\n")}`);
+    } else {
       console.warn("⚠️ onSubmitError called but no validation errors found!");
       console.log("Current form values:", getValues());
       console.log("Form state:", { isValid, isSubmitting, isValidating });
+      alert("Please check all required fields before submitting.");
     }
-
-    alert("Please fix the validation errors before submitting.");
   };
 
   // lookup-backed select options are loaded via useEffect above
@@ -247,6 +278,7 @@ const FormPage: React.FC = () => {
                 register={register}
                 options={genderOptions}
                 valueAsNumber
+                error={errors.gender?.message}
               />
               <Select
                 label="Blood Group"
@@ -254,6 +286,7 @@ const FormPage: React.FC = () => {
                 register={register}
                 options={bloodTypeOptions}
                 valueAsNumber
+                error={errors.bloodGroup?.message}
               />
             </div>
             <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
@@ -363,12 +396,6 @@ const FormPage: React.FC = () => {
                 checked={sameAsPermanent}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setSameAsPermanent(e.target.checked);
-                  if (e.target.checked) {
-                    setValue("temporaryAddress", {
-                      ...permanentAddress,
-                      type: 2,
-                    });
-                  }
                 }}
                 className="w-4 h-4 accent-black rounded"
               />
@@ -447,7 +474,10 @@ const FormPage: React.FC = () => {
               <Input
                 label="Annual Income (optional)"
                 type="number"
-                {...register("parents.0.annualIncome", { valueAsNumber: true })}
+                {...register("parents.0.annualIncome", {
+                  setValueAs: (v) =>
+                    v === "" || isNaN(Number(v)) ? 0 : Number(v),
+                })}
               />
               <Input
                 label="Mobile Number (optional)"
@@ -557,7 +587,10 @@ const FormPage: React.FC = () => {
               <Input
                 label="Amount (optional)"
                 type="number"
-                {...register("scholarship.amount", { valueAsNumber: true })}
+                {...register("scholarship.amount", {
+                  setValueAs: (v) =>
+                    v === "" || isNaN(Number(v)) ? 0 : Number(v),
+                })}
               />
               <Input
                 label="Start Date"
@@ -593,7 +626,8 @@ const FormPage: React.FC = () => {
                 label="Disability Percentage (optional)"
                 type="number"
                 {...register("disability.disabilityPercentage", {
-                  valueAsNumber: true,
+                  setValueAs: (v) =>
+                    v === "" || isNaN(Number(v)) ? 0 : Number(v),
                 })}
               />
             </div>

@@ -100,7 +100,7 @@ namespace FormBackend.Services
                 } : null,
                 Scholarship = studentDto.Scholarship != null ? new Scholarship
                 {
-                    ScholarshipName = studentDto.Scholarship.ScholarshipName = "",
+                    ScholarshipName = studentDto.Scholarship.ScholarshipName,
                     Amount = studentDto.Scholarship.Amount,
                     StartDate = studentDto.Scholarship.StartDate,
                     EndDate = studentDto.Scholarship.EndDate
