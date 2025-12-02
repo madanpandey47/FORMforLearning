@@ -225,6 +225,18 @@ const FormPage: React.FC = () => {
     }
   };
 
+  const countryOptions = [
+    { label: "Nepal", value: "Nepal" },
+    { label: "Afghanistan", value: "Afghanistan" },
+    { label: "Bangladesh", value: "Bangladesh" },
+    { label: "Bhutan", value: "Bhutan" },
+    { label: "India", value: "India" },
+    { label: "Maldives", value: "Maldives" },
+    { label: "Pakistan", value: "Pakistan" },
+    { label: "Sri Lanka", value: "Sri Lanka" },
+    { label: "Other", value: "Other" },
+  ];
+
   // lookup-backed select options are loaded via useEffect above
 
   return (
@@ -272,21 +284,17 @@ const FormPage: React.FC = () => {
                 {...register("dateOfBirth")}
                 error={errors.dateOfBirth?.message}
               />
-              <Select<FormData>
+              <Select
                 label="Gender"
-                name="gender"
-                register={register}
                 options={genderOptions}
-                valueAsNumber
                 error={errors.gender?.message}
+                {...register("gender", { valueAsNumber: true })}
               />
-              <Select<FormData>
+              <Select
                 label="Blood Group"
-                name="bloodGroup"
-                register={register}
                 options={bloodTypeOptions}
-                valueAsNumber
                 error={errors.bloodGroup?.message}
+                {...register("bloodGroup", { valueAsNumber: true })}
               />
             </div>
             <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
@@ -299,10 +307,11 @@ const FormPage: React.FC = () => {
                 {...register("citizenship.citizenshipNumber")}
                 error={errors.citizenship?.citizenshipNumber?.message}
               />
-              <Input
+              <Select
                 label="Country of Issuance"
-                {...register("citizenship.countryOfIssuance")}
+                options={countryOptions}
                 error={errors.citizenship?.countryOfIssuance?.message}
+                {...register("citizenship.countryOfIssuance")}
               />
               <Input
                 label="Date of Issuance"
@@ -378,10 +387,11 @@ const FormPage: React.FC = () => {
                 error={errors.permanentAddress?.ward?.message}
               />
               <Input label="Street" {...register("permanentAddress.street")} />
-              <Input
+              <Select
                 label="Country"
-                {...register("permanentAddress.country")}
+                options={countryOptions}
                 error={errors.permanentAddress?.country?.message}
+                {...register("permanentAddress.country")}
               />
             </div>
 
@@ -430,11 +440,12 @@ const FormPage: React.FC = () => {
                 {...register("temporaryAddress.street")}
                 disabled={sameAsPermanent}
               />
-              <Input
+              <Select
                 label="Country"
-                {...register("temporaryAddress.country")}
+                options={countryOptions}
                 error={errors.temporaryAddress?.country?.message}
                 disabled={sameAsPermanent}
+                {...register("temporaryAddress.country")}
               />
             </div>
           </div>
@@ -505,13 +516,13 @@ const FormPage: React.FC = () => {
                 {...register("academicHistories.0.institutionName")}
                 error={errors.academicHistories?.[0]?.institutionName?.message}
               />
-              <Select<FormData>
+              <Select
                 label="Academic Level"
-                name="academicHistories.0.level"
-                register={register}
                 options={academicLevelOptions}
-                valueAsNumber
                 error={errors.academicHistories?.[0]?.level?.message}
+                {...register("academicHistories.0.level", {
+                  valueAsNumber: true,
+                })}
               />
               <Input
                 label="Board (optional)"

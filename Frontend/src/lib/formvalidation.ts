@@ -4,7 +4,7 @@ const dateSchema = z
   .string()
   .refine(
     (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
-    "Date must be in YYYY-MM-DD format"
+    "Date must be in correct format"
   );
 
 export const addressSchema = z.object({
