@@ -692,7 +692,7 @@ const FormPage: React.FC = () => {
               <FiFileText className="h-4 w-4 text-sky-500" />
               Documents & Confirmation
             </h2>
-            <Checkbox<FormData>
+            <Checkbox
               label="I agree to the terms and conditions"
               name="agree"
               register={register}
