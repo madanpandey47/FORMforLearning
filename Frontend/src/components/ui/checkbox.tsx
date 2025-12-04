@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 interface CheckboxProps {
   label: string;
@@ -14,13 +14,15 @@ const Checkbox = React.memo(function CheckboxComponent({
   register,
   error,
 }: CheckboxProps) {
+  const registeredProps = useMemo(() => register(name), [register, name]);
+
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-2">
         <input
           id={name}
           type="checkbox"
-          {...register(name)}
+          {...registeredProps}
           className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
         />
         <label htmlFor={name} className="text-sm font-medium text-slate-700">
