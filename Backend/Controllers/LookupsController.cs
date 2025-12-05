@@ -96,6 +96,7 @@ namespace FormBackend.Controllers
                 FacultyType.Law => "Law",
                 FacultyType.Education => "Education",
                 FacultyType.Management => "Management",
+                FacultyType.IT => "IT",
                 _ => ft.ToString()
             };
 

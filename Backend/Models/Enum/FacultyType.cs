@@ -9,6 +9,7 @@ namespace FormBackend.Models.Enum
         Medicine,
         Law,
         Education,
-        Management
+        Management,
+        IT
     }
 }
