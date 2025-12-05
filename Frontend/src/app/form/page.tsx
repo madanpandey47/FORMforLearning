@@ -90,6 +90,7 @@ const FormPage: React.FC = () => {
         },
       ],
       hobbies: [{ name: "" }],
+      agree: false,
     },
   });
 
@@ -853,7 +854,7 @@ const FormPage: React.FC = () => {
               <Checkbox
                 label="I agree to the terms and conditions"
                 name="agree"
-                register={register}
+                control={control}
                 error={errors.agree?.message}
               />
             </div>
