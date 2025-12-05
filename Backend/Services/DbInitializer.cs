@@ -64,7 +64,7 @@ namespace FormBackend.Services
                     BloodGroup = BloodType.OPositive,
                     PrimaryMobile = "9841234567",
                     PrimaryEmail = "ram.thapa@example.com",
-                    ContactInfo = new SecondaryInfos
+                    SecondaryInfos = new SecondaryInfos
                     {
                         MiddleName = "Bahadur",
                         AlternateMobile = null,
@@ -77,8 +77,8 @@ namespace FormBackend.Services
                     },
                     Parents = new List<Parent>
                     {
-                        new Parent { FirstName = "Hari", LastName = "Thapa", Relation = "Father", MobileNumber="9841111111" },
-                        new Parent { FirstName = "Sita", LastName = "Thapa", Relation = "Mother", MobileNumber="9842222222" }
+                        new Parent { FirstName = "Hari", LastName = "Thapa", Relation = ParentType.Father, MobileNumber="9841111111" },
+                        new Parent { FirstName = "Sita", LastName = "Thapa", Relation = ParentType.Mother, MobileNumber="9842222222" }
                     },
                     AcademicHistories = new List<AcademicHistory>
                     {
@@ -101,7 +101,7 @@ namespace FormBackend.Services
                     BloodGroup = BloodType.APositive,
                     PrimaryMobile = "9818765432",
                     PrimaryEmail = "gita.sharma@example.com",
-                    ContactInfo = new SecondaryInfos
+                    SecondaryInfos = new SecondaryInfos
                     {
                         MiddleName = null,
                         AlternateMobile = null,
@@ -113,7 +113,7 @@ namespace FormBackend.Services
                     },
                     Parents = new List<Parent>
                     {
-                        new Parent { FirstName = "Shyam", LastName = "Sharma", Relation = "Father", MobileNumber="9818888888" }
+                        new Parent { FirstName = "Shyam", LastName = "Sharma", Relation = ParentType.Father, MobileNumber="9818888888" }
                     },
                     AcademicHistories = new List<AcademicHistory>
                     {

@@ -1,28 +1,26 @@
-import React, { useMemo } from "react";
+import React from "react";
+import { UseFormRegister, FieldValues, Path } from "react-hook-form";
 
-interface CheckboxProps {
+interface CheckboxProps<T extends FieldValues> {
   label: string;
-  name: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  register: any;
+  name: Path<T>;
+  register: UseFormRegister<T>;
   error?: string;
 }
 
-const Checkbox = React.memo(function CheckboxComponent({
+function CheckboxComponent<T extends FieldValues>({
   label,
   name,
   register,
   error,
-}: CheckboxProps) {
-  const registeredProps = useMemo(() => register(name), [register, name]);
-
+}: CheckboxProps<T>) {
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-2">
         <input
           id={name}
           type="checkbox"
-          {...registeredProps}
+          {...register(name)}
           className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
         />
         <label htmlFor={name} className="text-sm font-medium text-slate-700">
@@ -32,8 +30,12 @@ const Checkbox = React.memo(function CheckboxComponent({
       {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
-});
+}
 
-Checkbox.displayName = "Checkbox";
+CheckboxComponent.displayName = "Checkbox";
+
+const Checkbox = CheckboxComponent as <T extends FieldValues>(
+  props: CheckboxProps<T>
+) => React.JSX.Element;
 
 export default Checkbox;

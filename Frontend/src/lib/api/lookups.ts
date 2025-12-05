@@ -27,3 +27,7 @@ export async function getAddressTypes() {
 export async function getGenders() {
   return fetchOptions("genders");
 }
+
+export async function getParentTypes() {
+  return fetchOptions("parent-types");
+}

@@ -71,5 +71,17 @@ namespace FormBackend.Controllers
             }
             return Ok(list);
         }
+
+        [HttpGet("parent-types")]
+        public IActionResult GetParentTypes()
+        {
+            var values = (ParentType[])Enum.GetValues(typeof(ParentType));
+            var list = new List<OptionDto>();
+            foreach (var v in values)
+            {
+                list.Add(new OptionDto((int)v, v.ToString()));
+            }
+            return Ok(list);
+        }
     }
 }

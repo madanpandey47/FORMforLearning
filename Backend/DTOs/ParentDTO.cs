@@ -1,12 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using FormBackend.Models.Enum;
 
-namespace FormBackend.Models
+namespace FormBackend.DTOs
 {
-    public class Parent
+    public class ParentDTO
     {
-        [Key]
-        public int Id { get; set; }
         [Required]
         public required string FirstName { get; set; }
         public string? MiddleName { get; set; }

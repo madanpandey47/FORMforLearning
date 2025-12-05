@@ -10,7 +10,6 @@ namespace FormBackend.Models
         [Key]
         public int Id { get; set; }
 
-        // Personal Details
         [Required]
         public required string FirstName { get; set; }
         [Required]
@@ -19,8 +18,8 @@ namespace FormBackend.Models
         public DateTime DateOfBirth { get; set; }
         [Required]
         public Gender Gender { get; set; }
-        [Required]
         [Phone]
+        [Required]
         public required string PrimaryMobile { get; set; }
         [Required]
         [EmailAddress]
@@ -30,7 +29,7 @@ namespace FormBackend.Models
 
         // Relationships
         public virtual Citizenship? Citizenship { get; set; }
-        public virtual SecondaryInfos? ContactInfo { get; set; }
+        public virtual SecondaryInfos? SecondaryInfos { get; set; }
         public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
         public virtual ICollection<Parent> Parents { get; set; } = new List<Parent>();
         public virtual ICollection<AcademicHistory> AcademicHistories { get; set; } = new List<AcademicHistory>();

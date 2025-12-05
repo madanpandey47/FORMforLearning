@@ -20,12 +20,7 @@ namespace FormBackend.Core.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public async Task<T?> GetByIdAsync(int id)
-        {
-            return await _dbSet.FindAsync(id);
-        }
-
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<IEnumerable<T>> GetAllStudentsAsync()
         {
             return await _dbSet.ToListAsync();
         }

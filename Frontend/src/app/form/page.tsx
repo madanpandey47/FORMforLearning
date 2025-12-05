@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Image from "next/image";
 import {
   FiUser,
   FiPhone,
@@ -10,13 +11,20 @@ import {
   FiDollarSign,
   FiSettings,
   FiFileText,
+  FiPlus,
+  FiTrash2,
 } from "react-icons/fi";
 import Form from "../../components/ui/form";
 import Input from "../../components/ui/input";
 import Select from "../../components/ui/select";
 import Checkbox from "../../components/ui/checkbox";
 import Button from "../../components/ui/button";
-import { useForm, FieldValues, FieldErrors } from "react-hook-form";
+import {
+  useForm,
+  FieldValues,
+  FieldErrors,
+  useFieldArray,
+} from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "../../lib/formvalidation";
@@ -24,6 +32,7 @@ import {
   getBloodTypes,
   getAcademicLevels,
   getGenders,
+  getParentTypes,
   Option,
 } from "../../lib/api/lookups";
 import { submitStudent } from "../../lib/api/student";
@@ -40,6 +49,7 @@ const FormPage: React.FC = () => {
     setValue,
     getValues,
     reset,
+    control,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: "onSubmit",
@@ -70,7 +80,7 @@ const FormPage: React.FC = () => {
         country: "",
         type: 2,
       },
-      parents: [{ firstName: "", lastName: "", relation: "" }],
+      parents: [{ firstName: "", lastName: "", relation: 0 }],
       academicHistories: [
         {
           institutionName: "",
@@ -82,29 +92,44 @@ const FormPage: React.FC = () => {
     },
   });
 
+  const {
+    fields: parentFields,
+    append: appendParent,
+    remove: removeParent,
+  } = useFieldArray({
+    control,
+    name: "parents",
+  });
+
   const [currentStep, setCurrentStep] = React.useState(1);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const permanentAddress = watch("permanentAddress");
   const [sameAsPermanent, setSameAsPermanent] = React.useState(false);
+  const [imagePreview, setImagePreview] = React.useState<string | null>(null);
   const [bloodTypeOptions, setBloodTypeOptions] = React.useState<Option[]>([]);
   const [academicLevelOptions, setAcademicLevelOptions] = React.useState<
     Option[]
   >([]);
   const [genderOptions, setGenderOptions] = React.useState<Option[]>([]);
+  const [parentTypeOptions, setParentTypeOptions] = React.useState<Option[]>(
+    []
+  );
 
   React.useEffect(() => {
     // Load lookup options from backend
     (async () => {
       try {
-        const [bt, al, g] = await Promise.all([
+        const [bt, al, g, pt] = await Promise.all([
           getBloodTypes(),
           getAcademicLevels(),
           getGenders(),
+          getParentTypes(),
         ]);
         setBloodTypeOptions(bt);
         setAcademicLevelOptions(al);
         setGenderOptions(g);
+        setParentTypeOptions(pt);
       } catch (e) {
         console.error("Failed to load lookup options", e);
       }
@@ -122,6 +147,17 @@ const FormPage: React.FC = () => {
     }
   }, [permanentAddress, sameAsPermanent, setValue, currentStep]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const processForm = async (data: FieldValues) => {
     console.log("ProcessForm called - form is submitting!");
     console.log("Form data:", data);
@@ -133,6 +169,7 @@ const FormPage: React.FC = () => {
         // Reset form to initial state
         reset();
         setCurrentStep(1);
+        setImagePreview(null);
       } else {
         console.error("Form submission error: unknown error");
         alert("Form submission failed. Please check the console for details.");
@@ -176,11 +213,7 @@ const FormPage: React.FC = () => {
     },
     {
       name: "Family Details",
-      fields: [
-        "parents.0.firstName",
-        "parents.0.lastName",
-        "parents.0.relation",
-      ],
+      fields: ["parents"],
     },
     { name: "Academic History", fields: ["academicHistories"] },
     { name: "Enrollment", fields: ["academicEnrollment"] },
@@ -189,7 +222,7 @@ const FormPage: React.FC = () => {
       fields: [],
     },
     { name: "Other", fields: [] },
-    { name: "Documents & Confirmation", fields: ["agree"] },
+    { name: "Documents & Confirmation", fields: ["agree", "image"] },
   ];
 
   const handleNext = async () => {
@@ -465,53 +498,97 @@ const FormPage: React.FC = () => {
 
         {/* STEP 4 - Family */}
         {currentStep === 4 && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
               <FiUsers className="h-4 w-4 text-sky-500" />
               Family Details
             </h2>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Input
-                label="First Name"
-                {...register("parents.0.firstName")}
-                error={errors.parents?.[0]?.firstName?.message}
-              />
-              <Input
-                label="Middle Name (optional)"
-                {...register("parents.0.middleName")}
-              />
-              <Input
-                label="Last Name"
-                {...register("parents.0.lastName")}
-                error={errors.parents?.[0]?.lastName?.message}
-              />
-              <Input
-                label="Relation"
-                {...register("parents.0.relation")}
-                error={errors.parents?.[0]?.relation?.message}
-              />
-              <Input
-                label="Occupation (optional)"
-                {...register("parents.0.occupation")}
-              />
-              <Input
-                label="Annual Income (optional)"
-                type="number"
-                {...register("parents.0.annualIncome", {
-                  setValueAs: (v) =>
-                    v === "" || isNaN(Number(v)) ? 0 : Number(v),
-                })}
-              />
-              <Input
-                label="Mobile Number (optional)"
-                {...register("parents.0.mobileNumber")}
-              />
-              <Input
-                label="Email (optional)"
-                type="email"
-                {...register("parents.0.email")}
-              />
-            </div>
+
+            {parentFields.map((parent, index) => (
+              <div key={parent.id} className="border rounded-lg p-4 bg-gray-50">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-md font-semibold">
+                    Parent/Guardian {index + 1}
+                  </h3>
+                  {parentFields.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeParent(index)}
+                      className="text-red-600 hover:text-red-800 flex items-center gap-1"
+                    >
+                      <FiTrash2 className="h-4 w-4" />
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <Input
+                    label="First Name"
+                    {...register(`parents.${index}.firstName`)}
+                    error={errors.parents?.[index]?.firstName?.message}
+                  />
+                  <Input
+                    label="Middle Name (optional)"
+                    {...register(`parents.${index}.middleName`)}
+                  />
+                  <Input
+                    label="Last Name"
+                    {...register(`parents.${index}.lastName`)}
+                    error={errors.parents?.[index]?.lastName?.message}
+                  />
+                  <Select
+                    label="Relation Type"
+                    options={parentTypeOptions}
+                    error={errors.parents?.[index]?.relation?.message}
+                    {...register(`parents.${index}.relation`, {
+                      valueAsNumber: true,
+                    })}
+                  />
+                  <Input
+                    label="Occupation (optional)"
+                    {...register(`parents.${index}.occupation`)}
+                  />
+                  <Input
+                    label="Annual Income (optional)"
+                    type="number"
+                    {...register(`parents.${index}.annualIncome`, {
+                      setValueAs: (v) =>
+                        v === "" || isNaN(Number(v)) ? 0 : Number(v),
+                    })}
+                  />
+                  <Input
+                    label="Mobile Number (optional)"
+                    {...register(`parents.${index}.mobileNumber`)}
+                  />
+                  <Input
+                    label="Email (optional)"
+                    type="email"
+                    {...register(`parents.${index}.email`)}
+                  />
+                </div>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() =>
+                appendParent({
+                  firstName: "",
+                  lastName: "",
+                  relation: 0,
+                  email: "",
+                })
+              }
+              className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+            >
+              <FiPlus className="h-4 w-4" />
+              Add Another Parent/Guardian
+            </button>
+
+            {errors.parents?.message && (
+              <p className="text-red-600 text-sm">{errors.parents.message}</p>
+            )}
           </div>
         )}
 
@@ -569,7 +646,7 @@ const FormPage: React.FC = () => {
             </h2>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
-                label="Faculty ID (e.g., 1 or 2)"
+                label="Faculty ID"
                 type="number"
                 {...register("academicEnrollment.facultyId", {
                   valueAsNumber: true,
@@ -690,14 +767,58 @@ const FormPage: React.FC = () => {
           <div className="space-y-6">
             <h2 className="flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">
               <FiFileText className="h-4 w-4 text-sky-500" />
-              Documents & Confirmation
+              Documents & Profile Image
             </h2>
-            <Checkbox
-              label="I agree to the terms and conditions"
-              name="agree"
-              register={register}
-              error={errors.agree?.message}
-            />
+
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                <div className="mb-4">
+                  <FiFileText className="h-12 w-12 mx-auto text-gray-400 mb-2" />
+                  <p className="text-gray-600 font-medium">
+                    Upload Profile Image
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    PNG, JPG, GIF up to 10MB
+                  </p>
+                </div>
+
+                <input
+                  type="file"
+                  id="imageInput"
+                  accept="image/*"
+                  {...register("image")}
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+
+                <label
+                  htmlFor="imageInput"
+                  className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
+                >
+                  Select Image
+                </label>
+
+                {imagePreview && (
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-600 mb-2">Preview:</p>
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      width={128}
+                      height={128}
+                      className="h-32 w-32 mx-auto rounded object-cover"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <Checkbox
+                label="I agree to the terms and conditions"
+                name="agree"
+                register={register}
+                error={errors.agree?.message}
+              />
+            </div>
           </div>
         )}
 

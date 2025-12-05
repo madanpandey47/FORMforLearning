@@ -1,12 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace FormBackend.Models
+namespace FormBackend.DTOs
 {
-    public class SecondaryInfos
+    public class SecondaryInfosDTO
     {
-        [Key]
-        public int Id { get; set; }
-
         public string? MiddleName { get; set; }
         [Phone]
         public string? AlternateMobile { get; set; }

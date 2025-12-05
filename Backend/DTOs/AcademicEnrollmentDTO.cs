@@ -1,18 +1,12 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace FormBackend.Models
+namespace FormBackend.DTOs
 {
-    public class AcademicEnrollment
+    public class AcademicEnrollmentDTO
     {
-        [Key]
-        public int Id { get; set; }
-        [Required]
-        public int StudentId { get; set; }
-        public virtual Student? Student { get; set; }
         [Required]
         public int FacultyId { get; set; }
-        public virtual Faculty? Faculty { get; set; }
         [Required]
         public required string ProgramName { get; set; }
         [Required]
