@@ -25,6 +25,7 @@ import {
   FieldErrors,
   useFieldArray,
   useWatch,
+  Controller,
 } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -91,6 +92,13 @@ const FormPage: React.FC = () => {
         },
       ],
       hobbies: [{ name: "" }],
+      academicEnrollment: {
+        facultyId: 0,
+        programName: "",
+        enrollmentDate: "",
+        studentIdNumber: "",
+      },
+      images: [],
       agree: false,
     },
   });
@@ -124,7 +132,7 @@ const FormPage: React.FC = () => {
     name: "temporaryAddress",
   });
   const [sameAsPermanent, setSameAsPermanent] = React.useState(false);
-  const [imagePreview, setImagePreview] = React.useState<string | null>(null);
+  const [imagePreviews, setImagePreviews] = React.useState<string[]>([]);
   const [bloodTypeOptions, setBloodTypeOptions] = React.useState<Option[]>([]);
   const [academicLevelOptions, setAcademicLevelOptions] = React.useState<
     Option[]
@@ -177,29 +185,43 @@ const FormPage: React.FC = () => {
     }
 
     if (!isSame) {
-      setValue("temporaryAddress", nextTemp, {
-        shouldValidate: false,
-        shouldDirty: false,
-        shouldTouch: false,
+      // Defer setValue to avoid state update during render
+      queueMicrotask(() => {
+        setValue("temporaryAddress", nextTemp, {
+          shouldValidate: false,
+          shouldDirty: false,
+          shouldTouch: false,
+        });
       });
     }
-  }, [
-    currentStep,
-    permanentAddress,
-    sameAsPermanent,
-    setValue,
-    temporaryAddress,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep, permanentAddress, sameAsPermanent, setValue]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const handleImageAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const currentImages = getValues("images") || [];
+      const newImages = [...currentImages, ...Array.from(files)];
+      setValue("images", newImages);
+
+      // Generate previews for new images
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreviews((prev) => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
     }
+    // Reset input
+    e.target.value = "";
+  };
+
+  const handleImageRemove = (index: number) => {
+    const currentImages = getValues("images") || [];
+    const newImages = currentImages.filter((_, i) => i !== index);
+    setValue("images", newImages);
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const processForm = async (data: FieldValues) => {
@@ -213,7 +235,7 @@ const FormPage: React.FC = () => {
         // Reset form to initial state
         reset();
         setCurrentStep(1);
-        setImagePreview(null);
+        setImagePreviews([]);
       } else {
         console.error("Form submission error: unknown error");
         alert("Form submission failed. Please check the console for details.");
@@ -266,7 +288,7 @@ const FormPage: React.FC = () => {
       fields: [],
     },
     { name: "Other", fields: [] },
-    { name: "Documents & Confirmation", fields: ["agree", "image"] },
+    { name: "Documents & Confirmation", fields: ["agree", "images"] },
   ];
 
   const handleNext = async () => {
@@ -844,11 +866,9 @@ const FormPage: React.FC = () => {
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                 <div className="mb-4">
                   <FiFileText className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                  <p className="text-gray-600 font-medium">
-                    Upload Profile Image
-                  </p>
+                  <p className="text-gray-600 font-medium">Upload Images</p>
                   <p className="text-sm text-gray-500 mt-1">
-                    PNG, JPG, GIF up to 10MB
+                    PNG, JPG, GIF up to 10MB each
                   </p>
                 </div>
 
@@ -856,37 +876,60 @@ const FormPage: React.FC = () => {
                   type="file"
                   id="imageInput"
                   accept="image/*"
-                  {...register("image")}
-                  onChange={handleImageChange}
+                  multiple
+                  onChange={handleImageAdd}
                   className="hidden"
                 />
 
                 <label
                   htmlFor="imageInput"
-                  className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
                 >
-                  Select Image
+                  <FiPlus className="h-4 w-4" />
+                  Add Image
                 </label>
 
-                {imagePreview && (
-                  <div className="mt-4">
-                    <p className="text-sm text-gray-600 mb-2">Preview:</p>
-                    <Image
-                      src={imagePreview}
-                      alt="Preview"
-                      width={128}
-                      height={128}
-                      className="h-32 w-32 mx-auto rounded object-cover"
-                    />
+                {imagePreviews.length > 0 && (
+                  <div className="mt-6">
+                    <p className="text-sm text-gray-600 mb-3">Previews:</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {imagePreviews.map((preview, index) => (
+                        <div key={index} className="relative group">
+                          <Image
+                            src={preview}
+                            alt={`Preview ${index + 1}`}
+                            width={128}
+                            height={128}
+                            className="h-32 w-full rounded object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleImageRemove(index)}
+                            className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                          >
+                            <FiTrash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
 
-              <Checkbox
-                label="I agree to the terms and conditions"
+              <Controller
                 name="agree"
                 control={control}
-                error={errors.agree?.message}
+                render={({ field }) => (
+                  <Checkbox
+                    label="I agree to the terms and conditions"
+                    name={field.name}
+                    checked={Boolean(field.value)}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    ref={field.ref}
+                    error={errors.agree?.message}
+                  />
+                )}
               />
             </div>
           </div>

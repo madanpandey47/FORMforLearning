@@ -36,9 +36,20 @@ export async function submitStudent(data: FieldValues) {
     if (scholarship.endDate === "") scholarship.endDate = null;
   }
 
-  // 3. Extract and remove the 'image' field (handled separately) and 'agree' field
-  const imageFile = (data.image as FileList)?.[0] || null;
-  delete (cleanedData as { [k: string]: unknown })["image"];
+  const academicEnrollment = cleanedData["academicEnrollment"] as
+    | { facultyId?: number; programName?: string }
+    | undefined;
+  if (
+    !academicEnrollment ||
+    !academicEnrollment.facultyId ||
+    academicEnrollment.facultyId === 0
+  ) {
+    delete (cleanedData as { [k: string]: unknown })["academicEnrollment"];
+  }
+
+  // 3. Extract and remove the 'images' field (handled separately) and 'agree' field
+  const imageFiles = (data.images as File[]) || [];
+  delete (cleanedData as { [k: string]: unknown })["images"];
   delete (cleanedData as { [k: string]: unknown })["agree"];
 
   // 4. Flatten contactInfo to root level (backend expects PrimaryMobile, PrimaryEmail at root)
@@ -83,8 +94,10 @@ export async function submitStudent(data: FieldValues) {
   const formData = new FormData();
   formData.append("studentDto", JSON.stringify(payload));
 
-  if (imageFile) {
-    formData.append("imageFile", imageFile);
+  if (imageFiles && imageFiles.length > 0) {
+    imageFiles.forEach((file) => {
+      formData.append("imageFiles", file);
+    });
   }
 
   const res = await fetch("http://localhost:5000/api/Student", {
@@ -93,20 +106,26 @@ export async function submitStudent(data: FieldValues) {
   });
 
   if (!res.ok) {
-    let err: unknown = undefined;
+    let errorMessage = `Submission failed with status ${res.status}`;
     try {
-      err = await res.json();
-      console.error("Backend error response:", err);
-    } catch {
-      console.error("Failed to parse backend error response");
       const text = await res.text();
       console.error("Raw error response:", text);
+
+      // Try to parse as JSON
+      if (text) {
+        try {
+          const err = JSON.parse(text);
+          console.error("Backend error response:", err);
+          errorMessage = `Submission failed: ${JSON.stringify(err)}`;
+        } catch {
+          console.error("Response is not valid JSON");
+          errorMessage = `Submission failed: ${text}`;
+        }
+      }
+    } catch (readError) {
+      console.error("Failed to read error response:", readError);
     }
-    throw new Error(
-      err
-        ? `Submission failed: ${JSON.stringify(err)}`
-        : `Submission failed with status ${res.status}`
-    );
+    throw new Error(errorMessage);
   }
   return res.json();
 }

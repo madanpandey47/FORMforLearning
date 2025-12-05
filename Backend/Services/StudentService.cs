@@ -23,9 +23,9 @@ namespace FormBackend.Services
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<StudentDTO?> CreateStudentAsync(StudentDTO studentDto, IFormFile? imageFile)
+        public async Task<StudentDTO?> CreateStudentAsync(StudentDTO studentDto, List<IFormFile>? imageFiles)
         {
-            if (imageFile != null)
+            if (imageFiles != null && imageFiles.Count > 0)
             {
                 string wwwRootPath = _webHostEnvironment.WebRootPath;
                 if (string.IsNullOrEmpty(wwwRootPath))
@@ -38,18 +38,25 @@ namespace FormBackend.Services
                     Directory.CreateDirectory(uploadPath);
                 }
 
-                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
-                string filePath = Path.Combine(uploadPath, fileName);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                var imagePaths = new List<string>();
+                foreach (var imageFile in imageFiles)
                 {
-                    await imageFile.CopyToAsync(fileStream);
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                    string filePath = Path.Combine(uploadPath, fileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await imageFile.CopyToAsync(fileStream);
+                    }
+                    imagePaths.Add("/uploads/" + fileName);
                 }
+
                 if (studentDto.SecondaryInfos == null)
                 {
                     studentDto.SecondaryInfos = new SecondaryInfosDTO();
                 }
-                studentDto.SecondaryInfos.Image = "/uploads/" + fileName;
+                // Store all image paths as comma-separated string
+                studentDto.SecondaryInfos.Image = string.Join(",", imagePaths);
             }
 
             var student = new Student

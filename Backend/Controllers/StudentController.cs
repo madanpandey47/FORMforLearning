@@ -18,7 +18,7 @@ namespace FormBackend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateStudent(IFormFile? imageFile)
+        public async Task<IActionResult> CreateStudent(List<IFormFile>? imageFiles)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace FormBackend.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var createdStudentDto = await _studentService.CreateStudentAsync(studentDto, imageFile);
+                var createdStudentDto = await _studentService.CreateStudentAsync(studentDto, imageFiles);
                 if (createdStudentDto == null)
                 {
                     return BadRequest("Student could not be created.");

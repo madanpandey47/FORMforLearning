@@ -74,14 +74,11 @@ const contactInfoSchema = z.object({
 });
 
 const fileSchema = z
-  .custom<FileList | File | string | undefined>((val) => {
-    return (
-      val === undefined ||
-      val instanceof FileList ||
-      val instanceof File ||
-      typeof val === "string"
-    );
-  }, "Invalid file input")
+  .array(
+    z.custom<File>((val) => {
+      return val instanceof File;
+    }, "Invalid file")
+  )
   .optional();
 
 const achievementSchema = z.object({
@@ -123,12 +120,14 @@ const scholarshipSchema = z.object({
     .optional(),
 });
 
-const academicEnrollmentSchema = z.object({
-  facultyId: FacultyEnum,
-  programName: z.string().min(1, "Program Name is required"),
-  enrollmentDate: dateStringSchema.optional(),
-  studentIdNumber: z.string().optional(),
-});
+const academicEnrollmentSchema = z
+  .object({
+    facultyId: z.number().int().optional().or(z.literal(0)),
+    programName: z.string().optional(),
+    enrollmentDate: dateStringSchema.optional(),
+    studentIdNumber: z.string().optional(),
+  })
+  .optional();
 
 export const formSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -148,7 +147,7 @@ export const formSchema = z.object({
   hobbies: z.array(hobbiesSchema).optional(),
   disability: disabilitySchema.optional(),
   scholarship: scholarshipSchema.optional(),
-  image: fileSchema,
+  images: fileSchema,
   agree: z
     .boolean()
     .refine((v) => v === true, { message: "You must agree to continue" }),
