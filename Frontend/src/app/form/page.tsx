@@ -33,6 +33,7 @@ import {
   getAcademicLevels,
   getGenders,
   getParentTypes,
+  getFacultyTypes,
   Option,
 } from "../../lib/api/lookups";
 import { submitStudent } from "../../lib/api/student";
@@ -126,21 +127,26 @@ const FormPage: React.FC = () => {
   const [parentTypeOptions, setParentTypeOptions] = React.useState<Option[]>(
     []
   );
+  const [facultyTypeOptions, setFacultyTypeOptions] = React.useState<Option[]>(
+    []
+  );
 
   React.useEffect(() => {
     // Load lookup options from backend
     (async () => {
       try {
-        const [bt, al, g, pt] = await Promise.all([
+        const [bt, al, g, pt, ft] = await Promise.all([
           getBloodTypes(),
           getAcademicLevels(),
           getGenders(),
           getParentTypes(),
+          getFacultyTypes(),
         ]);
         setBloodTypeOptions(bt);
         setAcademicLevelOptions(al);
         setGenderOptions(g);
         setParentTypeOptions(pt);
+        setFacultyTypeOptions(ft);
       } catch (e) {
         console.error("Failed to load lookup options", e);
       }
@@ -656,9 +662,9 @@ const FormPage: React.FC = () => {
               Academic Enrollment
             </h2>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Input
-                label="Faculty ID"
-                type="number"
+              <Select
+                label="Faculty"
+                options={facultyTypeOptions}
                 {...register("academicEnrollment.facultyId", {
                   valueAsNumber: true,
                 })}

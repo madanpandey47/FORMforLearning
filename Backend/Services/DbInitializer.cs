@@ -29,26 +29,16 @@ namespace FormBackend.Services
 
             var faculties = new Faculty[]
             {
-                new Faculty{Name="Faculty of Science and Technology"},
-                new Faculty{Name="Faculty of Management"},
-                new Faculty{Name="Faculty of Arts"},
-                new Faculty{Name="Faculty of Social Sciences"},
-                new Faculty{Name="Faculty of Engineering"},
-                new Faculty{Name="Faculty of Medicine"},
-                new Faculty{Name="Faculty of Law"},
-                new Faculty{Name="Faculty of Education"},
-                new Faculty{Name="Faculty of Agriculture"},
-                new Faculty{Name="Faculty of Forestry"},
-                new Faculty{Name="Faculty of Fine Arts"},
-                new Faculty{Name="Faculty of Music and Drama"},
-                new Faculty{Name="Faculty of Business Administration"},
-                new Faculty{Name="Faculty of Public Health"},
-                new Faculty{Name="Faculty of Pharmacy"},
-                new Faculty{Name="Faculty of Veterinary Science"},
-                new Faculty{Name="Faculty of Humanities"},
-                new Faculty{Name="Faculty of Information Technology"},
-                new Faculty{Name="Faculty of Architecture"},
-                new Faculty{Name="Faculty of Environmental Science"}
+                new Faculty{Type = FacultyType.Science, ProgramName = "BSc. CSIT"},
+                new Faculty{Type = FacultyType.Science, ProgramName = "B.Sc. Physics"},
+                new Faculty{Type = FacultyType.Engineering, ProgramName = "BE Civil"},
+                new Faculty{Type = FacultyType.Engineering, ProgramName = "BE Computer"},
+                new Faculty{Type = FacultyType.Commerce, ProgramName = "BBA"},
+                new Faculty{Type = FacultyType.Management, ProgramName = "MBA"},
+                new Faculty{Type = FacultyType.Arts, ProgramName = "BA Sociology"},
+                new Faculty{Type = FacultyType.Medicine, ProgramName = "MBBS"},
+                new Faculty{Type = FacultyType.Law, ProgramName = "BALLB"},
+                new Faculty{Type = FacultyType.Education, ProgramName = "B.Ed. Mathematics"}
             };
             _context.Faculties.AddRange(faculties);
             _context.SaveChanges();

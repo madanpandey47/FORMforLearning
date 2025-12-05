@@ -83,5 +83,29 @@ namespace FormBackend.Controllers
             }
             return Ok(list);
         }
+        [HttpGet("faculty-types")]
+        public IActionResult GetFacultyTypes()
+        {
+            static string Label(FacultyType ft) => ft switch
+            {
+                FacultyType.Science => "Science",
+                FacultyType.Commerce => "Commerce",
+                FacultyType.Arts => "Arts",
+                FacultyType.Engineering => "Engineering",
+                FacultyType.Medicine => "Medicine",
+                FacultyType.Law => "Law",
+                FacultyType.Education => "Education",
+                FacultyType.Management => "Management",
+                _ => ft.ToString()
+            };
+
+            var values = (FacultyType[])Enum.GetValues(typeof(FacultyType));
+            var list = new List<OptionDto>();
+            foreach (var v in values)
+            {
+                list.Add(new OptionDto((int)v, Label(v)));
+            }
+            return Ok(list);
+        }
     }
 }

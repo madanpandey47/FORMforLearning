@@ -21,11 +21,10 @@ export const BloodGroupEnum = z.union([
 ]);
 
 export const ParentTypeEnum = z.union([
-  z.literal(0),
-  z.literal(1),
-  z.literal(2),
-  z.literal(3),
-  z.literal(4),
+  z.literal(0), // Father
+  z.literal(1), // Mother
+  z.literal(2), // Sibling
+  z.literal(3), // Other
 ]);
 
 export const FacultyEnum = z.number().int().min(1);

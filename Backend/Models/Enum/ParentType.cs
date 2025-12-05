@@ -4,7 +4,6 @@ namespace FormBackend.Models.Enum
     {
         Father,
         Mother,
-        Guardian,
         Sibling,
         Other
     }

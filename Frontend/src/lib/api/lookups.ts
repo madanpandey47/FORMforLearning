@@ -31,3 +31,7 @@ export async function getGenders() {
 export async function getParentTypes() {
   return fetchOptions("parent-types");
 }
+
+export async function getFacultyTypes() {
+  return fetchOptions("faculty-types");
+}
