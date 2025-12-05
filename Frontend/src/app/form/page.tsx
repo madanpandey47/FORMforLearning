@@ -19,6 +19,7 @@ import Input from "../../components/ui/input";
 import Select from "../../components/ui/select";
 import Checkbox from "../../components/ui/checkbox";
 import Button from "../../components/ui/button";
+import { useSyncTemporaryAddress } from "../../hooks/useSyncTemporaryAddress";
 import {
   useForm,
   FieldValues,
@@ -167,35 +168,14 @@ const FormPage: React.FC = () => {
     })();
   }, []);
 
-  React.useEffect(() => {
-    // Only sync addresses when on address step and sameAsPermanent is checked
-    if (!sameAsPermanent || currentStep !== 3 || !permanentAddress) return;
-
-    const nextTemp: FormData["temporaryAddress"] = {
-      ...permanentAddress,
-      type: 2,
-    };
-
-    let isSame = false;
-    if (temporaryAddress) {
-      isSame = Object.keys(nextTemp).every((key) => {
-        const k = key as keyof FormData["temporaryAddress"];
-        return nextTemp[k] === temporaryAddress[k];
-      });
-    }
-
-    if (!isSame) {
-      // Defer setValue to avoid state update during render
-      queueMicrotask(() => {
-        setValue("temporaryAddress", nextTemp, {
-          shouldValidate: false,
-          shouldDirty: false,
-          shouldTouch: false,
-        });
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStep, permanentAddress, sameAsPermanent, setValue]);
+  // Sync temporary address when permanent address changes and checkbox is checked
+  useSyncTemporaryAddress(
+    currentStep,
+    sameAsPermanent,
+    permanentAddress,
+    temporaryAddress,
+    setValue
+  );
 
   const handleImageAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
