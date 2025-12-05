@@ -89,6 +89,7 @@ const FormPage: React.FC = () => {
           passingYear: 0,
         },
       ],
+      hobbies: [{ name: "" }],
     },
   });
 
@@ -99,6 +100,15 @@ const FormPage: React.FC = () => {
   } = useFieldArray({
     control,
     name: "parents",
+  });
+
+  const {
+    fields: hobbyFields,
+    append: appendHobby,
+    remove: removeHobby,
+  } = useFieldArray({
+    control,
+    name: "hobbies",
   });
 
   const [currentStep, setCurrentStep] = React.useState(1);
@@ -736,8 +746,36 @@ const FormPage: React.FC = () => {
               <FiSettings className="h-4 w-4 text-amber-500" />
               Hobbies
             </h2>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Input label="Hobby (optional)" {...register("hobbies.0.name")} />
+            <div className="space-y-3">
+              {hobbyFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto]"
+                >
+                  <Input
+                    label={`Hobby ${index + 1} (optional)`}
+                    {...register(`hobbies.${index}.name`)}
+                  />
+                  {index > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => removeHobby(index)}
+                      className="flex items-center justify-center gap-1 self-end rounded-full border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100"
+                    >
+                      <FiTrash2 className="h-4 w-4" />
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => appendHobby({ name: "" })}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+              >
+                <FiPlus className="h-4 w-4" />
+                Add another hobby
+              </button>
             </div>
 
             <h2 className="mt-6 flex items-center gap-2 border-b pb-2 text-lg font-semibold text-slate-900">

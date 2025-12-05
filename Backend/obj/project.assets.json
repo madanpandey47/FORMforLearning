@@ -5157,11 +5157,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\ZEUS\\Desktop\\solvetech\\FORMEXTRA\\Backend2\\FormBackend.csproj",
+      "projectUniqueName": "C:\\Users\\ZEUS\\Desktop\\solvetech\\FORM\\Backend\\FormBackend.csproj",
       "projectName": "FormBackend",
-      "projectPath": "C:\\Users\\ZEUS\\Desktop\\solvetech\\FORMEXTRA\\Backend2\\FormBackend.csproj",
+      "projectPath": "C:\\Users\\ZEUS\\Desktop\\solvetech\\FORM\\Backend\\FormBackend.csproj",
       "packagesPath": "C:\\Users\\ZEUS\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ZEUS\\Desktop\\solvetech\\FORMEXTRA\\Backend2\\obj\\",
+      "outputPath": "C:\\Users\\ZEUS\\Desktop\\solvetech\\FORM\\Backend\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
