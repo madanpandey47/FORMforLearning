@@ -24,6 +24,7 @@ import {
   FieldValues,
   FieldErrors,
   useFieldArray,
+  useWatch,
 } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,7 +47,6 @@ const FormPage: React.FC = () => {
     handleSubmit,
     trigger,
     formState: { errors, isValid, isSubmitting, isValidating },
-    watch,
     setValue,
     getValues,
     reset,
@@ -115,8 +115,14 @@ const FormPage: React.FC = () => {
 
   const [currentStep, setCurrentStep] = React.useState(1);
 
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const permanentAddress = watch("permanentAddress");
+  const permanentAddress = useWatch({
+    control,
+    name: "permanentAddress",
+  });
+  const temporaryAddress = useWatch({
+    control,
+    name: "temporaryAddress",
+  });
   const [sameAsPermanent, setSameAsPermanent] = React.useState(false);
   const [imagePreview, setImagePreview] = React.useState<string | null>(null);
   const [bloodTypeOptions, setBloodTypeOptions] = React.useState<Option[]>([]);
@@ -155,14 +161,35 @@ const FormPage: React.FC = () => {
 
   React.useEffect(() => {
     // Only sync addresses when on address step and sameAsPermanent is checked
-    if (sameAsPermanent && permanentAddress && currentStep === 3) {
-      setValue(
-        "temporaryAddress",
-        { ...permanentAddress, type: 2 },
-        { shouldValidate: false, shouldDirty: false, shouldTouch: false }
-      );
+    if (!sameAsPermanent || currentStep !== 3 || !permanentAddress) return;
+
+    const nextTemp: FormData["temporaryAddress"] = {
+      ...permanentAddress,
+      type: 2,
+    };
+
+    let isSame = false;
+    if (temporaryAddress) {
+      isSame = Object.keys(nextTemp).every((key) => {
+        const k = key as keyof FormData["temporaryAddress"];
+        return nextTemp[k] === temporaryAddress[k];
+      });
     }
-  }, [permanentAddress, sameAsPermanent, setValue, currentStep]);
+
+    if (!isSame) {
+      setValue("temporaryAddress", nextTemp, {
+        shouldValidate: false,
+        shouldDirty: false,
+        shouldTouch: false,
+      });
+    }
+  }, [
+    currentStep,
+    permanentAddress,
+    sameAsPermanent,
+    setValue,
+    temporaryAddress,
+  ]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -180,7 +207,7 @@ const FormPage: React.FC = () => {
     console.log("Form data:", data);
     try {
       const result = await submitStudent(data);
-      console.log("✅ submitStudent returned:", result);
+      console.log("SubmitStudent returned:", result);
       if (result) {
         alert("Form Submitted Successfully!");
         // Reset form to initial state
@@ -299,10 +326,8 @@ const FormPage: React.FC = () => {
     { label: "Other", value: "Other" },
   ];
 
-  // lookup-backed select options are loaded via useEffect above
-
   return (
-    <div className="flex items-start justify-center bg-linear-to-br from-slate-100 via-slate-50 to-slate-100 py-6">
+    <div className="flex items-start justify-center bg-linear-to-br from-slate-100 via-slate-50 py-6">
       <Form onSubmit={handleSubmit(processForm, onSubmitError)}>
         <div className="mb-4 flex items-center justify-between gap-4">
           <div>

@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Control,
-  Controller,
-  FieldValues,
-  Path,
-  PathValue,
-} from "react-hook-form";
+import { Control, Controller, FieldValues, Path } from "react-hook-form";
 
 interface CheckboxProps<T extends FieldValues> {
   label: string;
@@ -30,17 +24,16 @@ function CheckboxComponent<T extends FieldValues>({
             <input
               id={name}
               type="checkbox"
-              checked={Boolean(field.value)}
-              onChange={(e) =>
-                field.onChange(
-                  (e.target.checked as PathValue<T, Path<T>>) ?? false
-                )
-              }
+              checked={field.value ?? false} // simplified
+              onChange={(e) => field.onChange(e.target.checked)} // simplified
               onBlur={field.onBlur}
               ref={field.ref}
               className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
             />
-            <label htmlFor={name} className="text-sm font-medium text-slate-700">
+            <label
+              htmlFor={name}
+              className="text-sm font-medium text-slate-700"
+            >
               {label}
             </label>
           </div>
@@ -53,6 +46,7 @@ function CheckboxComponent<T extends FieldValues>({
 
 CheckboxComponent.displayName = "Checkbox";
 
+// Export with generic type
 const Checkbox = CheckboxComponent as <T extends FieldValues>(
   props: CheckboxProps<T>
 ) => React.JSX.Element;
