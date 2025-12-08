@@ -12,36 +12,44 @@ export function useSyncTemporaryAddress(
   temporaryAddress: FormData["temporaryAddress"] | null,
   setValue: UseFormSetValue<FormData>
 ) {
-  const prevStateRef = React.useRef<{
-    permanentAddress: FormData["permanentAddress"] | null;
-    temporaryAddress: FormData["temporaryAddress"] | null;
-  }>({ permanentAddress, temporaryAddress });
+  const permanentAddressStr = React.useMemo(
+    () => JSON.stringify(permanentAddress),
+    [permanentAddress]
+  );
 
   React.useEffect(() => {
-    if (!sameAsPermanent || currentStep !== 3 || !permanentAddress) return;
+    if (!sameAsPermanent || currentStep !== 3) {
+      return;
+    }
+
+    const parsed = JSON.parse(permanentAddressStr) as
+      | FormData["permanentAddress"]
+      | null;
+
+    if (!parsed) {
+      return;
+    }
 
     const nextTemp: FormData["temporaryAddress"] = {
-      ...permanentAddress,
+      ...parsed,
       type: 2,
     };
 
-    const isSame =
-      JSON.stringify(nextTemp) ===
-      JSON.stringify(prevStateRef.current.temporaryAddress);
+    const currentTempStr = JSON.stringify(temporaryAddress);
+    const nextTempStr = JSON.stringify(nextTemp);
 
-    if (!isSame) {
-      // Defer setValue to avoid state update during render
-      queueMicrotask(() => {
-        setValue("temporaryAddress", nextTemp, {
-          shouldValidate: false,
-          shouldDirty: false,
-          shouldTouch: false,
-        });
+    if (currentTempStr !== nextTempStr) {
+      setValue("temporaryAddress", nextTemp, {
+        shouldValidate: false,
+        shouldDirty: false,
+        shouldTouch: false,
       });
     }
-
-    // Update ref after effect
-    prevStateRef.current = { permanentAddress, temporaryAddress };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStep, sameAsPermanent, permanentAddress, setValue]);
+  }, [
+    currentStep,
+    sameAsPermanent,
+    permanentAddressStr,
+    temporaryAddress,
+    setValue,
+  ]);
 }

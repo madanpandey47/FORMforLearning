@@ -41,22 +41,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Uncomment this if you add JWT later
-/*
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-        };
-    });
-*/
-
 var app = builder.Build();
 
 // Seed the database
