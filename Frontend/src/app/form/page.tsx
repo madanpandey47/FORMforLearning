@@ -37,6 +37,8 @@ import {
   getGenders,
   getParentTypes,
   getFacultyTypes,
+  getProvinces,
+  getMunicipalities,
   Option,
 } from "../../lib/api/lookups";
 import { submitStudent } from "../../lib/api/student";
@@ -135,9 +137,7 @@ const FormPage: React.FC = () => {
   const [sameAsPermanent, setSameAsPermanent] = React.useState(false);
   const [imagePreviews, setImagePreviews] = React.useState<string[]>([]);
   const [bloodTypeOptions, setBloodTypeOptions] = React.useState<Option[]>([]);
-  const [academicLevelOptions, setAcademicLevelOptions] = React.useState<
-    Option[]
-  >([]);
+  const [academicLevelOptions, setAcademicLevelOptions] = React.useState<Option[]>([]);
   const [genderOptions, setGenderOptions] = React.useState<Option[]>([]);
   const [parentTypeOptions, setParentTypeOptions] = React.useState<Option[]>(
     []
@@ -145,28 +145,58 @@ const FormPage: React.FC = () => {
   const [facultyTypeOptions, setFacultyTypeOptions] = React.useState<Option[]>(
     []
   );
+  const [provinceOptions, setProvinceOptions] = React.useState<Option[]>([]);
+  const [permanentMunicipalities, setPermanentMunicipalities] = React.useState<Option[]>([]);
+  const [temporaryMunicipalities, setTemporaryMunicipalities] = React.useState<Option[]>([]);
 
   React.useEffect(() => {
     // Load lookup options from backend
     (async () => {
       try {
-        const [bt, al, g, pt, ft] = await Promise.all([
+        const [bt, al, g, pt, ft, prov] = await Promise.all([
           getBloodTypes(),
           getAcademicLevels(),
           getGenders(),
           getParentTypes(),
           getFacultyTypes(),
+          getProvinces(),
         ]);
         setBloodTypeOptions(bt);
         setAcademicLevelOptions(al);
         setGenderOptions(g);
         setParentTypeOptions(pt);
         setFacultyTypeOptions(ft);
+        setProvinceOptions(prov);
       } catch (e) {
         console.error("Failed to load lookup options", e);
       }
     })();
   }, []);
+
+  const permanentProvince = useWatch({
+    control,
+    name: "permanentAddress.province",
+  });
+  const temporaryProvince = useWatch({
+    control,
+    name: "temporaryAddress.province",
+  });
+
+  React.useEffect(() => {
+    if (permanentProvince) {
+      getMunicipalities(permanentProvince).then(setPermanentMunicipalities);
+    } else {
+      setPermanentMunicipalities([]);
+    }
+  }, [permanentProvince]);
+
+  React.useEffect(() => {
+    if (temporaryProvince) {
+      getMunicipalities(temporaryProvince).then(setTemporaryMunicipalities);
+    } else {
+      setTemporaryMunicipalities([]);
+    }
+  }, [temporaryProvince]);
 
   // Sync temporary address when permanent address changes and checkbox is checked
   useSyncTemporaryAddress(
@@ -288,7 +318,8 @@ const FormPage: React.FC = () => {
 
     // Flatten nested errors for easier debugging
     const errorMessages: string[] = [];
-    const extractErrors = (obj: Record<string, unknown>, prefix = ""): void => {
+    const extractErrors = (obj: Record<string, unknown>, prefix = ""):
+      void => {
       Object.keys(obj).forEach((key) => {
         const fullKey = prefix ? `${prefix}.${key}` : key;
         const value = obj[key];
@@ -460,15 +491,18 @@ const FormPage: React.FC = () => {
               Permanent Address
             </h2>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Input
+              <Select
                 label="Province"
+                options={provinceOptions}
                 {...register("permanentAddress.province")}
                 error={errors.permanentAddress?.province?.message}
               />
-              <Input
+              <Select
                 label="Municipality"
+                options={permanentMunicipalities}
                 {...register("permanentAddress.municipality")}
                 error={errors.permanentAddress?.municipality?.message}
+                disabled={!permanentProvince}
               />
               <Input
                 label="Ward"
@@ -506,17 +540,19 @@ const FormPage: React.FC = () => {
               </label>
             </div>
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Input
+              <Select
                 label="Province"
+                options={provinceOptions}
                 {...register("temporaryAddress.province")}
                 error={errors.temporaryAddress?.province?.message}
                 disabled={sameAsPermanent}
               />
-              <Input
+              <Select
                 label="Municipality"
+                options={temporaryMunicipalities}
                 {...register("temporaryAddress.municipality")}
                 error={errors.temporaryAddress?.municipality?.message}
-                disabled={sameAsPermanent}
+                disabled={sameAsPermanent || !temporaryProvince}
               />
               <Input
                 label="Ward"

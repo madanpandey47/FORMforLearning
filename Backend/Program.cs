@@ -13,6 +13,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddSingleton<ILookupService, LookupService>();
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
 builder.Services.AddCors(options =>

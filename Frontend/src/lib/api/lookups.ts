@@ -1,4 +1,4 @@
-export type Option = { value: number; label: string };
+export type Option = { value: number | string; label: string };
 
 const BASE = "http://localhost:5000/api/Lookups";
 
@@ -34,4 +34,19 @@ export async function getParentTypes() {
 
 export async function getFacultyTypes() {
   return fetchOptions("faculty-types");
+}
+
+export async function getProvinces(): Promise<Option[]> {
+  const res = await fetch(`${BASE}/provinces`);
+  if (!res.ok) throw new Error(`Failed to fetch provinces`);
+  const data: string[] = await res.json();
+  return data.map((p) => ({ value: p, label: p }));
+}
+
+export async function getMunicipalities(province: string): Promise<Option[]> {
+  const res = await fetch(`${BASE}/municipalities/${province}`);
+  if (!res.ok)
+    throw new Error(`Failed to fetch municipalities for ${province}`);
+  const data: string[] = await res.json();
+  return data.map((m) => ({ value: m, label: m }));
 }

@@ -20,10 +20,16 @@ namespace FormBackend.Core.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllStudentsAsync()
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();
         }
+
+        public IQueryable<T> GetAll()
+        {
+            return _dbSet.AsQueryable();
+        }
+
 
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression)
         {

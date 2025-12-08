@@ -264,7 +264,7 @@ namespace FormBackend.Services
 
         public async Task<List<StudentDTO>> GetAllStudentsAsync()
         {
-            var students = await _unitOfWork.GetRepository<Student>().GetAllStudentsAsync();
+            var students = await _unitOfWork.GetRepository<Student>().GetAllAsync();
             var studentDtos = students.Select(student => new StudentDTO
             {
                 Id = student.Id,
