@@ -101,7 +101,8 @@ const FormPage: React.FC = () => {
         enrollmentDate: "",
         studentIdNumber: "",
       },
-      images: [],
+      profileImage: undefined,
+      academicCertificates: undefined,
       agree: false,
     },
   });
@@ -135,6 +136,7 @@ const FormPage: React.FC = () => {
     name: "temporaryAddress",
   });
   const [sameAsPermanent, setSameAsPermanent] = React.useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [imagePreviews, setImagePreviews] = React.useState<string[]>([]);
   const [bloodTypeOptions, setBloodTypeOptions] = React.useState<Option[]>([]);
   const [academicLevelOptions, setAcademicLevelOptions] = React.useState<
@@ -213,33 +215,6 @@ const FormPage: React.FC = () => {
     setValue
   );
 
-  const handleImageAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      const currentImages = getValues("images") || [];
-      const newImages = [...currentImages, ...Array.from(files)];
-      setValue("images", newImages);
-
-      // Generate previews for new images
-      Array.from(files).forEach((file) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImagePreviews((prev) => [...prev, reader.result as string]);
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-    // Reset input
-    e.target.value = "";
-  };
-
-  const handleImageRemove = (index: number) => {
-    const currentImages = getValues("images") || [];
-    const newImages = currentImages.filter((_, i) => i !== index);
-    setValue("images", newImages);
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
-  };
-
   const processForm = async (data: FieldValues) => {
     console.log("ProcessForm called - form is submitting!");
     console.log("Form data:", data);
@@ -304,7 +279,7 @@ const FormPage: React.FC = () => {
       fields: [],
     },
     { name: "Other", fields: [] },
-    { name: "Documents & Confirmation", fields: ["agree", "images"] },
+    { name: "Documents & Confirmation", fields: ["agree"] },
   ];
 
   const handleNext = async () => {
@@ -883,76 +858,133 @@ const FormPage: React.FC = () => {
               Documents & Profile Image
             </h2>
 
+            {/* Profile Image Upload */}
             <div className="space-y-4">
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                 <div className="mb-4">
-                  <FiFileText className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                  <p className="text-gray-600 font-medium">Upload Images</p>
+                  <FiUser className="h-12 w-12 mx-auto text-gray-400 mb-2" />
+                  <p className="text-gray-600 font-medium">
+                    Upload Profile Image
+                  </p>
                   <p className="text-sm text-gray-500 mt-1">
-                    PNG, JPG, GIF up to 10MB each
+                    PNG, JPG, GIF up to 10MB
                   </p>
                 </div>
 
                 <input
                   type="file"
-                  id="imageInput"
+                  id="profileImageInput"
                   accept="image/*"
-                  multiple
-                  onChange={handleImageAdd}
+                  {...register("profileImage")}
                   className="hidden"
                 />
 
                 <label
-                  htmlFor="imageInput"
+                  htmlFor="profileImageInput"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
                 >
                   <FiPlus className="h-4 w-4" />
-                  Add Image
+                  Add Profile Image
                 </label>
 
-                {imagePreviews.length > 0 && (
-                  <div className="mt-6">
-                    <p className="text-sm text-gray-600 mb-3">Previews:</p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {imagePreviews.map((preview, index) => (
-                        <div key={index} className="relative group">
-                          <Image
-                            src={preview}
-                            alt={`Preview ${index + 1}`}
-                            width={128}
-                            height={128}
-                            className="h-32 w-full rounded object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleImageRemove(index)}
-                            className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
-                          >
-                            <FiTrash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
+                {getValues("profileImage") &&
+                  getValues("profileImage") instanceof File && (
+                    <div className="mt-6">
+                      <p className="text-sm text-gray-600 mb-3">Preview:</p>
+                      <div className="flex justify-center">
+                        <Image
+                          src={URL.createObjectURL(
+                            getValues("profileImage") as File
+                          )}
+                          alt="Profile Preview"
+                          width={128}
+                          height={128}
+                          className="h-32 w-32 rounded-full object-cover"
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
-
-              <Controller
-                name="agree"
-                control={control}
-                render={({ field }) => (
-                  <Checkbox
-                    label="I agree to the terms and conditions"
-                    name={field.name}
-                    checked={Boolean(field.value)}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                    ref={field.ref}
-                    error={errors.agree?.message}
-                  />
-                )}
-              />
             </div>
+
+            {/* Academic Certificates Upload */}
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                <div className="mb-4">
+                  <FiFileText className="h-12 w-12 mx-auto text-gray-400 mb-2" />
+                  <p className="text-gray-600 font-medium">
+                    Upload Academic Certificates
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    PNG, JPG, PDF up to 10MB each
+                  </p>
+                </div>
+
+                <input
+                  type="file"
+                  id="academicCertificatesInput"
+                  accept="image/*,application/pdf"
+                  multiple
+                  {...register("academicCertificates")}
+                  className="hidden"
+                />
+
+                <label
+                  htmlFor="academicCertificatesInput"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
+                >
+                  <FiPlus className="h-4 w-4" />
+                  Add Certificates
+                </label>
+
+                {getValues("academicCertificates") &&
+                  Array.isArray(getValues("academicCertificates")) && (
+                    <div className="mt-6">
+                      <p className="text-sm text-gray-600 mb-3">Previews:</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {(getValues("academicCertificates") as File[]).map(
+                          (file, index) => (
+                            <div key={index} className="relative group">
+                              {file.type.startsWith("image/") ? (
+                                <Image
+                                  src={URL.createObjectURL(file)}
+                                  alt={`Certificate ${index + 1}`}
+                                  width={128}
+                                  height={128}
+                                  className="h-32 w-full rounded object-cover"
+                                />
+                              ) : (
+                                <div className="h-32 w-full flex items-center justify-center bg-gray-200 rounded">
+                                  <FiFileText className="h-12 w-12 text-gray-500" />
+                                </div>
+                              )}
+                              <p className="text-xs truncate mt-1">
+                                {file.name}
+                              </p>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
+              </div>
+            </div>
+
+            <Controller
+              name="agree"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  label="I agree to the terms and conditions"
+                  name={field.name}
+                  checked={Boolean(field.value)}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  ref={field.ref}
+                  error={errors.agree?.message}
+                />
+              )}
+            />
           </div>
         )}
 

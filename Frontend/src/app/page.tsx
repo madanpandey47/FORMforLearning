@@ -1,23 +1,32 @@
 import React from "react";
-import Link from "next/link";
+import ApplicationCard from "@/components/ApplicationCard";
+import { StudentDTO } from "@/lib/types";
 
-const Home: React.FC = () => {
+async function getStudents(): Promise<StudentDTO[]> {
+  try {
+    const res = await fetch("http://localhost:5000/api/Student");
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    const students: StudentDTO[] = await res.json();
+    return students;
+  } catch (error) {
+    console.error("Failed to fetch students:", error);
+    return [];
+  }
+}
+
+const Home = async () => {
+  const students: StudentDTO[] = await getStudents();
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl px-8 py-16 shadow-xl">
-      <h1 className="text-4xl md:text-5xl text-white font-semibold tracking-tight mb-4 text-center">
-        Student Application Portal
-      </h1>
-      <p className="text-base md:text-lg text-slate-200 mb-8 max-w-2xl text-center">
-        Fill out a guided, multi-step application form with your personal,
-        academic, and financial details. You can review everything before
-        submitting.
-      </p>
-      <Link
-        href="/form"
-        className="inline-flex items-center gap-2 rounded-full bg-sky-500 px-6 py-3 text-sm md:text-base font-medium text-white shadow-md transition hover:bg-sky-600 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
-      >
-        Start Application
-      </Link>
+    <div className="p-8">
+      <h1 className="text-center mb-8 text-3xl font-bold">Application Forms</h1>
+      <div className="flex flex-wrap gap-8 justify-center">
+        {students.map((student: StudentDTO) => (
+          <ApplicationCard key={student.id} student={student} />
+        ))}
+      </div>
     </div>
   );
 };

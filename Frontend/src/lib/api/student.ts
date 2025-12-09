@@ -10,6 +10,8 @@ interface Address {
 }
 
 export async function submitStudent(data: FieldValues) {
+  const formData = new FormData();
+  
   // 1. Deep copy to avoid mutating the original form state
   const cleanedData = JSON.parse(JSON.stringify(data)) as Record<
     string,
@@ -47,10 +49,12 @@ export async function submitStudent(data: FieldValues) {
     delete (cleanedData as { [k: string]: unknown })["academicEnrollment"];
   }
 
-  // 3. Extract and remove the 'images' field (handled separately) and 'agree' field
-  const imageFiles = (data.images as File[]) || [];
-  delete (cleanedData as { [k: string]: unknown })["images"];
+  // 3. Extract and remove 'agree' field
   delete (cleanedData as { [k: string]: unknown })["agree"];
+  // Remove profileImage and academicCertificates from cleanedData as they will be sent separately
+  delete (cleanedData as { [k: string]: unknown })["profileImage"];
+  delete (cleanedData as { [k: string]: unknown })["academicCertificates"];
+
 
   // 4. Flatten contactInfo to root level (backend expects PrimaryMobile, PrimaryEmail at root)
   const contactInfo = cleanedData["contactInfo"] as
@@ -91,12 +95,19 @@ export async function submitStudent(data: FieldValues) {
   console.log("Final payload being sent:", JSON.stringify(payload, null, 2));
 
   // 5. Create FormData to handle both JSON and file upload
-  const formData = new FormData();
   formData.append("studentDto", JSON.stringify(payload));
 
-  if (imageFiles && imageFiles.length > 0) {
-    imageFiles.forEach((file) => {
-      formData.append("imageFiles", file);
+  // Append profile image
+  const profileImageFile = data.profileImage as File | undefined;
+  if (profileImageFile) {
+    formData.append("profileImage", profileImageFile);
+  }
+
+  // Append academic certificates
+  const academicCertificateFiles = data.academicCertificates as File[] | undefined;
+  if (academicCertificateFiles && academicCertificateFiles.length > 0) {
+    academicCertificateFiles.forEach((file) => {
+      formData.append("academicCertificates", file);
     });
   }
 

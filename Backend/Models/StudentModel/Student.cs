@@ -26,6 +26,7 @@ namespace FormBackend.Models
         public required string PrimaryEmail { get; set; }
         [Required]
         public BloodType BloodGroup { get; set; }
+        public string? ProfileImagePath { get; set; }
 
         // Relationships
         public virtual Citizenship? Citizenship { get; set; }

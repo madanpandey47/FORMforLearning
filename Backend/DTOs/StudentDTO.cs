@@ -17,6 +17,7 @@ namespace FormBackend.DTOs
         public required string PrimaryMobile { get; set; }
         public required string PrimaryEmail { get; set; }
         public BloodType BloodGroup { get; set; }
+        public string? ProfileImagePath { get; set; }
 
         // Relationships
         public CitizenshipDTO? Citizenship { get; set; }

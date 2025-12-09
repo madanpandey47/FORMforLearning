@@ -7,9 +7,9 @@ namespace FormBackend.Core.Interfaces
 {
     public interface IRepository<T> where T : class
     {
-        Task<IEnumerable<T>> GetAllAsync();
+        Task<IEnumerable<T>> GetAllAsync(string? includeProperties = null);
         IQueryable<T> GetAll();
-        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression);
+        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression, string? includeProperties = null);
         Task AddAsync(T entity);
         void Update(T entity);
         void Remove(T entity);

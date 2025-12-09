@@ -23,40 +23,53 @@ namespace FormBackend.Services
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<StudentDTO?> CreateStudentAsync(StudentDTO studentDto, List<IFormFile>? imageFiles)
+        public async Task<StudentDTO?> CreateStudentAsync(StudentDTO studentDto, IFormFile? profileImage, List<IFormFile>? academicCertificates)
         {
-            if (imageFiles != null && imageFiles.Count > 0)
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+            if (string.IsNullOrEmpty(wwwRootPath))
             {
-                string wwwRootPath = _webHostEnvironment.WebRootPath;
-                if (string.IsNullOrEmpty(wwwRootPath))
-                {
-                    wwwRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                }
-                string uploadPath = Path.Combine(wwwRootPath, "uploads");
-                if (!Directory.Exists(uploadPath))
-                {
-                    Directory.CreateDirectory(uploadPath);
-                }
+                wwwRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            }
+            string uploadPath = Path.Combine(wwwRootPath, "uploads");
+            if (!Directory.Exists(uploadPath))
+            {
+                Directory.CreateDirectory(uploadPath);
+            }
 
-                var imagePaths = new List<string>();
-                foreach (var imageFile in imageFiles)
+            // Handle profile image
+            if (profileImage != null)
+            {
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(profileImage.FileName);
+                string filePath = Path.Combine(uploadPath, fileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                    await profileImage.CopyToAsync(fileStream);
+                }
+                studentDto.ProfileImagePath = "/uploads/" + fileName;
+            }
+
+            // Handle academic certificates
+            if (academicCertificates != null && academicCertificates.Count > 0)
+            {
+                var certificatePaths = new List<string>();
+                foreach (var certificateFile in academicCertificates)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(certificateFile.FileName);
                     string filePath = Path.Combine(uploadPath, fileName);
 
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
-                        await imageFile.CopyToAsync(fileStream);
+                        await certificateFile.CopyToAsync(fileStream);
                     }
-                    imagePaths.Add("/uploads/" + fileName);
+                    certificatePaths.Add("/uploads/" + fileName);
                 }
 
                 if (studentDto.SecondaryInfos == null)
                 {
                     studentDto.SecondaryInfos = new SecondaryInfosDTO();
                 }
-                // Store all image paths as comma-separated string
-                studentDto.SecondaryInfos.Image = string.Join(",", imagePaths);
+                studentDto.SecondaryInfos.AcademicCertificatePaths = string.Join(",", certificatePaths);
             }
 
             var student = new Student
@@ -68,6 +81,7 @@ namespace FormBackend.Services
                 BloodGroup = studentDto.BloodGroup,
                 PrimaryMobile = studentDto.PrimaryMobile,
                 PrimaryEmail = studentDto.PrimaryEmail,
+                ProfileImagePath = studentDto.ProfileImagePath, // Assign profile image path
                 Citizenship = studentDto.Citizenship != null ? new Citizenship
                 {
                     CitizenshipNumber = studentDto.Citizenship.CitizenshipNumber,
@@ -80,8 +94,9 @@ namespace FormBackend.Services
                     MiddleName = studentDto.SecondaryInfos.MiddleName,
                     AlternateMobile = studentDto.SecondaryInfos.AlternateMobile,
                     AlternateEmail = studentDto.SecondaryInfos.AlternateEmail,
-                    Image = studentDto.SecondaryInfos.Image
+                    AcademicCertificatePaths = studentDto.SecondaryInfos.AcademicCertificatePaths // Assign academic certificate paths
                 } : null,
+                // ... (rest of the properties are the same)
                 Addresses = studentDto.Addresses?.Select(a => new Address
                 {
                     Province = a.Province,
@@ -169,7 +184,7 @@ namespace FormBackend.Services
 
         public async Task<StudentDTO?> GetStudentByIdAsync(int id)
         {
-            var students = await _unitOfWork.GetRepository<Student>().FindAsync(s => s.Id == id);
+            var students = await _unitOfWork.GetRepository<Student>().FindAsync(s => s.Id == id, "SecondaryInfos,Citizenship,Addresses,Parents,AcademicHistories,AcademicEnrollment,Achievements,Hobbies,Disability,Scholarship");
             var student = students.FirstOrDefault();
             if (student == null)
             {
@@ -186,6 +201,7 @@ namespace FormBackend.Services
                 BloodGroup = student.BloodGroup,
                 PrimaryMobile = student.PrimaryMobile,
                 PrimaryEmail = student.PrimaryEmail,
+                ProfileImagePath = student.ProfileImagePath,
                 Citizenship = student.Citizenship != null ? new CitizenshipDTO
                 {
                     CitizenshipNumber = student.Citizenship.CitizenshipNumber,
@@ -198,8 +214,9 @@ namespace FormBackend.Services
                     MiddleName = student.SecondaryInfos.MiddleName,
                     AlternateMobile = student.SecondaryInfos.AlternateMobile,
                     AlternateEmail = student.SecondaryInfos.AlternateEmail,
-                    Image = student.SecondaryInfos.Image
+                    AcademicCertificatePaths = student.SecondaryInfos.AcademicCertificatePaths
                 } : null,
+                // ... (rest of the properties are the same)
                 Addresses = student.Addresses?.Select(a => new AddressDTO
                 {
                     Province = a.Province,
@@ -264,7 +281,7 @@ namespace FormBackend.Services
 
         public async Task<List<StudentDTO>> GetAllStudentsAsync()
         {
-            var students = await _unitOfWork.GetRepository<Student>().GetAllAsync();
+            var students = await _unitOfWork.GetRepository<Student>().GetAllAsync("SecondaryInfos,Citizenship,Addresses,Parents,AcademicHistories,AcademicEnrollment,Achievements,Hobbies,Disability,Scholarship");
             var studentDtos = students.Select(student => new StudentDTO
             {
                 Id = student.Id,
@@ -275,6 +292,7 @@ namespace FormBackend.Services
                 BloodGroup = student.BloodGroup,
                 PrimaryMobile = student.PrimaryMobile,
                 PrimaryEmail = student.PrimaryEmail,
+                ProfileImagePath = student.ProfileImagePath,
                 Citizenship = student.Citizenship != null ? new CitizenshipDTO
                 {
                     CitizenshipNumber = student.Citizenship.CitizenshipNumber,
@@ -287,9 +305,10 @@ namespace FormBackend.Services
                     MiddleName = student.SecondaryInfos.MiddleName,
                     AlternateMobile = student.SecondaryInfos.AlternateMobile,
                     AlternateEmail = student.SecondaryInfos.AlternateEmail,
-                    Image = student.SecondaryInfos.Image
+                    AcademicCertificatePaths = student.SecondaryInfos.AcademicCertificatePaths
                 } : null,
-                Addresses = student.Addresses?.Select(a => new AddressDTO
+                // ... (rest of the properties are the same)
+                 Addresses = student.Addresses?.Select(a => new AddressDTO
                 {
                     Province = a.Province,
                     Municipality = a.Municipality,

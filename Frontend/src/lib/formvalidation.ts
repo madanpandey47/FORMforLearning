@@ -147,7 +147,8 @@ export const formSchema = z.object({
   hobbies: z.array(hobbiesSchema).optional(),
   disability: disabilitySchema.optional(),
   scholarship: scholarshipSchema.optional(),
-  images: fileSchema,
+  profileImage: z.instanceof(File).optional(), // New profile image field
+  academicCertificates: z.array(z.instanceof(File)).optional(), // New academic certificates field
   agree: z
     .boolean()
     .refine((v) => v === true, { message: "You must agree to continue" }),

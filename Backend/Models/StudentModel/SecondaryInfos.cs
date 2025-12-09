@@ -12,6 +12,6 @@ namespace FormBackend.Models
         public string? AlternateMobile { get; set; }
         [EmailAddress]
         public string? AlternateEmail { get; set; }
-        public string? Image { get; set; }
+        public string? AcademicCertificatePaths { get; set; }
     }
 }

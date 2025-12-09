@@ -1,4 +1,3 @@
-
 // Frontend/src/lib/types.ts
 
 export enum Gender {
@@ -18,80 +17,109 @@ export enum BloodType {
   ONegative = 7,
 }
 
-// Minimal DTOs to support StudentDTO. You might need to expand these based on actual usage.
+export enum AddressType {
+  Permanent = 0,
+  Temporary = 1,
+  Correspondence = 2,
+}
+
+export enum ParentType {
+  Father = 0,
+  Mother = 1,
+  Guardian = 2,
+}
+
+export enum AcademicLevel {
+  SEE = 0,
+  PlusTwo = 1,
+  Bachelors = 2,
+  Masters = 3,
+  PHD = 4,
+}
+
 export interface CitizenshipDTO {
-  id?: number;
-  country?: string;
-  // ... other properties from Backend/DTOs/CitizenshipDTO.cs
+  citizenshipNumber?: string;
+  countryOfIssuance?: string;
+  dateOfIssuance?: string;
+  placeOfIssuance?: string;
 }
 
 export interface SecondaryInfosDTO {
-  id?: number;
-  lastSchoolAttended?: string;
-  // ... other properties from Backend/DTOs/SecondaryInfosDTO.cs
+  middleName?: string;
+  alternateMobile?: string;
+  alternateEmail?: string;
+  academicCertificatePaths?: string;
 }
 
 export interface AddressDTO {
-  id?: number;
+  province?: string;
+  municipality?: string;
+  ward?: string;
   street?: string;
-  city?: string;
-  // ... other properties from Backend/DTOs/AddressDTO.cs
+  country?: string;
+  type?: AddressType;
 }
 
 export interface ParentDTO {
-  id?: number;
   firstName?: string;
+  middleName?: string;
   lastName?: string;
-  // ... other properties from Backend/DTOs/ParentDTO.cs
+  relation?: ParentType;
+  occupation?: string;
+  annualIncome?: number;
+  mobileNumber?: string;
+  email?: string;
 }
 
 export interface AcademicHistoryDTO {
-  id?: number;
   institutionName?: string;
-  // ... other properties from Backend/DTOs/AcademicHistoryDTO.cs
+  level?: AcademicLevel;
+  board?: string;
+  percentageOrGPA?: number;
+  passedYear?: string;
 }
 
 export interface AcademicEnrollmentDTO {
-  id?: number;
+  facultyId?: number;
   programName?: string;
-  // ... other properties from Backend/DTOs/AcademicEnrollmentDTO.cs
+  enrollmentDate?: string;
+  studentIdNumber?: string;
 }
 
 export interface AchievementDTO {
-  id?: number;
-  name?: string;
-  // ... other properties from Backend/DTOs/AchievementDTO.cs
+  title?: string;
+  description?: string;
+  dateOfAchievement?: string;
 }
 
 export interface HobbyDTO {
-  id?: number;
   name?: string;
-  // ... other properties from Backend/DTOs/HobbyDTO.cs
 }
 
 export interface DisabilityDTO {
-  id?: number;
-  name?: string;
-  // ... other properties from Backend/DTOs/DisabilityDTO.cs
+  disabilityType?: string;
+  description?: string;
+  disabilityPercentage?: number;
 }
 
 export interface ScholarshipDTO {
-  id?: number;
-  name?: string;
-  // ... other properties from Backend/DTOs/ScholarshipDTO.cs
+  scholarshipName?: string;
+  amount?: number;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface StudentDTO {
   id: number;
   firstName: string;
   lastName: string;
-  dateOfBirth: string; // Assuming DateTime maps to string in TS
+  dateOfBirth: string;
   gender: Gender;
   primaryMobile: string;
   primaryEmail: string;
   bloodGroup: BloodType;
+  profileImagePath?: string;
 
-  // Relationships (optional, based on whether they are always present or needed for the current view)
   citizenship?: CitizenshipDTO;
   secondaryInfos?: SecondaryInfosDTO;
   addresses: AddressDTO[];

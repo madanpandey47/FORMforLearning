@@ -7,7 +7,7 @@ namespace FormBackend.Core.Interfaces
 {
     public interface IStudentService
     {
-        Task<StudentDTO?> CreateStudentAsync(StudentDTO studentDto, List<IFormFile>? imageFiles);
+        Task<StudentDTO?> CreateStudentAsync(StudentDTO studentDto, IFormFile? profileImage, List<IFormFile>? academicCertificates);
         Task<StudentDTO?> GetStudentByIdAsync(int id);
         Task<List<StudentDTO>> GetAllStudentsAsync();
     }
