@@ -17,7 +17,15 @@ export function useSyncTemporaryAddress(
     [permanentAddress]
   );
 
+  const lastSyncedRef = React.useRef<string>("");
+  const isFirstRenderRef = React.useRef(true);
+
   React.useEffect(() => {
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+      return;
+    }
+
     if (!sameAsPermanent || currentStep !== 3) {
       return;
     }
@@ -35,21 +43,17 @@ export function useSyncTemporaryAddress(
       type: 2,
     };
 
-    const currentTempStr = JSON.stringify(temporaryAddress);
     const nextTempStr = JSON.stringify(nextTemp);
 
-    if (currentTempStr !== nextTempStr) {
-      setValue("temporaryAddress", nextTemp, {
-        shouldValidate: false,
-        shouldDirty: false,
-        shouldTouch: false,
-      });
+    if (lastSyncedRef.current !== nextTempStr) {
+      lastSyncedRef.current = nextTempStr;
+      setTimeout(() => {
+        setValue("temporaryAddress", nextTemp, {
+          shouldValidate: false,
+          shouldDirty: false,
+          shouldTouch: false,
+        });
+      }, 0);
     }
-  }, [
-    currentStep,
-    sameAsPermanent,
-    permanentAddressStr,
-    temporaryAddress,
-    setValue,
-  ]);
+  }, [currentStep, sameAsPermanent, permanentAddressStr, setValue]);
 }

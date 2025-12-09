@@ -11,7 +11,7 @@ interface Address {
 
 export async function submitStudent(data: FieldValues) {
   const formData = new FormData();
-  
+
   // 1. Deep copy to avoid mutating the original form state
   const cleanedData = JSON.parse(JSON.stringify(data)) as Record<
     string,
@@ -54,7 +54,6 @@ export async function submitStudent(data: FieldValues) {
   // Remove profileImage and academicCertificates from cleanedData as they will be sent separately
   delete (cleanedData as { [k: string]: unknown })["profileImage"];
   delete (cleanedData as { [k: string]: unknown })["academicCertificates"];
-
 
   // 4. Flatten contactInfo to root level (backend expects PrimaryMobile, PrimaryEmail at root)
   const contactInfo = cleanedData["contactInfo"] as
@@ -100,12 +99,19 @@ export async function submitStudent(data: FieldValues) {
   // Append profile image
   const profileImageFile = data.profileImage as File | undefined;
   if (profileImageFile) {
+    console.log("Appending profile image to FormData:", profileImageFile.name);
     formData.append("profileImage", profileImageFile);
   }
 
   // Append academic certificates
-  const academicCertificateFiles = data.academicCertificates as File[] | undefined;
+  const academicCertificateFiles = data.academicCertificates as
+    | File[]
+    | undefined;
   if (academicCertificateFiles && academicCertificateFiles.length > 0) {
+    console.log(
+      "Appending academic certificates to FormData:",
+      academicCertificateFiles.map((f) => f.name)
+    );
     academicCertificateFiles.forEach((file) => {
       formData.append("academicCertificates", file);
     });

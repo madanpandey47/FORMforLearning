@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import Image from "next/image";
 import {
   FiUser,
   FiPhone,
@@ -215,9 +214,35 @@ const FormPage: React.FC = () => {
     setValue
   );
 
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      console.log("Profile image selected:", file.name, file.size);
+      setValue("profileImage", file);
+    }
+    e.target.value = "";
+  };
+
+  const handleAcademicCertificatesChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = e.target.files;
+    if (files) {
+      const fileArray = Array.from(files);
+      console.log(
+        "Academic certificates selected:",
+        fileArray.map((f) => f.name)
+      );
+      setValue("academicCertificates", fileArray);
+    }
+    e.target.value = "";
+  };
+
   const processForm = async (data: FieldValues) => {
     console.log("ProcessForm called - form is submitting!");
     console.log("Form data:", data);
+    console.log("Profile image:", data.profileImage);
+    console.log("Academic certificates:", data.academicCertificates);
     try {
       const result = await submitStudent(data);
       console.log("SubmitStudent returned:", result);
@@ -875,7 +900,7 @@ const FormPage: React.FC = () => {
                   type="file"
                   id="profileImageInput"
                   accept="image/*"
-                  {...register("profileImage")}
+                  onChange={handleProfileImageChange}
                   className="hidden"
                 />
 
@@ -887,23 +912,21 @@ const FormPage: React.FC = () => {
                   Add Profile Image
                 </label>
 
-                {getValues("profileImage") &&
-                  getValues("profileImage") instanceof File && (
-                    <div className="mt-6">
-                      <p className="text-sm text-gray-600 mb-3">Preview:</p>
-                      <div className="flex justify-center">
-                        <Image
-                          src={URL.createObjectURL(
-                            getValues("profileImage") as File
-                          )}
-                          alt="Profile Preview"
-                          width={128}
-                          height={128}
-                          className="h-32 w-32 rounded-full object-cover"
-                        />
-                      </div>
+                {getValues("profileImage") && (
+                  <div className="mt-6">
+                    <p className="text-sm text-gray-600 mb-3">Preview:</p>
+                    <div className="flex justify-center">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={URL.createObjectURL(
+                          getValues("profileImage") as File
+                        )}
+                        alt="Profile Preview"
+                        className="h-32 w-32 rounded-full object-cover"
+                      />
                     </div>
-                  )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -925,7 +948,7 @@ const FormPage: React.FC = () => {
                   id="academicCertificatesInput"
                   accept="image/*,application/pdf"
                   multiple
-                  {...register("academicCertificates")}
+                  onChange={handleAcademicCertificatesChange}
                   className="hidden"
                 />
 
@@ -938,7 +961,7 @@ const FormPage: React.FC = () => {
                 </label>
 
                 {getValues("academicCertificates") &&
-                  Array.isArray(getValues("academicCertificates")) && (
+                  (getValues("academicCertificates") as File[])?.length > 0 && (
                     <div className="mt-6">
                       <p className="text-sm text-gray-600 mb-3">Previews:</p>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -946,13 +969,14 @@ const FormPage: React.FC = () => {
                           (file, index) => (
                             <div key={index} className="relative group">
                               {file.type.startsWith("image/") ? (
-                                <Image
-                                  src={URL.createObjectURL(file)}
-                                  alt={`Certificate ${index + 1}`}
-                                  width={128}
-                                  height={128}
-                                  className="h-32 w-full rounded object-cover"
-                                />
+                                <>
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img
+                                    src={URL.createObjectURL(file)}
+                                    alt={`Certificate ${index + 1}`}
+                                    className="h-32 w-full rounded object-cover"
+                                  />
+                                </>
                               ) : (
                                 <div className="h-32 w-full flex items-center justify-center bg-gray-200 rounded">
                                   <FiFileText className="h-12 w-12 text-gray-500" />
