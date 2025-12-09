@@ -137,7 +137,9 @@ const FormPage: React.FC = () => {
   const [sameAsPermanent, setSameAsPermanent] = React.useState(false);
   const [imagePreviews, setImagePreviews] = React.useState<string[]>([]);
   const [bloodTypeOptions, setBloodTypeOptions] = React.useState<Option[]>([]);
-  const [academicLevelOptions, setAcademicLevelOptions] = React.useState<Option[]>([]);
+  const [academicLevelOptions, setAcademicLevelOptions] = React.useState<
+    Option[]
+  >([]);
   const [genderOptions, setGenderOptions] = React.useState<Option[]>([]);
   const [parentTypeOptions, setParentTypeOptions] = React.useState<Option[]>(
     []
@@ -146,8 +148,12 @@ const FormPage: React.FC = () => {
     []
   );
   const [provinceOptions, setProvinceOptions] = React.useState<Option[]>([]);
-  const [permanentMunicipalities, setPermanentMunicipalities] = React.useState<Option[]>([]);
-  const [temporaryMunicipalities, setTemporaryMunicipalities] = React.useState<Option[]>([]);
+  const [permanentMunicipalities, setPermanentMunicipalities] = React.useState<
+    Option[]
+  >([]);
+  const [temporaryMunicipalities, setTemporaryMunicipalities] = React.useState<
+    Option[]
+  >([]);
 
   React.useEffect(() => {
     // Load lookup options from backend
@@ -318,8 +324,7 @@ const FormPage: React.FC = () => {
 
     // Flatten nested errors for easier debugging
     const errorMessages: string[] = [];
-    const extractErrors = (obj: Record<string, unknown>, prefix = ""):
-      void => {
+    const extractErrors = (obj: Record<string, unknown>, prefix = ""): void => {
       Object.keys(obj).forEach((key) => {
         const fullKey = prefix ? `${prefix}.${key}` : key;
         const value = obj[key];
