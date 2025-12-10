@@ -73,14 +73,6 @@ const contactInfoSchema = z.object({
     .optional(),
 });
 
-const fileSchema = z
-  .array(
-    z.custom<File>((val) => {
-      return val instanceof File;
-    }, "Invalid file")
-  )
-  .optional();
-
 const achievementSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
@@ -147,7 +139,7 @@ export const formSchema = z.object({
   hobbies: z.array(hobbiesSchema).optional(),
   disability: disabilitySchema.optional(),
   scholarship: scholarshipSchema.optional(),
-  profileImage: z.instanceof(File).optional(), // New profile image field
+  profileImage: z.instanceof(File, { message: "Profile picture is required" }), // Profile image field is mandatory
   academicCertificates: z.array(z.instanceof(File)).optional(), // New academic certificates field
   agree: z
     .boolean()

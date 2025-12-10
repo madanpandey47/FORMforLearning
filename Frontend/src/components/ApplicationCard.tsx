@@ -1,13 +1,16 @@
-"use client";
-
+import { deleteStudent } from "@/lib/api/student";
 import React from "react";
 import { StudentDTO, Gender } from "@/lib/types";
 
 interface ApplicationCardProps {
   student: StudentDTO;
+  onDelete: (id: number) => void;
 }
 
-const ApplicationCard: React.FC<ApplicationCardProps> = ({ student }) => {
+const ApplicationCard: React.FC<ApplicationCardProps> = ({
+  student,
+  onDelete,
+}) => {
   const getGenderString = (gender: Gender) => {
     switch (gender) {
       case Gender.Male:
@@ -26,11 +29,16 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ student }) => {
     // Future: navigate to edit form
   };
 
-  const handleDelete = () => {
-    console.log("Delete student:", student.id);
-    // Future: implement delete logic
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this student?")) {
+      try {
+        await deleteStudent(student.id);
+        onDelete(student.id);
+      } catch (error) {
+        console.error("Failed to delete student:", error);
+      }
+    }
   };
-
   const imageUrl = student.profileImagePath;
   const fullImageUrl = imageUrl
     ? `http://localhost:5000${imageUrl}`
@@ -39,6 +47,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ student }) => {
   return (
     <div className="w-[190px] h-[254px] rounded-[30px] bg-[#e0e0e0] shadow-[15px_15px_30px_#bebebe,-15px_-15px_30px_#ffffff] flex flex-col justify-center items-center p-4 text-center">
       {fullImageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={fullImageUrl}
           alt={`${student.firstName} ${student.lastName}`}
@@ -48,6 +57,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({ student }) => {
       <h2 className="text-lg font-semibold mb-1">
         {student.firstName} {student.lastName}
       </h2>
+      <p className="text-xs text-gray-700 mb-1">ID: {student.id}</p>
       <p className="text-xs text-gray-700 mb-1">
         Gender: {getGenderString(student.gender)}
       </p>

@@ -368,7 +368,232 @@ namespace FormBackend.Services
                 } : null
             }).ToList();
 
-            return studentDtos;
-        }
-    }
-}
+                        return studentDtos;
+
+                    }
+
+            
+
+                    public async Task<StudentDTO?> UpdateStudentAsync(int id, StudentDTO studentDto, IFormFile? profileImage, List<IFormFile>? academicCertificates)
+
+                    {
+
+                        var students = await _unitOfWork.GetRepository<Student>().FindAsync(s => s.Id == id, "SecondaryInfos,Citizenship,Addresses,Parents,AcademicHistories,AcademicEnrollment,Achievements,Hobbies,Disability,Scholarship");
+
+                        var student = students.FirstOrDefault();
+
+            
+
+                        if (student == null)
+
+                        {
+
+                            return null;
+
+                        }
+
+            
+
+                        string wwwRootPath = _webHostEnvironment.WebRootPath;
+
+                        if (string.IsNullOrEmpty(wwwRootPath))
+
+                        {
+
+                            wwwRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+                        }
+
+                        string uploadPath = Path.Combine(wwwRootPath, "uploads");
+
+            
+
+                        // Handle profile image update
+
+                        if (profileImage != null)
+
+                        {
+
+                            // Delete old profile image if it exists
+
+                            if (!string.IsNullOrEmpty(student.ProfileImagePath))
+
+                            {
+
+                                var oldImagePath = Path.Combine(wwwRootPath, student.ProfileImagePath.TrimStart('/'));
+
+                                if (File.Exists(oldImagePath))
+
+                                {
+
+                                    File.Delete(oldImagePath);
+
+                                }
+
+                            }
+
+            
+
+                            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(profileImage.FileName);
+
+                            string filePath = Path.Combine(uploadPath, fileName);
+
+            
+
+                            using (var fileStream = new FileStream(filePath, FileMode.Create))
+
+                            {
+
+                                await profileImage.CopyToAsync(fileStream);
+
+                            }
+
+                            student.ProfileImagePath = "/uploads/" + fileName;
+
+                        }
+
+            
+
+                        // Handle academic certificates update
+
+                        if (academicCertificates != null && academicCertificates.Count > 0)
+
+                        {
+
+                            // Delete old certificates if they exist
+
+                            if (student.SecondaryInfos != null && !string.IsNullOrEmpty(student.SecondaryInfos.AcademicCertificatePaths))
+
+                            {
+
+                                var oldCertificatePaths = student.SecondaryInfos.AcademicCertificatePaths.Split(',');
+
+                                foreach (var oldPath in oldCertificatePaths)
+
+                                {
+
+                                    var oldCertPath = Path.Combine(wwwRootPath, oldPath.TrimStart('/'));
+
+                                    if (File.Exists(oldCertPath))
+
+                                    {
+
+                                        File.Delete(oldCertPath);
+
+                                    }
+
+                                }
+
+                            }
+
+            
+
+                            var certificatePaths = new List<string>();
+
+                            foreach (var certificateFile in academicCertificates)
+
+                            {
+
+                                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(certificateFile.FileName);
+
+                                string filePath = Path.Combine(uploadPath, fileName);
+
+            
+
+                                using (var fileStream = new FileStream(filePath, FileMode.Create))
+
+                                {
+
+                                    await certificateFile.CopyToAsync(fileStream);
+
+                                }
+
+                                certificatePaths.Add("/uploads/" + fileName);
+
+                            }
+
+            
+
+                            if (student.SecondaryInfos == null)
+
+                            {
+
+                                student.SecondaryInfos = new SecondaryInfos();
+
+                            }
+
+                            student.SecondaryInfos.AcademicCertificatePaths = string.Join(",", certificatePaths);
+
+                        }
+
+            
+
+                        // Update student properties from DTO
+
+                        student.FirstName = studentDto.FirstName;
+
+                        student.LastName = studentDto.LastName;
+
+                        student.DateOfBirth = studentDto.DateOfBirth;
+
+                        student.Gender = studentDto.Gender;
+
+                        student.BloodGroup = studentDto.BloodGroup;
+
+                        student.PrimaryMobile = studentDto.PrimaryMobile;
+
+                        student.PrimaryEmail = studentDto.PrimaryEmail;
+
+            
+
+                        // ... update all other properties in a similar way
+
+            
+
+                        _unitOfWork.GetRepository<Student>().Update(student);
+
+                        await _unitOfWork.CompleteAsync();
+
+            
+
+                        return await GetStudentByIdAsync(student.Id);
+
+                    }
+
+            
+
+                    public async Task<bool> DeleteStudentAsync(int id)
+
+                    {
+
+                        var students = await _unitOfWork.GetRepository<Student>().FindAsync(s => s.Id == id);
+
+                        var student = students.FirstOrDefault();
+
+            
+
+                        if (student == null)
+
+                        {
+
+                            return false;
+
+                        }
+
+            
+
+                        _unitOfWork.GetRepository<Student>().Remove(student);
+
+                        await _unitOfWork.CompleteAsync();
+
+            
+
+                        return true;
+
+                    }
+
+                }
+
+            }
+
+            

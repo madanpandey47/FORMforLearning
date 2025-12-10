@@ -10,5 +10,7 @@ namespace FormBackend.Core.Interfaces
         Task<StudentDTO?> CreateStudentAsync(StudentDTO studentDto, IFormFile? profileImage, List<IFormFile>? academicCertificates);
         Task<StudentDTO?> GetStudentByIdAsync(int id);
         Task<List<StudentDTO>> GetAllStudentsAsync();
+        Task<StudentDTO?> UpdateStudentAsync(int id, StudentDTO studentDto, IFormFile? profileImage, List<IFormFile>? academicCertificates);
+        Task<bool> DeleteStudentAsync(int id);
     }
 }

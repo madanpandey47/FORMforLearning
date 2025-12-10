@@ -135,8 +135,14 @@ const FormPage: React.FC = () => {
     name: "temporaryAddress",
   });
   const [sameAsPermanent, setSameAsPermanent] = React.useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [imagePreviews, setImagePreviews] = React.useState<string[]>([]);
+  // Separate state for image previews to ensure immediate updates
+  const [profileImagePreviewUrl, setProfileImagePreviewUrl] = React.useState<
+    string | null
+  >(null);
+  const [academicCertificatesPreviewUrls, setAcademicCertificatesPreviewUrls] =
+    React.useState<string[]>([]);
+
+  // State for lookup options
   const [bloodTypeOptions, setBloodTypeOptions] = React.useState<Option[]>([]);
   const [academicLevelOptions, setAcademicLevelOptions] = React.useState<
     Option[]
@@ -155,6 +161,18 @@ const FormPage: React.FC = () => {
   const [temporaryMunicipalities, setTemporaryMunicipalities] = React.useState<
     Option[]
   >([]);
+
+  // Cleanup effect for object URLs
+  React.useEffect(() => {
+    return () => {
+      if (profileImagePreviewUrl) {
+        URL.revokeObjectURL(profileImagePreviewUrl);
+      }
+      academicCertificatesPreviewUrls.forEach((url) =>
+        URL.revokeObjectURL(url)
+      );
+    };
+  }, [profileImagePreviewUrl, academicCertificatesPreviewUrls]);
 
   React.useEffect(() => {
     // Load lookup options from backend
@@ -219,8 +237,26 @@ const FormPage: React.FC = () => {
     if (file) {
       console.log("Profile image selected:", file.name, file.size);
       setValue("profileImage", file);
+      // Revoke previous URL to prevent memory leaks
+      if (profileImagePreviewUrl) {
+        URL.revokeObjectURL(profileImagePreviewUrl);
+      }
+      setProfileImagePreviewUrl(URL.createObjectURL(file));
     }
     e.target.value = "";
+  };
+
+  const handleRemoveProfileImage = () => {
+    setValue("profileImage", null as unknown as File);
+    if (profileImagePreviewUrl) {
+      URL.revokeObjectURL(profileImagePreviewUrl);
+    }
+    setProfileImagePreviewUrl(null);
+    // Clear the input field value as well
+    const profileInput = document.getElementById(
+      "profileImageInput"
+    ) as HTMLInputElement;
+    if (profileInput) profileInput.value = "";
   };
 
   const handleAcademicCertificatesChange = (
@@ -234,8 +270,44 @@ const FormPage: React.FC = () => {
         fileArray.map((f) => f.name)
       );
       setValue("academicCertificates", fileArray);
+
+      // Revoke previous URLs to prevent memory leaks
+      academicCertificatesPreviewUrls.forEach((url) =>
+        URL.revokeObjectURL(url)
+      );
+      setAcademicCertificatesPreviewUrls(
+        fileArray.map((file) => URL.createObjectURL(file))
+      );
     }
     e.target.value = "";
+  };
+
+  const handleRemoveAcademicCertificate = (indexToRemove: number) => {
+    const currentCertificates = getValues("academicCertificates") as File[];
+    const currentPreviewUrls = academicCertificatesPreviewUrls;
+
+    if (currentCertificates && currentCertificates.length > indexToRemove) {
+      // Remove file from react-hook-form state
+      const newCertificates = currentCertificates.filter(
+        (_, i) => i !== indexToRemove
+      );
+      setValue("academicCertificates", newCertificates);
+
+      // Revoke object URL for the removed file
+      URL.revokeObjectURL(currentPreviewUrls[indexToRemove]);
+      // Remove URL from preview state
+      const newPreviewUrls = currentPreviewUrls.filter(
+        (_, i) => i !== indexToRemove
+      );
+      setAcademicCertificatesPreviewUrls(newPreviewUrls);
+    }
+    // Clear the input field value if all are removed
+    if (academicCertificatesPreviewUrls.length === 0) {
+      const certInput = document.getElementById(
+        "academicCertificatesInput"
+      ) as HTMLInputElement;
+      if (certInput) certInput.value = "";
+    }
   };
 
   const processForm = async (data: FieldValues) => {
@@ -251,7 +323,15 @@ const FormPage: React.FC = () => {
         // Reset form to initial state
         reset();
         setCurrentStep(1);
-        setImagePreviews([]);
+        // Clear all image previews and revoke URLs
+        if (profileImagePreviewUrl) {
+          URL.revokeObjectURL(profileImagePreviewUrl);
+        }
+        setProfileImagePreviewUrl(null);
+        academicCertificatesPreviewUrls.forEach((url) =>
+          URL.revokeObjectURL(url)
+        );
+        setAcademicCertificatesPreviewUrls([]);
       } else {
         console.error("Form submission error: unknown error");
         alert("Form submission failed. Please check the console for details.");
@@ -533,7 +613,9 @@ const FormPage: React.FC = () => {
                 type="checkbox"
                 checked={sameAsPermanent}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setSameAsPermanent(e.target.checked);
+                  setTimeout(() => {
+                    setSameAsPermanent(e.target.checked);
+                  }, 0);
                 }}
                 className="w-4 h-4 accent-black rounded"
               />
@@ -912,18 +994,24 @@ const FormPage: React.FC = () => {
                   Add Profile Image
                 </label>
 
-                {getValues("profileImage") && (
+                {profileImagePreviewUrl && (
                   <div className="mt-6">
                     <p className="text-sm text-gray-600 mb-3">Preview:</p>
-                    <div className="flex justify-center">
+                    <div className="flex justify-center relative">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={URL.createObjectURL(
-                          getValues("profileImage") as File
-                        )}
+                        src={profileImagePreviewUrl}
                         alt="Profile Preview"
                         className="h-32 w-32 rounded-full object-cover"
                       />
+                      <button
+                        type="button"
+                        onClick={handleRemoveProfileImage}
+                        className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full text-xs"
+                        aria-label="Remove profile image"
+                      >
+                        <FiTrash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
                 )}
@@ -960,37 +1048,46 @@ const FormPage: React.FC = () => {
                   Add Certificates
                 </label>
 
-                {getValues("academicCertificates") &&
-                  (getValues("academicCertificates") as File[])?.length > 0 && (
-                    <div className="mt-6">
-                      <p className="text-sm text-gray-600 mb-3">Previews:</p>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {(getValues("academicCertificates") as File[]).map(
-                          (file, index) => (
-                            <div key={index} className="relative group">
-                              {file.type.startsWith("image/") ? (
-                                <>
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img
-                                    src={URL.createObjectURL(file)}
-                                    alt={`Certificate ${index + 1}`}
-                                    className="h-32 w-full rounded object-cover"
-                                  />
-                                </>
-                              ) : (
-                                <div className="h-32 w-full flex items-center justify-center bg-gray-200 rounded">
-                                  <FiFileText className="h-12 w-12 text-gray-500" />
-                                </div>
-                              )}
-                              <p className="text-xs truncate mt-1">
-                                {file.name}
-                              </p>
+                {academicCertificatesPreviewUrls.length > 0 && (
+                  <div className="mt-6">
+                    <p className="text-sm text-gray-600 mb-3">Previews:</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {academicCertificatesPreviewUrls.map((url, index) => (
+                        <div key={index} className="relative group">
+                          {getValues("academicCertificates")?.[
+                            index
+                          ]?.type.startsWith("image/") ? (
+                            <>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={url}
+                                alt={`Certificate ${index + 1}`}
+                                className="h-32 w-full rounded object-cover"
+                              />
+                            </>
+                          ) : (
+                            <div className="h-32 w-full flex items-center justify-center bg-gray-200 rounded">
+                              <FiFileText className="h-12 w-12 text-gray-500" />
                             </div>
-                          )
-                        )}
-                      </div>
+                          )}
+                          <p className="text-xs truncate mt-1">
+                            {getValues("academicCertificates")?.[index]?.name}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleRemoveAcademicCertificate(index)
+                            }
+                            className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full text-xs"
+                            aria-label={`Remove certificate ${index + 1}`}
+                          >
+                            <FiTrash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
                     </div>
-                  )}
+                  </div>
+                )}
               </div>
             </div>
 

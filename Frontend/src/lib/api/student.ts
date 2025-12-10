@@ -1,148 +1,100 @@
+import { StudentDTO } from "@/lib/types";
 import { FieldValues } from "react-hook-form";
 
-interface Address {
-  province: string;
-  municipality: string;
-  ward: string;
-  street?: string;
-  country: string;
-  type: number;
-}
+const API_BASE_URL = "http://localhost:5000/api/student";
 
-export async function submitStudent(data: FieldValues) {
-  const formData = new FormData();
+export const submitStudent = async (
+  data: FieldValues
+): Promise<StudentDTO | null> => {
+  try {
+    const formData = new FormData();
 
-  // 1. Deep copy to avoid mutating the original form state
-  const cleanedData = JSON.parse(JSON.stringify(data)) as Record<
-    string,
-    unknown
-  >;
+    // 1. Separate files from the rest of the data
+    const { profileImage, academicCertificates, ...restOfData } = data;
 
-  // 2. Clean optional date fields: convert "" to null
-  const achievements = cleanedData["achievements"] as
-    | Array<{ dateOfAchievement?: string | null }>
-    | undefined;
-  if (achievements) {
-    achievements.forEach((ach) => {
-      if (ach && ach.dateOfAchievement === "") {
-        ach.dateOfAchievement = null;
-      }
+    // 2. Append the non-file data as a JSON string
+    formData.append("studentDto", JSON.stringify(restOfData));
+
+    // 3. Append the profile image if it exists
+    if (profileImage && profileImage instanceof File) {
+      console.log("Appending profile image:", profileImage.name);
+      formData.append("profileImage", profileImage);
+    }
+
+    // 4. Append academic certificates if they exist
+    if (
+      Array.isArray(academicCertificates) &&
+      academicCertificates.length > 0
+    ) {
+      academicCertificates.forEach((file: unknown) => {
+        if (file instanceof File) {
+          console.log("Appending academic certificate:", (file as File).name);
+          formData.append("academicCertificates", file as Blob);
+        }
+      });
+    }
+
+    console.log("Submitting form to:", API_BASE_URL);
+    const response = await fetch(API_BASE_URL, {
+      method: "POST",
+      body: formData, // No headers needed, browser sets it for FormData
     });
+
+    console.log("Response status:", response.status);
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      console.error("Server error:", responseData);
+      throw new Error(
+        responseData.message || "Failed to submit student application"
+      );
+    }
+
+    console.log("Student submitted successfully:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error("Error submitting student:", error);
+    throw error;
+  }
+};
+
+export const deleteStudent = async (id: number): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete student");
+  }
+};
+
+export const updateStudent = async (
+  id: number,
+  studentDto: StudentDTO,
+  profileImage?: File,
+  academicCertificates?: File[]
+): Promise<StudentDTO> => {
+  const formData = new FormData();
+  formData.append("studentDto", JSON.stringify(studentDto));
+
+  if (profileImage) {
+    formData.append("profileImage", profileImage);
   }
 
-  const scholarship = cleanedData["scholarship"] as
-    | { startDate?: string | null; endDate?: string | null }
-    | undefined;
-  if (scholarship) {
-    if (scholarship.startDate === "") scholarship.startDate = null;
-    if (scholarship.endDate === "") scholarship.endDate = null;
-  }
-
-  const academicEnrollment = cleanedData["academicEnrollment"] as
-    | { facultyId?: number; programName?: string }
-    | undefined;
-  if (
-    !academicEnrollment ||
-    !academicEnrollment.facultyId ||
-    academicEnrollment.facultyId === 0
-  ) {
-    delete (cleanedData as { [k: string]: unknown })["academicEnrollment"];
-  }
-
-  // 3. Extract and remove 'agree' field
-  delete (cleanedData as { [k: string]: unknown })["agree"];
-  // Remove profileImage and academicCertificates from cleanedData as they will be sent separately
-  delete (cleanedData as { [k: string]: unknown })["profileImage"];
-  delete (cleanedData as { [k: string]: unknown })["academicCertificates"];
-
-  // 4. Flatten contactInfo to root level (backend expects PrimaryMobile, PrimaryEmail at root)
-  const contactInfo = cleanedData["contactInfo"] as
-    | {
-        primaryMobile?: string;
-        alternateMobile?: string;
-        primaryEmail?: string;
-        alternateEmail?: string;
-      }
-    | undefined;
-
-  if (contactInfo) {
-    cleanedData["primaryMobile"] = contactInfo.primaryMobile;
-    cleanedData["primaryEmail"] = contactInfo.primaryEmail;
-    delete (cleanedData as { [k: string]: unknown })["contactInfo"];
-  }
-
-  // 5. Restructure addresses into a single collection
-  const submissionData: Record<string, unknown> = { ...cleanedData };
-  const addresses: Address[] = [];
-
-  const permanentAddress = submissionData["permanentAddress"] as
-    | Address
-    | undefined;
-  if (permanentAddress) addresses.push(permanentAddress);
-
-  const temporaryAddress = submissionData["temporaryAddress"] as
-    | Address
-    | undefined;
-  if (temporaryAddress) addresses.push(temporaryAddress);
-
-  submissionData["addresses"] = addresses;
-  delete (submissionData as { [k: string]: unknown })["permanentAddress"];
-  delete (submissionData as { [k: string]: unknown })["temporaryAddress"];
-
-  const payload = submissionData;
-
-  console.log("Final payload being sent:", JSON.stringify(payload, null, 2));
-
-  // 5. Create FormData to handle both JSON and file upload
-  formData.append("studentDto", JSON.stringify(payload));
-
-  // Append profile image
-  const profileImageFile = data.profileImage as File | undefined;
-  if (profileImageFile) {
-    console.log("Appending profile image to FormData:", profileImageFile.name);
-    formData.append("profileImage", profileImageFile);
-  }
-
-  // Append academic certificates
-  const academicCertificateFiles = data.academicCertificates as
-    | File[]
-    | undefined;
-  if (academicCertificateFiles && academicCertificateFiles.length > 0) {
-    console.log(
-      "Appending academic certificates to FormData:",
-      academicCertificateFiles.map((f) => f.name)
-    );
-    academicCertificateFiles.forEach((file) => {
+  if (academicCertificates) {
+    academicCertificates.forEach((file) => {
       formData.append("academicCertificates", file);
     });
   }
 
-  const res = await fetch("http://localhost:5000/api/Student", {
-    method: "POST",
+  const response = await fetch(`${API_BASE_URL}/${id}`, {
+    method: "PUT",
     body: formData,
   });
 
-  if (!res.ok) {
-    let errorMessage = `Submission failed with status ${res.status}`;
-    try {
-      const text = await res.text();
-      console.error("Raw error response:", text);
-
-      // Try to parse as JSON
-      if (text) {
-        try {
-          const err = JSON.parse(text);
-          console.error("Backend error response:", err);
-          errorMessage = `Submission failed: ${JSON.stringify(err)}`;
-        } catch {
-          console.error("Response is not valid JSON");
-          errorMessage = `Submission failed: ${text}`;
-        }
-      }
-    } catch (readError) {
-      console.error("Failed to read error response:", readError);
-    }
-    throw new Error(errorMessage);
+  if (!response.ok) {
+    throw new Error("Failed to update student");
   }
-  return res.json();
-}
+
+  return response.json();
+};
