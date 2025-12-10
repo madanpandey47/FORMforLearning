@@ -42,12 +42,13 @@ import {
   transformToDTO,
 } from "../../lib/api/student";
 import { StudentDTO } from "../../lib/types";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 type FormData = z.infer<typeof formSchema>;
 
 const FormPage: React.FC = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const studentId = searchParams.get("id");
   const isEditMode = !!studentId;
 
@@ -412,7 +413,6 @@ const FormPage: React.FC = () => {
     setValue
   );
 
-  // Cleanup URLs
   React.useEffect(() => {
     return () => {
       if (profileImagePreviewUrl) URL.revokeObjectURL(profileImagePreviewUrl);
@@ -430,6 +430,17 @@ const FormPage: React.FC = () => {
 
   const handleBack = () => {
     setCurrentStep((s) => Math.max(s - 1, 1));
+  };
+
+  const handleCancel = () => {
+    router.push("/");
+  };
+
+  const handleSave = async () => {
+    const isValid = await trigger();
+    if (isValid) {
+      handleSubmit(onSubmit)();
+    }
   };
 
   const onSubmit = async (data: FormData) => {
@@ -1233,29 +1244,50 @@ const FormPage: React.FC = () => {
 
           {/* Navigation */}
           <div className="mt-10 flex justify-between">
-            {currentStep > 1 && (
-              <button
-                type="button"
-                onClick={handleBack}
-                className="rounded bg-gray-500 px-6 py-3 text-white hover:bg-gray-600"
-              >
-                Back
-              </button>
-            )}
-            {currentStep < steps.length ? (
-              <button
-                type="button"
-                onClick={handleNext}
-                className="rounded bg-sky-600 px-6 py-3 text-white hover:bg-sky-700"
-              >
-                Next
-              </button>
-            ) : (
-              <Button
-                type="submit"
-                label={isEditMode ? "Update Application" : "Submit Application"}
-              />
-            )}
+            <div className="flex gap-3">
+              {currentStep > 1 && (
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="rounded bg-gray-500 px-6 py-3 text-white hover:bg-gray-600"
+                >
+                  Back
+                </button>
+              )}
+              {isEditMode && (
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="rounded bg-red-500 px-6 py-3 text-white hover:bg-red-600"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+            <div className="flex gap-3">
+              {isEditMode && (
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="rounded bg-green-600 px-6 py-3 text-white hover:bg-green-700"
+                >
+                  Save Changes
+                </button>
+              )}
+              {currentStep < steps.length ? (
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="rounded bg-sky-600 px-6 py-3 text-white hover:bg-sky-700"
+                >
+                  Next
+                </button>
+              ) : (
+                !isEditMode && (
+                  <Button type="submit" label="Submit Application" />
+                )
+              )}
+            </div>
           </div>
         </Form>
       </div>

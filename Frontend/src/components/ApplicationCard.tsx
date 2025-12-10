@@ -42,6 +42,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
       }
     }
   };
+  const [imageError, setImageError] = React.useState(false);
   const imageUrl = student.profileImagePath;
   const fullImageUrl = imageUrl
     ? `http://localhost:5000${imageUrl}`
@@ -49,14 +50,14 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
 
   return (
     <div className="w-[190px] h-[254px] rounded-[30px] bg-[#e0e0e0] shadow-[15px_15px_30px_#bebebe,-15px_-15px_30px_#ffffff] flex flex-col justify-center items-center p-4 text-center">
-      {fullImageUrl ? (
+      {fullImageUrl && !imageError ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={fullImageUrl}
           alt={`${student.firstName} ${student.lastName}`}
           className="w-20 h-20 rounded-full object-cover mb-2"
-          onError={(e) => {
-            e.currentTarget.style.display = "none";
+          onError={() => {
+            setImageError(true);
           }}
         />
       ) : (
