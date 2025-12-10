@@ -3,25 +3,101 @@ import { FieldValues } from "react-hook-form";
 
 const API_BASE_URL = "http://localhost:5000/api/student";
 
+const sanitizeData = (obj: FieldValues): FieldValues => {
+  if (obj === null || obj === undefined) return obj;
+
+  if (Array.isArray(obj)) {
+    return obj.map((item) => sanitizeData(item));
+  }
+
+  if (typeof obj === "object") {
+    const sanitized: FieldValues = {};
+    for (const key in obj) {
+      const value = obj[key];
+      if (
+        value === "" &&
+        (key.includes("date") ||
+          key.includes("Date") ||
+          key === "studentIdNumber")
+      ) {
+        sanitized[key] = null;
+      } else if (typeof value === "object" && value !== null) {
+        sanitized[key] = sanitizeData(value);
+      } else {
+        sanitized[key] = value;
+      }
+    }
+    return sanitized;
+  }
+
+  return obj;
+};
+
+// Transform form data structure to match backend DTO
+export const transformToDTO = (formData: FieldValues): FieldValues => {
+  const {
+    contactInfo,
+    permanentAddress,
+    temporaryAddress,
+    middleName,
+    ...rest
+  } = formData;
+
+  // Flatten contactInfo to root level
+  const transformed: FieldValues = {
+    ...rest,
+    primaryMobile: contactInfo?.primaryMobile || "",
+    primaryEmail: contactInfo?.primaryEmail || "",
+  };
+
+  // Add secondary info with middleName and alternate contact
+  if (
+    middleName ||
+    contactInfo?.alternateMobile ||
+    contactInfo?.alternateEmail
+  ) {
+    transformed.secondaryInfos = {
+      middleName: middleName || null,
+      alternateMobile: contactInfo?.alternateMobile || null,
+      alternateEmail: contactInfo?.alternateEmail || null,
+    };
+  }
+
+  // Add addresses array
+  const addresses: FieldValues[] = [];
+  if (permanentAddress) {
+    addresses.push({ ...permanentAddress, type: 0 }); // Permanent = 0
+  }
+  if (temporaryAddress) {
+    addresses.push({ ...temporaryAddress, type: 1 }); // Temporary = 1
+  }
+  transformed.addresses = addresses;
+
+  return transformed;
+};
+
 export const submitStudent = async (
   data: FieldValues
 ): Promise<StudentDTO | null> => {
   try {
     const formData = new FormData();
 
-    // 1. Separate files from the rest of the data
     const { profileImage, academicCertificates, ...restOfData } = data;
 
-    // 2. Append the non-file data as a JSON string
-    formData.append("studentDto", JSON.stringify(restOfData));
+    // Transform the form structure to match backend DTO
+    const transformedData = transformToDTO(restOfData);
 
-    // 3. Append the profile image if it exists
+    // Sanitize the data (convert empty strings to null)
+    const sanitizedData = sanitizeData(transformedData);
+
+    console.log("Transformed and sanitized data:", sanitizedData);
+    formData.append("studentDto", JSON.stringify(sanitizedData));
+
     if (profileImage && profileImage instanceof File) {
       console.log("Appending profile image:", profileImage.name);
       formData.append("profileImage", profileImage);
     }
 
-    // 4. Append academic certificates if they exist
     if (
       Array.isArray(academicCertificates) &&
       academicCertificates.length > 0
@@ -37,7 +113,7 @@ export const submitStudent = async (
     console.log("Submitting form to:", API_BASE_URL);
     const response = await fetch(API_BASE_URL, {
       method: "POST",
-      body: formData, // No headers needed, browser sets it for FormData
+      body: formData,
     });
 
     console.log("Response status:", response.status);
@@ -55,6 +131,21 @@ export const submitStudent = async (
   } catch (error) {
     console.error("Error submitting student:", error);
     throw error;
+  }
+};
+
+export const getStudent = async (id: number): Promise<StudentDTO | null> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/${id}`);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch student");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching student:", error);
+    return null;
   }
 };
 

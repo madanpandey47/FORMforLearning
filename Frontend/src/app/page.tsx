@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import ApplicationCard from "@/components/ApplicationCard";
 import { StudentDTO } from "@/lib/types";
+import { deleteStudent } from "@/lib/api/student"; // Added import
 
 async function getStudents(): Promise<StudentDTO[]> {
   try {
@@ -28,16 +29,24 @@ const Home = () => {
     fetchStudents();
   }, []);
 
-  const handleDelete = (id: number) => {
-    setStudents((prevStudents) =>
-      prevStudents.filter((student) => student.id !== id)
-    );
-    console.log("Deleted student with id:", id);
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteStudent(id);
+      setStudents((prevStudents) =>
+        prevStudents.filter((student) => student.id !== id)
+      );
+      console.log("Deleted student with id:", id);
+    } catch (error) {
+      console.error("Failed to delete student:", error);
+      alert("Failed to delete student");
+    }
   };
 
   return (
-    <div className="p-8">
-      <h1 className="text-center mb-8 text-3xl font-bold">Application Forms</h1>
+    <div className="p-8 bg-linear-to-br from-slate-100 to-slate-50 min-h-screen">
+      <h1 className="text-center mb-8 text-3xl font-bold text-slate-900">
+        Application Forms
+      </h1>
       <div className="flex flex-wrap gap-8 justify-center">
         {students.map((student: StudentDTO) => (
           <ApplicationCard

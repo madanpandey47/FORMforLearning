@@ -8,52 +8,51 @@ type FormData = z.infer<typeof formSchema>;
 export function useSyncTemporaryAddress(
   currentStep: number,
   sameAsPermanent: boolean,
-  permanentAddress: FormData["permanentAddress"] | null,
-  temporaryAddress: FormData["temporaryAddress"] | null,
+  permanentAddress: FormData["permanentAddress"] | undefined,
+  temporaryAddress: FormData["temporaryAddress"] | undefined,
   setValue: UseFormSetValue<FormData>
 ) {
-  const permanentAddressStr = React.useMemo(
-    () => JSON.stringify(permanentAddress),
-    [permanentAddress]
-  );
-
-  const lastSyncedRef = React.useRef<string>("");
-  const isFirstRenderRef = React.useRef(true);
-
   React.useEffect(() => {
-    if (isFirstRenderRef.current) {
-      isFirstRenderRef.current = false;
+    if (
+      !sameAsPermanent ||
+      currentStep !== 3 ||
+      !permanentAddress ||
+      !temporaryAddress
+    ) {
       return;
     }
 
-    if (!sameAsPermanent || currentStep !== 3) {
-      return;
-    }
-
-    const parsed = JSON.parse(permanentAddressStr) as
-      | FormData["permanentAddress"]
-      | null;
-
-    if (!parsed) {
-      return;
-    }
-
-    const nextTemp: FormData["temporaryAddress"] = {
-      ...parsed,
-      type: 2,
+    const expectedTemp = {
+      ...permanentAddress,
+      type: 1 as const,
     };
 
-    const nextTempStr = JSON.stringify(nextTemp);
+    const permWithoutType = JSON.stringify({
+      province: permanentAddress.province,
+      municipality: permanentAddress.municipality,
+      ward: permanentAddress.ward,
+      street: permanentAddress.street,
+      country: permanentAddress.country,
+    });
+    const tempWithoutType = JSON.stringify({
+      province: temporaryAddress.province,
+      municipality: temporaryAddress.municipality,
+      ward: temporaryAddress.ward,
+      street: temporaryAddress.street,
+      country: temporaryAddress.country,
+    });
 
-    if (lastSyncedRef.current !== nextTempStr) {
-      lastSyncedRef.current = nextTempStr;
-      setTimeout(() => {
-        setValue("temporaryAddress", nextTemp, {
-          shouldValidate: false,
-          shouldDirty: false,
-          shouldTouch: false,
-        });
-      }, 0);
+    if (permWithoutType !== tempWithoutType) {
+      setValue("temporaryAddress", expectedTemp, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
-  }, [currentStep, sameAsPermanent, permanentAddressStr, setValue]);
+  }, [
+    sameAsPermanent,
+    currentStep,
+    permanentAddress,
+    temporaryAddress,
+    setValue,
+  ]);
 }

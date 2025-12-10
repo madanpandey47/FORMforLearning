@@ -1,4 +1,5 @@
 import { deleteStudent } from "@/lib/api/student";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { StudentDTO, Gender } from "@/lib/types";
 
@@ -11,6 +12,8 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
   student,
   onDelete,
 }) => {
+  const router = useRouter();
+
   const getGenderString = (gender: Gender) => {
     switch (gender) {
       case Gender.Male:
@@ -25,8 +28,8 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
   };
 
   const handleEdit = () => {
-    console.log("Edit student:", student.id);
-    // Future: navigate to edit form
+    // Navigate to edit form with student ID as query parameter
+    router.push(`/form?id=${student.id}`);
   };
 
   const handleDelete = async () => {
@@ -46,13 +49,23 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
 
   return (
     <div className="w-[190px] h-[254px] rounded-[30px] bg-[#e0e0e0] shadow-[15px_15px_30px_#bebebe,-15px_-15px_30px_#ffffff] flex flex-col justify-center items-center p-4 text-center">
-      {fullImageUrl && (
+      {fullImageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={fullImageUrl}
           alt={`${student.firstName} ${student.lastName}`}
           className="w-20 h-20 rounded-full object-cover mb-2"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
         />
+      ) : (
+        <div className="w-20 h-20 rounded-full bg-gray-300 mb-2 flex items-center justify-center">
+          <span className="text-gray-500 text-2xl">
+            {student.firstName.charAt(0)}
+            {student.lastName.charAt(0)}
+          </span>
+        </div>
       )}
       <h2 className="text-lg font-semibold mb-1">
         {student.firstName} {student.lastName}

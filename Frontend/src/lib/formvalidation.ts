@@ -5,7 +5,8 @@ const dateStringSchema = z
   .refine(
     (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
     "Date must be in YYYY-MM-DD format"
-  );
+  )
+  .optional();
 
 export const GenderEnum = z.union([z.literal(0), z.literal(1), z.literal(2)]);
 
@@ -76,11 +77,7 @@ const contactInfoSchema = z.object({
 const achievementSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
-  dateOfAchievement: z
-    .string()
-    .refine((s) => s === "" || /^\d{4}-\d{2}-\d{2}$/.test(s), "Invalid date")
-    .optional()
-    .nullable(),
+  dateOfAchievement: dateStringSchema.optional(),
 });
 
 const hobbiesSchema = z.object({
@@ -96,51 +93,42 @@ const disabilitySchema = z.object({
 const scholarshipSchema = z.object({
   scholarshipName: z.string().optional(),
   amount: z.number().optional(),
-  startDate: z
-    .string()
-    .refine(
-      (s) => !s || s === "" || /^\d{4}-\d{2}-\d{2}$/.test(s),
-      "Date must be in YYYY-MM-DD format"
-    )
-    .optional(),
-  endDate: z
-    .string()
-    .refine(
-      (s) => !s || s === "" || /^\d{4}-\d{2}-\d{2}$/.test(s),
-      "Date must be in YYYY-MM-DD format"
-    )
-    .optional(),
+  startDate: dateStringSchema.optional(),
+  endDate: dateStringSchema.optional(),
 });
 
-const academicEnrollmentSchema = z
-  .object({
-    facultyId: z.number().int().optional().or(z.literal(0)),
-    programName: z.string().optional(),
-    enrollmentDate: dateStringSchema.optional(),
-    studentIdNumber: z.string().optional(),
-  })
-  .optional();
+const academicEnrollmentSchema = z.object({
+  facultyId: z.number().int().min(1, "Faculty is required"),
+  programName: z.string().min(1, "Program name is required"),
+  enrollmentDate: dateStringSchema,
+  studentIdNumber: z.string().optional(),
+});
 
 export const formSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
   middleName: z.string().optional(),
   lastName: z.string().min(2, "Last name is required"),
-  dateOfBirth: dateStringSchema,
+  dateOfBirth: dateStringSchema.refine(
+    (val) => val !== undefined,
+    "Date of birth is required"
+  ),
   gender: GenderEnum,
   bloodGroup: BloodGroupEnum,
   citizenship: citizenshipSchema,
   contactInfo: contactInfoSchema,
   permanentAddress: addressSchema,
-  temporaryAddress: addressSchema.optional(),
+  temporaryAddress: addressSchema,
   parents: z.array(parentSchema).min(1, "At least one parent is required"),
-  academicHistories: z.array(academicHistorySchema).optional(),
+  academicHistories: z
+    .array(academicHistorySchema)
+    .min(1, "At least one academic history is required"),
   academicEnrollment: academicEnrollmentSchema,
   achievements: z.array(achievementSchema).optional(),
   hobbies: z.array(hobbiesSchema).optional(),
   disability: disabilitySchema.optional(),
   scholarship: scholarshipSchema.optional(),
-  profileImage: z.instanceof(File, { message: "Profile picture is required" }), // Profile image field is mandatory
-  academicCertificates: z.array(z.instanceof(File)).optional(), // New academic certificates field
+  profileImage: z.instanceof(File).optional(), // Made optional for edit mode
+  academicCertificates: z.array(z.instanceof(File)).optional(),
   agree: z
     .boolean()
     .refine((v) => v === true, { message: "You must agree to continue" }),

@@ -1,16 +1,9 @@
 import React from "react";
-
-// The props for the Select component are now simplified.
-// It expects the props returned from react-hook-form's register function,
-// plus label, options, and error.
 interface SelectProps extends React.ComponentPropsWithoutRef<"select"> {
   label: string;
   options: { label: string; value: string | number }[];
   error?: string;
 }
-
-// The Select component is wrapped in React.forwardRef to allow the ref from
-// react-hook-form to be passed to the underlying <select> element.
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, options, error, name, ...props }, ref) => {
     return (
