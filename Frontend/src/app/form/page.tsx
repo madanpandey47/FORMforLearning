@@ -509,8 +509,21 @@ const FormPage: React.FC = () => {
       name: "Address",
       fields: ["permanentAddress.province", "temporaryAddress.province"],
     },
-    { name: "Family Details", fields: ["parents"] },
-    { name: "Academic History", fields: ["academicHistories"] },
+    {
+      name: "Family Details",
+      fields: [
+        "parents.0.firstName",
+        "parents.0.lastName",
+        "parents.0.relation",
+      ],
+    },
+    {
+      name: "Academic History",
+      fields: [
+        "academicHistories.0.institutionName",
+        "academicHistories.0.level",
+      ],
+    },
     { name: "Enrollment", fields: ["academicEnrollment.facultyId"] },
     { name: "Scholarship", fields: [] },
     { name: "Other", fields: [] },

@@ -3,7 +3,7 @@ import { z } from "zod";
 const dateStringSchema = z
   .string()
   .refine(
-    (s) => /^\d{4}-\d{2}-\d{2}$/.test(s),
+    (s) => s === "" || /^\d{4}-\d{2}-\d{2}$/.test(s),
     "Date must be in YYYY-MM-DD format"
   )
   .optional();
@@ -22,10 +22,10 @@ export const BloodGroupEnum = z.union([
 ]);
 
 export const ParentTypeEnum = z.union([
-  z.literal(0), // Father
-  z.literal(1), // Mother
-  z.literal(2), // Sibling
-  z.literal(3), // Other
+  z.literal(0),
+  z.literal(1),
+  z.literal(2),
+  z.literal(3),
 ]);
 
 export const FacultyEnum = z.number().int().min(1);
@@ -45,7 +45,7 @@ export const parentSchema = z.object({
   lastName: z.string().min(2, "Last name is required"),
   relation: ParentTypeEnum,
   occupation: z.string().optional(),
-  annualIncome: z.number().optional(),
+  annualIncome: z.union([z.number().nonnegative(), z.nan()]).optional(),
   mobileNumber: z.string().optional(),
   email: z.union([z.string().email("Invalid email"), z.literal("")]).optional(),
 });
@@ -77,7 +77,7 @@ const contactInfoSchema = z.object({
 const achievementSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
-  dateOfAchievement: dateStringSchema.optional(),
+  dateOfAchievement: z.string().optional(),
 });
 
 const hobbiesSchema = z.object({
@@ -87,14 +87,16 @@ const hobbiesSchema = z.object({
 const disabilitySchema = z.object({
   disabilityType: z.string().optional(),
   description: z.string().optional(),
-  disabilityPercentage: z.number().min(0).max(100).optional(),
+  disabilityPercentage: z
+    .union([z.number().min(0).max(100), z.nan()])
+    .optional(),
 });
 
 const scholarshipSchema = z.object({
   scholarshipName: z.string().optional(),
-  amount: z.number().optional(),
-  startDate: dateStringSchema.optional(),
-  endDate: dateStringSchema.optional(),
+  amount: z.union([z.number().nonnegative(), z.nan()]).optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
 });
 
 const academicEnrollmentSchema = z.object({
