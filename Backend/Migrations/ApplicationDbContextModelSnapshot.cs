@@ -24,33 +24,37 @@ namespace FormBackend.Migrations
 
             modelBuilder.Entity("FormBackend.Models.AcademicEnrollment", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("PID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("EnrollmentDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("FacultyId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("FacultyPID")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ProgramName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
                     b.Property<string>("StudentIdNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.Property<Guid>("StudentPID")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasIndex("FacultyId");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.HasIndex("StudentId")
+                    b.HasKey("PID");
+
+                    b.HasIndex("FacultyPID");
+
+                    b.HasIndex("StudentPID")
                         .IsUnique();
 
                     b.ToTable("AcademicEnrollments");
@@ -58,14 +62,15 @@ namespace FormBackend.Migrations
 
             modelBuilder.Entity("FormBackend.Models.AcademicHistory", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("PID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Board")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("InstitutionName")
                         .IsRequired()
@@ -80,23 +85,27 @@ namespace FormBackend.Migrations
                     b.Property<double>("PercentageOrGPA")
                         .HasColumnType("float");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("StudentPID")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.HasIndex("StudentId");
+                    b.HasKey("PID");
+
+                    b.HasIndex("StudentPID");
 
                     b.ToTable("AcademicHistories");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Achievement", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("PID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DateOfAchievement")
                         .HasColumnType("datetime2");
@@ -104,31 +113,35 @@ namespace FormBackend.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("StudentPID")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.HasIndex("StudentId");
+                    b.HasKey("PID");
+
+                    b.HasIndex("StudentPID");
 
                     b.ToTable("Achievements");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Address", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("PID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Country")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Municipality")
                         .IsRequired()
@@ -141,30 +154,31 @@ namespace FormBackend.Migrations
                     b.Property<string>("Street")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("StudentPID")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Ward")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("PID");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("StudentPID");
 
                     b.ToTable("Addresses");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Citizenship", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("PID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CitizenshipNumber")
                         .IsRequired()
@@ -174,31 +188,37 @@ namespace FormBackend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("DateOfIssuance")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PlaceOfIssuance")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("StudentPID")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.HasIndex("StudentId")
-                        .IsUnique()
-                        .HasFilter("[StudentId] IS NOT NULL");
+                    b.HasKey("PID");
+
+                    b.HasIndex("StudentPID")
+                        .IsUnique();
 
                     b.ToTable("Citizenships");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Disability", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("PID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -210,25 +230,28 @@ namespace FormBackend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("StudentPID")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.HasIndex("StudentId")
-                        .IsUnique()
-                        .HasFilter("[StudentId] IS NOT NULL");
+                    b.HasKey("PID");
+
+                    b.HasIndex("StudentPID")
+                        .IsUnique();
 
                     b.ToTable("Disabilities");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Faculty", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("PID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ProgramName")
                         .IsRequired()
@@ -237,44 +260,52 @@ namespace FormBackend.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("PID");
 
                     b.ToTable("Faculties");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Hobby", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("PID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("StudentPID")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.HasIndex("StudentId");
+                    b.HasKey("PID");
+
+                    b.HasIndex("StudentPID");
 
                     b.ToTable("Hobbies");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Parent", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("PID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal?>("AnnualIncome")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
@@ -299,27 +330,31 @@ namespace FormBackend.Migrations
                     b.Property<int>("Relation")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("StudentPID")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.HasIndex("StudentId");
+                    b.HasKey("PID");
+
+                    b.HasIndex("StudentPID");
 
                     b.ToTable("Parents");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Scholarship", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("PID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal?>("Amount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
@@ -331,25 +366,25 @@ namespace FormBackend.Migrations
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("StudentPID")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.HasIndex("StudentId")
-                        .IsUnique()
-                        .HasFilter("[StudentId] IS NOT NULL");
+                    b.HasKey("PID");
+
+                    b.HasIndex("StudentPID")
+                        .IsUnique();
 
                     b.ToTable("Scholarships");
                 });
 
             modelBuilder.Entity("FormBackend.Models.SecondaryInfos", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("PID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AcademicCertificatePaths")
                         .HasColumnType("nvarchar(max)");
@@ -360,31 +395,37 @@ namespace FormBackend.Migrations
                     b.Property<string>("AlternateMobile")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("MiddleName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("StudentPID")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.HasIndex("StudentId")
-                        .IsUnique()
-                        .HasFilter("[StudentId] IS NOT NULL");
+                    b.HasKey("PID");
+
+                    b.HasIndex("StudentPID")
+                        .IsUnique();
 
                     b.ToTable("SecondaryInfos");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Student", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("PID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("BloodGroup")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
@@ -411,7 +452,10 @@ namespace FormBackend.Migrations
                     b.Property<string>("ProfileImagePath")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("PID");
 
                     b.ToTable("Students");
                 });
@@ -420,13 +464,13 @@ namespace FormBackend.Migrations
                 {
                     b.HasOne("FormBackend.Models.Faculty", "Faculty")
                         .WithMany()
-                        .HasForeignKey("FacultyId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("FacultyPID")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("FormBackend.Models.Student", "Student")
                         .WithOne("AcademicEnrollment")
-                        .HasForeignKey("FormBackend.Models.AcademicEnrollment", "StudentId")
+                        .HasForeignKey("FormBackend.Models.AcademicEnrollment", "StudentPID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -437,74 +481,101 @@ namespace FormBackend.Migrations
 
             modelBuilder.Entity("FormBackend.Models.AcademicHistory", b =>
                 {
-                    b.HasOne("FormBackend.Models.Student", null)
+                    b.HasOne("FormBackend.Models.Student", "Student")
                         .WithMany("AcademicHistories")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("StudentPID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Achievement", b =>
                 {
-                    b.HasOne("FormBackend.Models.Student", null)
+                    b.HasOne("FormBackend.Models.Student", "Student")
                         .WithMany("Achievements")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("StudentPID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Address", b =>
                 {
-                    b.HasOne("FormBackend.Models.Student", null)
+                    b.HasOne("FormBackend.Models.Student", "Student")
                         .WithMany("Addresses")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("StudentPID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Citizenship", b =>
                 {
-                    b.HasOne("FormBackend.Models.Student", null)
+                    b.HasOne("FormBackend.Models.Student", "Student")
                         .WithOne("Citizenship")
-                        .HasForeignKey("FormBackend.Models.Citizenship", "StudentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("FormBackend.Models.Citizenship", "StudentPID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Disability", b =>
                 {
-                    b.HasOne("FormBackend.Models.Student", null)
+                    b.HasOne("FormBackend.Models.Student", "Student")
                         .WithOne("Disability")
-                        .HasForeignKey("FormBackend.Models.Disability", "StudentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("FormBackend.Models.Disability", "StudentPID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Hobby", b =>
                 {
-                    b.HasOne("FormBackend.Models.Student", null)
+                    b.HasOne("FormBackend.Models.Student", "Student")
                         .WithMany("Hobbies")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("StudentPID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Parent", b =>
                 {
-                    b.HasOne("FormBackend.Models.Student", null)
+                    b.HasOne("FormBackend.Models.Student", "Student")
                         .WithMany("Parents")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("StudentPID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Scholarship", b =>
                 {
-                    b.HasOne("FormBackend.Models.Student", null)
+                    b.HasOne("FormBackend.Models.Student", "Student")
                         .WithOne("Scholarship")
-                        .HasForeignKey("FormBackend.Models.Scholarship", "StudentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("FormBackend.Models.Scholarship", "StudentPID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("FormBackend.Models.SecondaryInfos", b =>
                 {
-                    b.HasOne("FormBackend.Models.Student", null)
+                    b.HasOne("FormBackend.Models.Student", "Student")
                         .WithOne("SecondaryInfos")
-                        .HasForeignKey("FormBackend.Models.SecondaryInfos", "StudentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("FormBackend.Models.SecondaryInfos", "StudentPID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("FormBackend.Models.Student", b =>

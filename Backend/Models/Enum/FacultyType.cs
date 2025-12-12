@@ -10,6 +10,14 @@ namespace FormBackend.Models.Enum
         Law,
         Education,
         Management,
-        IT
+        IT,
+        Agriculture,
+        Forestry,
+        Humanities,
+        SocialSciences,
+        FineArts,
+        Journalism,
+        PublicHealth,
+        Architecture
     }
 }

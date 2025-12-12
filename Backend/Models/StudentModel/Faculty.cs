@@ -1,13 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
 using FormBackend.Models.Enum;
 
 namespace FormBackend.Models
 {
-    public class Faculty
+    public class Faculty : BaseEntity
     {
-        [Key]
-        public int Id { get; set; }
         [Required]
         public FacultyType Type { get; set; }
         [Required]

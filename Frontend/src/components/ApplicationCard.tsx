@@ -1,11 +1,10 @@
-import { deleteStudent } from "@/lib/api/student";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { StudentDTO, Gender } from "@/lib/types";
+import { StudentSummaryDTO, Gender } from "@/lib/types";
 
 interface ApplicationCardProps {
-  student: StudentDTO;
-  onDelete: (id: number) => void;
+  student: StudentSummaryDTO;
+  onDelete: (pid: string) => void;
 }
 
 const ApplicationCard: React.FC<ApplicationCardProps> = ({
@@ -28,18 +27,13 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
   };
 
   const handleEdit = () => {
-    // Navigate to edit form with student ID as query parameter
-    router.push(`/form?id=${student.id}`);
+    // Navigate to edit form with student PID as query parameter
+    router.push(`/form?id=${student.pid}`);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this student?")) {
-      try {
-        await deleteStudent(student.id);
-        onDelete(student.id);
-      } catch (error) {
-        console.error("Failed to delete student:", error);
-      }
+      onDelete(student.pid);
     }
   };
   const [imageError, setImageError] = React.useState(false);
@@ -72,9 +66,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
         )}
         <h2 className="text-base font-semibold text-center">
           {student.firstName}{" "}
-          {student.secondaryInfos?.middleName && (
-            <span>{student.secondaryInfos.middleName} </span>
-          )}
+          {student.middleName && <span>{student.middleName} </span>}
           {student.lastName}
         </h2>
       </div>
@@ -82,15 +74,15 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
       {/* Right side - Student Details */}
       <div className="flex flex-col justify-between w-2/3 pl-4">
         <div className="space-y-1">
-          <p className="text-xs text-gray-700">
-            <span className="font-semibold">ID:</span> {student.id}
+          <p className="text-xs text-gray-700 truncate">
+            <span className="font-semibold">ID:</span> {student.pid}
           </p>
           <p className="text-xs text-gray-700">
             <span className="font-semibold">Gender:</span>{" "}
             {getGenderString(student.gender)}
           </p>
           {student.primaryEmail && (
-            <p className="text-xs text-gray-700">
+            <p className="text-xs text-gray-700 truncate">
               <span className="font-semibold">Email:</span>{" "}
               {student.primaryEmail}
             </p>
@@ -101,20 +93,17 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
               {student.primaryMobile}
             </p>
           )}
-          {student.academicEnrollment?.programName && (
+          {student.programName && (
             <p className="text-xs text-gray-700">
-              <span className="font-semibold">Faculty:</span>{" "}
-              {student.academicEnrollment.programName}
+              <span className="font-semibold">Program:</span>{" "}
+              {student.programName}
             </p>
           )}
-          {student.addresses &&
-            student.addresses.length > 0 &&
-            student.addresses[0].country && (
-              <p className="text-xs text-gray-700">
-                <span className="font-semibold">Country:</span>{" "}
-                {student.addresses[0].country}
-              </p>
-            )}
+          {student.country && (
+            <p className="text-xs text-gray-700">
+              <span className="font-semibold">Country:</span> {student.country}
+            </p>
+          )}
         </div>
 
         {/* Action Buttons */}

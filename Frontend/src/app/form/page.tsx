@@ -39,9 +39,7 @@ import {
   submitStudent,
   getStudent,
   updateStudent,
-  transformToDTO,
 } from "../../lib/api/student";
-import { StudentDTO } from "../../lib/types";
 import { useSearchParams, useRouter } from "next/navigation";
 
 type FormData = z.infer<typeof formSchema>;
@@ -66,30 +64,35 @@ const FormPage: React.FC = () => {
     mode: "onSubmit",
     reValidateMode: "onSubmit",
     defaultValues: {
+      pid: undefined,
       contactInfo: { primaryMobile: "", primaryEmail: "" },
       citizenship: {
+        pid: undefined,
         citizenshipNumber: "",
         countryOfIssuance: "",
         dateOfIssuance: "",
         placeOfIssuance: "",
       },
       permanentAddress: {
+        pid: undefined,
         province: "",
         municipality: "",
         ward: "",
         country: "",
-        type: 0, // Fixed: Permanent is 0
+        type: 0,
       },
       temporaryAddress: {
+        pid: undefined,
         province: "",
         municipality: "",
         ward: "",
         country: "",
-        type: 1, // Fixed: Temporary is 1
+        type: 1,
       },
-      parents: [{ firstName: "", lastName: "", relation: 0 }],
+      parents: [{ pid: undefined, firstName: "", lastName: "", relation: 0 }],
       academicHistories: [
         {
+          pid: undefined,
           institutionName: "",
           level: 0,
           board: "",
@@ -97,20 +100,23 @@ const FormPage: React.FC = () => {
           passingYear: 0,
         },
       ],
-      hobbies: [{ name: "" }],
-      achievements: [{ title: "", description: "", dateOfAchievement: "" }],
+      hobbies: [{ pid: undefined, name: "" }],
+      achievements: [{ pid: undefined, title: "", description: "", dateOfAchievement: "" }],
       academicEnrollment: {
+        pid: undefined,
         facultyId: 0,
         programName: "",
         enrollmentDate: "",
         studentIdNumber: "",
       },
       disability: {
+        pid: undefined,
         disabilityType: "",
         description: "",
         disabilityPercentage: 0,
       },
       scholarship: {
+        pid: undefined,
         scholarshipName: "",
         amount: 0,
         startDate: "",
@@ -227,9 +233,10 @@ const FormPage: React.FC = () => {
     if (isEditMode && studentId) {
       (async () => {
         try {
-          const student = await getStudent(parseInt(studentId));
+          const student = await getStudent(studentId);
           if (student) {
             const formData: Partial<FormData> = {
+              pid: student.pid,
               firstName: student.firstName,
               middleName: student.secondaryInfos?.middleName || "",
               lastName: student.lastName,
@@ -238,12 +245,8 @@ const FormPage: React.FC = () => {
               bloodGroup: student.bloodGroup,
               citizenship: student.citizenship
                 ? {
-                    citizenshipNumber:
-                      student.citizenship.citizenshipNumber || "",
-                    countryOfIssuance:
-                      student.citizenship.countryOfIssuance || "",
-                    dateOfIssuance: student.citizenship.dateOfIssuance || "",
-                    placeOfIssuance: student.citizenship.placeOfIssuance || "",
+                    ...student.citizenship,
+                    dateOfIssuance: student.citizenship.dateOfIssuance?.split("T")[0] || "",
                   }
                 : {
                     citizenshipNumber: "",
@@ -257,65 +260,31 @@ const FormPage: React.FC = () => {
                 alternateMobile: student.secondaryInfos?.alternateMobile || "",
                 alternateEmail: student.secondaryInfos?.alternateEmail || "",
               },
-              permanentAddress: (() => {
-                const addr = student.addresses?.find((a) => a.type === 0);
-                return addr
-                  ? {
-                      province: addr.province || "",
-                      municipality: addr.municipality || "",
-                      ward: addr.ward || "",
-                      street: addr.street || "",
-                      country: addr.country || "",
-                      type: 0,
-                    }
-                  : {
-                      province: "",
-                      municipality: "",
-                      ward: "",
-                      street: "",
-                      country: "",
-                      type: 0,
-                    };
-              })(),
-              temporaryAddress: (() => {
-                const addr = student.addresses?.find((a) => a.type === 1);
-                return addr
-                  ? {
-                      province: addr.province || "",
-                      municipality: addr.municipality || "",
-                      ward: addr.ward || "",
-                      street: addr.street || "",
-                      country: addr.country || "",
-                      type: 1,
-                    }
-                  : {
-                      province: "",
-                      municipality: "",
-                      ward: "",
-                      street: "",
-                      country: "",
-                      type: 1,
-                    };
-              })(),
+              permanentAddress: student.addresses?.find((a) => a.type === 0) || {
+                province: "",
+                municipality: "",
+                ward: "",
+                street: "",
+                country: "",
+                type: 0,
+              },
+              temporaryAddress: student.addresses?.find((a) => a.type === 1) || {
+                province: "",
+                municipality: "",
+                ward: "",
+                street: "",
+                country: "",
+                type: 1,
+              },
               parents: student.parents?.length
                 ? student.parents.map((p) => ({
-                    firstName: p.firstName || "",
-                    lastName: p.lastName || "",
-                    relation: p.relation || 0,
-                    middleName: p.middleName || "",
-                    occupation: p.occupation || "",
-                    annualIncome: p.annualIncome || 0,
-                    mobileNumber: p.mobileNumber || "",
-                    email: p.email || "",
+                    ...p,
                   }))
                 : [{ firstName: "", lastName: "", relation: 0 }],
               academicHistories: student.academicHistories?.length
                 ? student.academicHistories.map((ah) => ({
-                    institutionName: ah.institutionName || "",
-                    level: ah.level || 0,
-                    board: ah.board || "",
-                    percentageOrGPA: ah.percentageOrGPA || 0,
-                    passingYear: ah.passedYear ? parseInt(ah.passedYear) : 0, // Fixed: string to number
+                    ...ah,
+                    passingYear: ah.passedYear ? parseInt(ah.passedYear) : 0,
                   }))
                 : [
                     {
@@ -337,14 +306,11 @@ const FormPage: React.FC = () => {
                 : [{ title: "", description: "", dateOfAchievement: "" }],
               academicEnrollment: student.academicEnrollment
                 ? {
-                    facultyId: student.academicEnrollment.facultyId || 0,
-                    programName: student.academicEnrollment.programName || "",
+                  ...student.academicEnrollment,
                     enrollmentDate:
                       student.academicEnrollment.enrollmentDate?.split(
                         "T"
                       )[0] || "",
-                    studentIdNumber:
-                      student.academicEnrollment.studentIdNumber || "",
                   }
                 : {
                     facultyId: 0,
@@ -352,17 +318,8 @@ const FormPage: React.FC = () => {
                     enrollmentDate: "",
                     studentIdNumber: "",
                   },
-              disability: student.disability || {
-                disabilityType: "",
-                description: "",
-                disabilityPercentage: 0,
-              },
-              scholarship: student.scholarship || {
-                scholarshipName: "",
-                amount: 0,
-                startDate: "",
-                endDate: "",
-              },
+              disability: student.disability || undefined,
+              scholarship: student.scholarship || undefined,
             };
 
             reset(formData as FormData);
@@ -391,6 +348,7 @@ const FormPage: React.FC = () => {
               country: temp.country,
             };
             if (
+              perm.province && // only check if permanent address exists
               JSON.stringify(permWithoutType) ===
               JSON.stringify(tempWithoutType)
             ) {
@@ -447,14 +405,7 @@ const FormPage: React.FC = () => {
     try {
       let result;
       if (isEditMode && studentId) {
-        // Transform to DTO for update
-        const transformed = transformToDTO(data); // Use same transform
-        result = await updateStudent(
-          parseInt(studentId),
-          transformed as StudentDTO,
-          data.profileImage,
-          data.academicCertificates
-        );
+        result = await updateStudent(studentId, data);
       } else {
         result = await submitStudent(data);
       }
@@ -464,10 +415,7 @@ const FormPage: React.FC = () => {
             ? "Application updated successfully!"
             : "Application submitted successfully!"
         );
-        reset();
-        setCurrentStep(1);
-        setProfileImagePreviewUrl(null);
-        setAcademicCertificatesPreviewUrls([]);
+        router.push("/"); // Redirect to home on success
       }
     } catch (err) {
       alert("Submission failed. Check console.");
@@ -819,7 +767,7 @@ const FormPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() =>
-                  appendParent({ firstName: "", lastName: "", relation: 0 })
+                  appendParent({ pid: undefined, firstName: "", lastName: "", relation: 0 })
                 }
                 className="flex items-center gap-2 text-sky-600 hover:text-sky-700"
               >
@@ -899,6 +847,7 @@ const FormPage: React.FC = () => {
                 type="button"
                 onClick={() =>
                   appendAcademic({
+                    pid: undefined,
                     institutionName: "",
                     level: 0,
                     board: "",
@@ -1009,7 +958,7 @@ const FormPage: React.FC = () => {
                 ))}
                 <button
                   type="button"
-                  onClick={() => appendHobby({ name: "" })}
+                  onClick={() => appendHobby({ pid: undefined, name: "" })}
                   className="flex items-center gap-2 text-sky-600"
                 >
                   <FiPlus /> Add Hobby
@@ -1059,6 +1008,7 @@ const FormPage: React.FC = () => {
                   type="button"
                   onClick={() =>
                     appendAchievement({
+                      pid: undefined,
                       title: "",
                       description: "",
                       dateOfAchievement: "",

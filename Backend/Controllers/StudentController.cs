@@ -1,8 +1,9 @@
 using FormBackend.Core.Interfaces;
 using FormBackend.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
+using System;
 using System.Threading.Tasks;
+using AutoMapper;
 
 namespace FormBackend.Controllers
 {
@@ -18,66 +19,22 @@ namespace FormBackend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateStudent()
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateStudent([FromForm] CreateStudentDTO createStudentDto)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                // Get the studentDto JSON string from form data
-                var studentDtoJson = Request.Form["studentDto"].ToString();
-                
-                if (string.IsNullOrEmpty(studentDtoJson))
-                {
-                    return BadRequest("studentDto field is required");
-                }
-
-                // Deserialize the JSON string to StudentDTO
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true  
-                };
-                
-                var studentDto = JsonSerializer.Deserialize<StudentDTO>(studentDtoJson, options);
-                
-                if (studentDto == null)
-                {
-                    return BadRequest("Invalid studentDto format");
-                }
-
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var profileImage = Request.Form.Files.GetFile("profileImage");
-                
-                if (profileImage == null)
-                {
-                    return BadRequest(new { message = "Profile picture is required" });
-                }
-
-                var academicCertificates = Request.Form.Files.GetFiles("academicCertificates")?.ToList();
-
-                var createdStudentDto = await _studentService.CreateStudentAsync(studentDto, profileImage, academicCertificates);
-                if (createdStudentDto == null)
-                {
-                    return BadRequest("Student could not be created.");
-                }
-                return CreatedAtAction(nameof(GetStudent), new { id = createdStudentDto.Id }, createdStudentDto);
+                return BadRequest(ModelState);
             }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while creating the student", details = ex.Message });
-            }
+
+            var createdStudent = await _studentService.CreateStudentAsync(createStudentDto);
+            return CreatedAtAction(nameof(GetStudent), new { pid = createdStudent.PID }, createdStudent);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetStudent(int id)
+        [HttpGet("{pid:guid}")]
+        public async Task<IActionResult> GetStudent(Guid pid)
         {
-            var studentDto = await _studentService.GetStudentByIdAsync(id);
+            var studentDto = await _studentService.GetStudentByPIDAsync(pid);
             if (studentDto == null)
             {
                 return NotFound();
@@ -92,79 +49,47 @@ namespace FormBackend.Controllers
             return Ok(studentDtos);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateStudent(int id)
+        [HttpPut("{pid:guid}")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdateStudent(Guid pid, [FromForm] UpdateStudentDTO updateStudentDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
+            // Ensure the PID from the route matches the one in the body if it exists
+            if (updateStudentDto.PID != Guid.Empty && pid != updateStudentDto.PID)
+            {
+                return BadRequest("PID in route does not match PID in body.");
+            }
+            updateStudentDto.PID = pid; // Ensure the DTO has the correct PID from the route
+
             try
             {
-                var studentDtoJson = Request.Form["studentDto"].ToString();
-
-                if (string.IsNullOrEmpty(studentDtoJson))
-                {
-                    return BadRequest("studentDto field is required");
-                }
-
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-                var studentDto = JsonSerializer.Deserialize<StudentDTO>(studentDtoJson, options);
-
-                if (studentDto == null)
-                {
-                    return BadRequest("Invalid studentDto format");
-                }
-
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var profileImage = Request.Form.Files.GetFile("profileImage");
-                
-                // Validate that profile image is provided and mandatory
-                if (profileImage == null)
-                {
-                    return BadRequest(new { message = "Profile picture is required" });
-                }
-
-                var academicCertificates = Request.Form.Files.GetFiles("academicCertificates")?.ToList();
-
-                var updatedStudent = await _studentService.UpdateStudentAsync(id, studentDto, profileImage, academicCertificates);
+                var updatedStudent = await _studentService.UpdateStudentAsync(pid, updateStudentDto);
                 if (updatedStudent == null)
                 {
                     return NotFound();
                 }
-
                 return Ok(updatedStudent);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "An error occurred while updating the student", details = ex.Message });
+                // In a real app, use a logger
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteStudent(int id)
+        [HttpDelete("{pid:guid}")]
+        public async Task<IActionResult> DeleteStudent(Guid pid)
         {
-            try
+            var result = await _studentService.DeleteStudentAsync(pid);
+            if (!result)
             {
-                var result = await _studentService.DeleteStudentAsync(id);
-                if (!result)
-                {
-                    return NotFound();
-                }
-
-                return NoContent();
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while deleting the student", details = ex.Message });
-            }
+            return NoContent();
         }
     }
 }

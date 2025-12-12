@@ -1,16 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import ApplicationCard from "@/components/ApplicationCard";
-import { StudentDTO } from "@/lib/types";
-import { deleteStudent } from "@/lib/api/student"; // Added import
+import { StudentSummaryDTO } from "@/lib/types";
+import { deleteStudent } from "@/lib/api/student";
 
-async function getStudents(): Promise<StudentDTO[]> {
+async function getStudents(): Promise<StudentSummaryDTO[]> {
   try {
     const res = await fetch("http://localhost:5000/api/Student");
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
-    const students: StudentDTO[] = await res.json();
+    const students: StudentSummaryDTO[] = await res.json();
     return students;
   } catch (error) {
     console.error("Failed to fetch students:", error);
@@ -19,7 +19,7 @@ async function getStudents(): Promise<StudentDTO[]> {
 }
 
 const Home = () => {
-  const [students, setStudents] = useState<StudentDTO[]>([]);
+  const [students, setStudents] = useState<StudentSummaryDTO[]>([]);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -29,13 +29,13 @@ const Home = () => {
     fetchStudents();
   }, []);
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (pid: string) => {
     try {
-      await deleteStudent(id);
+      await deleteStudent(pid);
       setStudents((prevStudents) =>
-        prevStudents.filter((student) => student.id !== id)
+        prevStudents.filter((student) => student.pid !== pid)
       );
-      console.log("Deleted student with id:", id);
+      console.log("Deleted student with id:", pid);
     } catch (error) {
       console.error("Failed to delete student:", error);
       alert("Failed to delete student");
@@ -48,9 +48,9 @@ const Home = () => {
         Application Forms
       </h1>
       <div className="flex flex-wrap gap-8 justify-center">
-        {students.map((student: StudentDTO) => (
+        {students.map((student: StudentSummaryDTO) => (
           <ApplicationCard
-            key={student.id}
+            key={student.pid}
             student={student}
             onDelete={handleDelete}
           />

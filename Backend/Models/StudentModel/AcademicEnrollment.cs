@@ -1,22 +1,26 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FormBackend.Models
 {
-    public class AcademicEnrollment
+    public class AcademicEnrollment : BaseEntity
     {
-        [Key]
-        public int Id { get; set; }
+
         [Required]
-        public int StudentId { get; set; }
+        public Guid StudentPID { get; set; }
         public virtual Student? Student { get; set; }
+
         [Required]
-        public int FacultyId { get; set; }
+        public Guid FacultyPID { get; set; }
         public virtual Faculty? Faculty { get; set; }
+
         [Required]
         public required string ProgramName { get; set; }
+
         [Required]
         public DateTime EnrollmentDate { get; set; }
+
         public string? StudentIdNumber { get; set; }
     }
 }

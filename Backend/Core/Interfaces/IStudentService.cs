@@ -1,5 +1,5 @@
 using FormBackend.DTOs;
-using FormBackend.Models;
+using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -7,10 +7,10 @@ namespace FormBackend.Core.Interfaces
 {
     public interface IStudentService
     {
-        Task<StudentDTO?> CreateStudentAsync(StudentDTO studentDto, IFormFile? profileImage, List<IFormFile>? academicCertificates);
-        Task<StudentDTO?> GetStudentByIdAsync(int id);
-        Task<List<StudentDTO>> GetAllStudentsAsync();
-        Task<StudentDTO?> UpdateStudentAsync(int id, StudentDTO studentDto, IFormFile? profileImage, List<IFormFile>? academicCertificates);
-        Task<bool> DeleteStudentAsync(int id);
+        Task<StudentReadDTO> CreateStudentAsync(CreateStudentDTO createStudentDto);
+        Task<StudentReadDTO?> GetStudentByPIDAsync(Guid pid);
+        Task<IEnumerable<StudentSummaryDTO>> GetAllStudentsAsync();
+        Task<StudentReadDTO?> UpdateStudentAsync(Guid pid, UpdateStudentDTO updateStudentDto);
+        Task<bool> DeleteStudentAsync(Guid pid);
     }
 }

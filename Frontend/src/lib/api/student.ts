@@ -3,28 +3,26 @@ import { FieldValues } from "react-hook-form";
 
 const API_BASE_URL = "http://localhost:5000/api/student";
 
-const sanitizeData = (obj: FieldValues): FieldValues => {
-  if (obj === null || obj === undefined) return obj;
+const sanitizeData = (obj: any): any => {
+  if (obj === null || obj === undefined) return null;
 
   if (Array.isArray(obj)) {
     return obj.map((item) => sanitizeData(item));
   }
 
-  if (typeof obj === "object") {
+  if (typeof obj === "object" && !(obj instanceof File)) {
     const sanitized: FieldValues = {};
     for (const key in obj) {
-      const value = obj[key];
-      if (
-        value === "" &&
-        (key.includes("date") ||
-          key.includes("Date") ||
-          key === "studentIdNumber")
-      ) {
-        sanitized[key] = null;
-      } else if (typeof value === "object" && value !== null) {
-        sanitized[key] = sanitizeData(value);
-      } else {
-        sanitized[key] = value;
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const value = obj[key];
+        if (
+          value === "" &&
+          (key.toLowerCase().includes("date") || key === "studentIdNumber")
+        ) {
+          sanitized[key] = null;
+        } else if (value !== undefined) {
+          sanitized[key] = sanitizeData(value);
+        }
       }
     }
     return sanitized;
@@ -32,6 +30,36 @@ const sanitizeData = (obj: FieldValues): FieldValues => {
 
   return obj;
 };
+
+// Helper to convert a JS object to FormData
+const objectToFormData = (
+  obj: any,
+  formData = new FormData(),
+  parentKey = ""
+) => {
+  if (obj === null || obj === undefined) {
+    return;
+  }
+
+  if (typeof obj === "object" && !(obj instanceof File) && !Array.isArray(obj)) {
+    Object.keys(obj).forEach((key) => {
+      const value = obj[key];
+      const newKey = parentKey ? `${parentKey}.${key}` : key;
+      objectToFormData(value, formData, newKey);
+    });
+  } else if (Array.isArray(obj)) {
+    obj.forEach((item, index) => {
+      const newKey = `${parentKey}[${index}]`;
+      objectToFormData(item, formData, newKey);
+    });
+  } else {
+    // Primitives or Files
+    if (parentKey) {
+      formData.append(parentKey, obj);
+    }
+  }
+};
+
 
 // Transform form data structure to match backend DTO
 export const transformToDTO = (formData: FieldValues): FieldValues => {
@@ -61,6 +89,8 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
       alternateMobile: contactInfo?.alternateMobile || null,
       alternateEmail: contactInfo?.alternateEmail || null,
     };
+  } else {
+    transformed.secondaryInfos = null;
   }
 
   // Add addresses array
@@ -81,42 +111,34 @@ export const submitStudent = async (
 ): Promise<StudentDTO | null> => {
   try {
     const formData = new FormData();
-
     const { profileImage, academicCertificates, ...restOfData } = data;
 
-    // Transform the form structure to match backend DTO
+    // 1. Transform the form structure to match backend DTO
     const transformedData = transformToDTO(restOfData);
 
-    // Sanitize the data (convert empty strings to null)
+    // 2. Sanitize the data (convert empty strings to null for specific fields)
     const sanitizedData = sanitizeData(transformedData);
 
-    console.log("Transformed and sanitized data:", sanitizedData);
-    formData.append("studentDto", JSON.stringify(sanitizedData));
+    // 3. Convert the sanitized DTO object into FormData fields
+    objectToFormData(sanitizedData, formData);
 
+    // 4. Append files
     if (profileImage && profileImage instanceof File) {
-      console.log("Appending profile image:", profileImage.name);
-      formData.append("profileImage", profileImage);
+      formData.append("ProfileImage", profileImage);
     }
-
-    if (
-      Array.isArray(academicCertificates) &&
-      academicCertificates.length > 0
-    ) {
-      academicCertificates.forEach((file: unknown) => {
+    if (Array.isArray(academicCertificates)) {
+      academicCertificates.forEach((file) => {
         if (file instanceof File) {
-          console.log("Appending academic certificate:", (file as File).name);
-          formData.append("academicCertificates", file as Blob);
+          formData.append("AcademicCertificates", file);
         }
       });
     }
-
-    console.log("Submitting form to:", API_BASE_URL);
+    
     const response = await fetch(API_BASE_URL, {
       method: "POST",
       body: formData,
     });
-
-    console.log("Response status:", response.status);
+    
     const responseData = await response.json();
 
     if (!response.ok) {
@@ -125,8 +147,7 @@ export const submitStudent = async (
         responseData.message || "Failed to submit student application"
       );
     }
-
-    console.log("Student submitted successfully:", responseData);
+    
     return responseData;
   } catch (error) {
     console.error("Error submitting student:", error);
@@ -134,9 +155,9 @@ export const submitStudent = async (
   }
 };
 
-export const getStudent = async (id: number): Promise<StudentDTO | null> => {
+export const getStudent = async (pid: string): Promise<StudentDTO | null> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`);
+    const response = await fetch(`${API_BASE_URL}/${pid}`);
 
     if (!response.ok) {
       throw new Error("Failed to fetch student");
@@ -149,8 +170,8 @@ export const getStudent = async (id: number): Promise<StudentDTO | null> => {
   }
 };
 
-export const deleteStudent = async (id: number): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/${id}`, {
+export const deleteStudent = async (pid: string): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/${pid}`, {
     method: "DELETE",
   });
 
@@ -160,31 +181,46 @@ export const deleteStudent = async (id: number): Promise<void> => {
 };
 
 export const updateStudent = async (
-  id: number,
-  studentDto: StudentDTO,
-  profileImage?: File,
-  academicCertificates?: File[]
+  pid: string,
+  data: FieldValues, // Pass the entire form data
 ): Promise<StudentDTO> => {
+  
   const formData = new FormData();
-  formData.append("studentDto", JSON.stringify(studentDto));
+  const { profileImage, academicCertificates, ...restOfData } = data;
+  
+  // 1. Transform the form structure to match backend DTO
+  const transformedData = transformToDTO(restOfData);
+  
+  // 2. Sanitize
+  const sanitizedData = sanitizeData(transformedData);
 
-  if (profileImage) {
-    formData.append("profileImage", profileImage);
+  // 3. Set PID for the update
+  sanitizedData.pid = pid;
+  
+  // 4. Convert the DTO to form data
+  objectToFormData(sanitizedData, formData);
+
+  // 5. Append files
+  if (profileImage && profileImage instanceof File) {
+    formData.append("ProfileImage", profileImage);
   }
-
-  if (academicCertificates) {
+  if (Array.isArray(academicCertificates)) {
     academicCertificates.forEach((file) => {
-      formData.append("academicCertificates", file);
+      if (file instanceof File) {
+        formData.append("AcademicCertificates", file);
+      }
     });
   }
 
-  const response = await fetch(`${API_BASE_URL}/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/${pid}`, {
     method: "PUT",
     body: formData,
   });
 
   if (!response.ok) {
-    throw new Error("Failed to update student");
+    const errorData = await response.json();
+    console.error("Server error on update:", errorData);
+    throw new Error(errorData.message || "Failed to update student");
   }
 
   return response.json();

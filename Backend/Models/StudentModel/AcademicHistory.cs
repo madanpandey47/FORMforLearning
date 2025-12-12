@@ -1,12 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using FormBackend.Models.Enum;
 
 namespace FormBackend.Models
 {
-    public class AcademicHistory
+    public class AcademicHistory : BaseEntity
     {
-        [Key]
-        public int Id { get; set; }
         [Required]
         public required string InstitutionName { get; set; }
         [Required]
@@ -16,5 +15,10 @@ namespace FormBackend.Models
         public double PercentageOrGPA { get; set; }
         [Required]
         public DateOnly PassedYear { get; set; }
+
+        // Foreign Key to Student
+        [ForeignKey("Student")]
+        public Guid StudentPID { get; set; }
+        public virtual Student? Student { get; set; }
     }
 }

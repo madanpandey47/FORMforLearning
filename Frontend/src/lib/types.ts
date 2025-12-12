@@ -38,6 +38,7 @@ export enum AcademicLevel {
 }
 
 export interface CitizenshipDTO {
+  pid?: string;
   citizenshipNumber?: string;
   countryOfIssuance?: string;
   dateOfIssuance?: string;
@@ -45,6 +46,7 @@ export interface CitizenshipDTO {
 }
 
 export interface SecondaryInfosDTO {
+  pid?: string;
   middleName?: string;
   alternateMobile?: string;
   alternateEmail?: string;
@@ -52,6 +54,7 @@ export interface SecondaryInfosDTO {
 }
 
 export interface AddressDTO {
+  pid?: string;
   province?: string;
   municipality?: string;
   ward?: string;
@@ -61,6 +64,7 @@ export interface AddressDTO {
 }
 
 export interface ParentDTO {
+  pid?: string;
   firstName?: string;
   middleName?: string;
   lastName?: string;
@@ -72,6 +76,7 @@ export interface ParentDTO {
 }
 
 export interface AcademicHistoryDTO {
+  pid?: string;
   institutionName?: string;
   level?: AcademicLevel;
   board?: string;
@@ -80,6 +85,7 @@ export interface AcademicHistoryDTO {
 }
 
 export interface AcademicEnrollmentDTO {
+  pid?: string;
   facultyId?: number;
   programName?: string;
   enrollmentDate?: string;
@@ -87,47 +93,98 @@ export interface AcademicEnrollmentDTO {
 }
 
 export interface AchievementDTO {
+  pid?: string;
   title?: string;
   description?: string;
   dateOfAchievement?: string;
 }
 
 export interface HobbyDTO {
+  pid?: string;
   name?: string;
 }
 
 export interface DisabilityDTO {
+  pid?: string;
   disabilityType?: string;
   description?: string;
   disabilityPercentage?: number;
 }
 
 export interface ScholarshipDTO {
+  pid?: string;
   scholarshipName?: string;
   amount?: number;
   startDate?: string;
   endDate?: string;
 }
 
-export interface StudentDTO {
-  id: number;
+export interface StudentSummaryDTO {
+
+  pid: string;
+
   firstName: string;
+
   lastName: string;
-  dateOfBirth: string;
-  gender: Gender;
-  primaryMobile: string;
-  primaryEmail: string;
-  bloodGroup: BloodType;
+
+  middleName?: string;
+
   profileImagePath?: string;
 
+  gender: Gender;
+
+  primaryEmail: string;
+
+  primaryMobile: string;
+
+  programName?: string;
+
+  country?: string;
+
+}
+
+
+
+export interface StudentDTO {
+
+  pid: string;
+
+  firstName: string;
+
+  lastName: string;
+
+  dateOfBirth: string;
+
+  gender: Gender;
+
+  primaryMobile: string;
+
+  primaryEmail: string;
+
+  bloodGroup: BloodType;
+
+  profileImagePath?: string;
+
+
+
   citizenship?: CitizenshipDTO;
+
   secondaryInfos?: SecondaryInfosDTO;
+
   addresses: AddressDTO[];
+
   parents: ParentDTO[];
+
   academicHistories: AcademicHistoryDTO[];
+
   academicEnrollment?: AcademicEnrollmentDTO;
+
   achievements: AchievementDTO[];
+
   hobbies: HobbyDTO[];
+
   disability?: DisabilityDTO;
+
   scholarship?: ScholarshipDTO;
+
 }

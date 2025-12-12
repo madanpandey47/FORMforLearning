@@ -1,599 +1,276 @@
+using AutoMapper;
 using FormBackend.Core.Interfaces;
 using FormBackend.DTOs;
 using FormBackend.Models;
-using FormBackend.Models.Enum;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System;
-using Microsoft.AspNetCore.Hosting;
-using System.IO;
-using Microsoft.AspNetCore.Http;
 
 namespace FormBackend.Services
 {
     public class StudentService : IStudentService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public StudentService(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
+        public StudentService(IUnitOfWork unitOfWork, IMapper mapper, IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<StudentDTO?> CreateStudentAsync(StudentDTO studentDto, IFormFile? profileImage, List<IFormFile>? academicCertificates)
+        public async Task<StudentReadDTO?> UpdateStudentAsync(Guid pid, UpdateStudentDTO updateStudentDto)
         {
-            string wwwRootPath = _webHostEnvironment.WebRootPath;
-            if (string.IsNullOrEmpty(wwwRootPath))
-            {
-                wwwRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            }
-            string uploadPath = Path.Combine(wwwRootPath, "uploads");
-            if (!Directory.Exists(uploadPath))
-            {
-                Directory.CreateDirectory(uploadPath);
-            }
+            var student = await _unitOfWork.Students.GetByPIDAsync(pid, q => q
+                .Include(s => s.Addresses)
+                .Include(s => s.Parents)
+                .Include(s => s.AcademicHistories)
+                .Include(s => s.AcademicEnrollment).ThenInclude(ae => ae!.Faculty)
+                .Include(s => s.Achievements)
+                .Include(s => s.Hobbies)
+                .Include(s => s.Disability)
+                .Include(s => s.Scholarship)
+                .Include(s => s.Citizenship)
+                .Include(s => s.SecondaryInfos)
+            );
 
-            // Handle profile image
-            if (profileImage != null)
-            {
-                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(profileImage.FileName);
-                string filePath = Path.Combine(uploadPath, fileName);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await profileImage.CopyToAsync(fileStream);
-                }
-                studentDto.ProfileImagePath = "/uploads/" + fileName;
-            }
-
-            // Handle academic certificates
-            if (academicCertificates != null && academicCertificates.Count > 0)
-            {
-                var certificatePaths = new List<string>();
-                foreach (var certificateFile in academicCertificates)
-                {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(certificateFile.FileName);
-                    string filePath = Path.Combine(uploadPath, fileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await certificateFile.CopyToAsync(fileStream);
-                    }
-                    certificatePaths.Add("/uploads/" + fileName);
-                }
-
-                if (studentDto.SecondaryInfos == null)
-                {
-                    studentDto.SecondaryInfos = new SecondaryInfosDTO();
-                }
-                studentDto.SecondaryInfos.AcademicCertificatePaths = string.Join(",", certificatePaths);
-            }
-
-            var student = new Student
-            {
-                FirstName = studentDto.FirstName,
-                LastName = studentDto.LastName,
-                DateOfBirth = studentDto.DateOfBirth,
-                Gender = studentDto.Gender,
-                BloodGroup = studentDto.BloodGroup,
-                PrimaryMobile = studentDto.PrimaryMobile,
-                PrimaryEmail = studentDto.PrimaryEmail,
-                ProfileImagePath = studentDto.ProfileImagePath, // Assign profile image path
-                Citizenship = studentDto.Citizenship != null ? new Citizenship
-                {
-                    CitizenshipNumber = studentDto.Citizenship.CitizenshipNumber,
-                    CountryOfIssuance = studentDto.Citizenship.CountryOfIssuance,
-                    DateOfIssuance = studentDto.Citizenship.DateOfIssuance,
-                    PlaceOfIssuance = studentDto.Citizenship.PlaceOfIssuance
-                } : null,
-                SecondaryInfos = studentDto.SecondaryInfos != null ? new SecondaryInfos
-                {
-                    MiddleName = studentDto.SecondaryInfos.MiddleName,
-                    AlternateMobile = studentDto.SecondaryInfos.AlternateMobile,
-                    AlternateEmail = studentDto.SecondaryInfos.AlternateEmail,
-                    AcademicCertificatePaths = studentDto.SecondaryInfos.AcademicCertificatePaths // Assign academic certificate paths
-                } : null,
-                // ... (rest of the properties are the same)
-                Addresses = studentDto.Addresses?.Select(a => new Address
-                {
-                    Province = a.Province,
-                    Municipality = a.Municipality,
-                    Ward = a.Ward,
-                    Street = a.Street,
-                    Country = a.Country,
-                    Type = a.Type
-                }).ToList() ?? new List<Address>(),
-                Parents = studentDto.Parents?.Select(p => new Parent
-                {
-                    FirstName = p.FirstName!,
-                    MiddleName = p.MiddleName,
-                    LastName = p.LastName!,
-                    Relation = p.Relation!,
-                    Occupation = p.Occupation,
-                    AnnualIncome = p.AnnualIncome,
-                    MobileNumber = p.MobileNumber,
-                    Email = p.Email
-                }).ToList() ?? new List<Parent>(),
-                AcademicHistories = studentDto.AcademicHistories?.Select(ah => new AcademicHistory
-                {
-                    InstitutionName = ah.InstitutionName!,
-                    Level = ah.Level!,
-                    Board = ah.Board,
-                    PercentageOrGPA = ah.PercentageOrGPA,
-                    PassedYear = ah.PassedYear
-                }).ToList() ?? new List<AcademicHistory>(),
-                AcademicEnrollment = studentDto.AcademicEnrollment != null ? new AcademicEnrollment
-                {
-                    FacultyId = studentDto.AcademicEnrollment.FacultyId,
-                    ProgramName = studentDto.AcademicEnrollment.ProgramName,
-                    EnrollmentDate = studentDto.AcademicEnrollment.EnrollmentDate,
-                    StudentIdNumber = studentDto.AcademicEnrollment.StudentIdNumber
-                } : null,
-                Achievements = studentDto.Achievements?.Select(a => new Achievement
-                {
-                    Title = a.Title!,
-                    Description = a.Description,
-                    DateOfAchievement = a.DateOfAchievement
-                }).ToList() ?? new List<Achievement>(),
-                Hobbies = studentDto.Hobbies?.Select(h => new Hobby
-                {
-                    Name = h.Name!
-                }).ToList() ?? new List<Hobby>(),
-                Disability = studentDto.Disability != null && !string.IsNullOrEmpty(studentDto.Disability.DisabilityType) ? new Disability
-                {
-                    DisabilityType = studentDto.Disability.DisabilityType,
-                    Description = studentDto.Disability.Description,
-                    DisabilityPercentage = studentDto.Disability.DisabilityPercentage
-                } : null,
-                Scholarship = studentDto.Scholarship != null && !string.IsNullOrEmpty(studentDto.Scholarship.ScholarshipName) ? new Scholarship
-                {
-                    ScholarshipName = studentDto.Scholarship.ScholarshipName,
-                    Amount = studentDto.Scholarship.Amount,
-                    StartDate = studentDto.Scholarship.StartDate,
-                    EndDate = studentDto.Scholarship.EndDate
-                } : null
-            };
-
-            var studentAcademicEnrollment = studentDto.AcademicEnrollment; // Store AcademicEnrollment from DTO
-
-            await _unitOfWork.GetRepository<Student>().AddAsync(student);
-            
-            if (studentAcademicEnrollment != null)
-            {
-                var faculties = await _unitOfWork.GetRepository<Faculty>()
-                    .FindAsync(f => f.Id == studentAcademicEnrollment.FacultyId);
-                var faculty = faculties.FirstOrDefault();
-
-                if (faculty == null)
-                {
-                    throw new ArgumentException($"Faculty with ID {studentAcademicEnrollment.FacultyId} not found. Please provide a valid Faculty ID.");
-                }
-                if (student.AcademicEnrollment != null)
-                {
-                    student.AcademicEnrollment.Faculty = faculty;
-                }
-            }
-
-            await _unitOfWork.CompleteAsync();
-
-            return await GetStudentByIdAsync(student.Id);
-        }
-
-        public async Task<StudentDTO?> GetStudentByIdAsync(int id)
-        {
-            var students = await _unitOfWork.GetRepository<Student>().FindAsync(s => s.Id == id, "SecondaryInfos,Citizenship,Addresses,Parents,AcademicHistories,AcademicEnrollment,Achievements,Hobbies,Disability,Scholarship");
-            var student = students.FirstOrDefault();
             if (student == null)
             {
-                return null;
+                return null; // Student not found
             }
 
-            return new StudentDTO
+            // Handle file uploads
+            updateStudentDto.ProfileImagePath = await HandleFileUpload(updateStudentDto.ProfileImage, student.ProfileImagePath);
+            if (student.SecondaryInfos != null)
             {
-                Id = student.Id,
-                FirstName = student.FirstName,
-                LastName = student.LastName,
-                DateOfBirth = student.DateOfBirth,
-                Gender = student.Gender,
-                BloodGroup = student.BloodGroup,
-                PrimaryMobile = student.PrimaryMobile,
-                PrimaryEmail = student.PrimaryEmail,
-                ProfileImagePath = student.ProfileImagePath,
-                Citizenship = student.Citizenship != null ? new CitizenshipDTO
+                 student.SecondaryInfos.AcademicCertificatePaths = await HandleMultipleFileUploads(updateStudentDto.AcademicCertificates, student.SecondaryInfos.AcademicCertificatePaths);
+            }
+            else if (updateStudentDto.AcademicCertificates != null && updateStudentDto.AcademicCertificates.Any())
+            {
+                student.SecondaryInfos = new SecondaryInfos()
                 {
-                    CitizenshipNumber = student.Citizenship.CitizenshipNumber,
-                    CountryOfIssuance = student.Citizenship.CountryOfIssuance,
-                    DateOfIssuance = student.Citizenship.DateOfIssuance,
-                    PlaceOfIssuance = student.Citizenship.PlaceOfIssuance
-                } : null,
-                SecondaryInfos = student.SecondaryInfos != null ? new SecondaryInfosDTO
+                     AcademicCertificatePaths = await HandleMultipleFileUploads(updateStudentDto.AcademicCertificates, null)
+                };
+            }
+            
+            // Use AutoMapper to map the updated fields from the DTO to the existing student entity
+            _mapper.Map(updateStudentDto, student);
+
+            // Handle collections (add, update, remove)
+            UpdateChildCollection(student.Addresses, updateStudentDto.Addresses, student.PID);
+            UpdateChildCollection(student.Parents, updateStudentDto.Parents, student.PID);
+            UpdateChildCollection(student.AcademicHistories, updateStudentDto.AcademicHistories, student.PID);
+            UpdateChildCollection(student.Achievements, updateStudentDto.Achievements, student.PID);
+            UpdateChildCollection(student.Hobbies, updateStudentDto.Hobbies, student.PID);
+            
+            // Handle one-to-one relationships
+            student.Citizenship = UpdateOneToOne(student.Citizenship, updateStudentDto.Citizenship, student.PID);
+            student.SecondaryInfos = UpdateOneToOne(student.SecondaryInfos, updateStudentDto.SecondaryInfos, student.PID);
+            student.Disability = UpdateOneToOne(student.Disability, updateStudentDto.Disability, student.PID);
+            student.Scholarship = UpdateOneToOne(student.Scholarship, updateStudentDto.Scholarship, student.PID);
+            student.AcademicEnrollment = UpdateOneToOne(student.AcademicEnrollment, updateStudentDto.AcademicEnrollment, student.PID);
+
+            // Update the student in the repository
+            _unitOfWork.Students.Update(student);
+
+            // Save all changes to the database
+            await _unitOfWork.SaveAsync();
+
+            // Map the updated entity back to a DTO to return
+            return _mapper.Map<StudentReadDTO>(student);
+        }
+
+        // --- Helper Methods for Update ---
+
+        private void UpdateChildCollection<TEntity, TDto>(ICollection<TEntity> existingCollection, ICollection<TDto> dtoCollection, Guid studentPid)
+            where TEntity : BaseEntity where TDto : class
+        {
+            if (dtoCollection == null) dtoCollection = new List<TDto>();
+
+            // Remove entities that are no longer in the DTO
+            var itemsToRemove = existingCollection.Where(e => !dtoCollection.Any(d => (Guid)(d.GetType().GetProperty("PID")?.GetValue(d) ?? Guid.Empty) == e.PID)).ToList();
+            foreach (var item in itemsToRemove)
+            {
+                existingCollection.Remove(item);
+            }
+
+            // Add or Update entities
+            foreach (var dtoItem in dtoCollection)
+            {
+                var pid = (Guid)(dtoItem.GetType().GetProperty("PID")?.GetValue(dtoItem) ?? Guid.Empty);
+                var existingItem = pid != Guid.Empty ? existingCollection.FirstOrDefault(e => e.PID == pid) : null;
+
+                if (existingItem != null)
                 {
-                    MiddleName = student.SecondaryInfos.MiddleName,
-                    AlternateMobile = student.SecondaryInfos.AlternateMobile,
-                    AlternateEmail = student.SecondaryInfos.AlternateEmail,
-                    AcademicCertificatePaths = student.SecondaryInfos.AcademicCertificatePaths
-                } : null,
-                // ... (rest of the properties are the same)
-                Addresses = student.Addresses?.Select(a => new AddressDTO
+                    // Update existing item
+                    _mapper.Map(dtoItem, existingItem);
+                }
+                else
                 {
-                    Province = a.Province,
-                    Municipality = a.Municipality,
-                    Ward = a.Ward,
-                    Street = a.Street,
-                    Country = a.Country,
-                    Type = a.Type
-                }).ToList() ?? new List<AddressDTO>(),
-                Parents = student.Parents?.Select(p => new ParentDTO
+                    // Add new item
+                    var newItem = _mapper.Map<TEntity>(dtoItem);
+                    newItem.GetType().GetProperty("StudentPID")?.SetValue(newItem, studentPid); // Set FK
+                    existingCollection.Add(newItem);
+                }
+            }
+        }
+        
+        private TEntity? UpdateOneToOne<TEntity, TDto>(TEntity? existingEntity, TDto? dtoItem, Guid studentPid)
+            where TEntity : BaseEntity where TDto : class
+        {
+             if (dtoItem != null)
+            {
+                if (existingEntity == null)
                 {
-                    FirstName = p.FirstName,
-                    MiddleName = p.MiddleName,
-                    LastName = p.LastName,
-                    Relation = p.Relation,
-                    Occupation = p.Occupation,
-                    AnnualIncome = p.AnnualIncome,
-                    MobileNumber = p.MobileNumber,
-                    Email = p.Email
-                }).ToList() ?? new List<ParentDTO>(),
-                AcademicHistories = student.AcademicHistories?.Select(ah => new AcademicHistoryDTO
+                    existingEntity = _mapper.Map<TEntity>(dtoItem);
+                    existingEntity.GetType().GetProperty("StudentPID")?.SetValue(existingEntity, studentPid);
+                }
+                else
                 {
-                    InstitutionName = ah.InstitutionName,
-                    Level = ah.Level,
-                    Board = ah.Board,
-                    PercentageOrGPA = ah.PercentageOrGPA,
-                    PassedYear = ah.PassedYear
-                }).ToList() ?? new List<AcademicHistoryDTO>(),
-                AcademicEnrollment = student.AcademicEnrollment != null ? new AcademicEnrollmentDTO
+                    _mapper.Map(dtoItem, existingEntity);
+                }
+            }
+            else
+            {
+                existingEntity = null; // Mark for removal by EF Core if the relationship is optional
+            }
+            return existingEntity;
+        }
+
+        private async Task<string?> HandleFileUpload(IFormFile? file, string? existingPath)
+        {
+            if (file == null) return existingPath;
+
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+            string uploadPath = Path.Combine(wwwRootPath, "uploads");
+            if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
+
+            // Delete old file
+            if (!string.IsNullOrEmpty(existingPath))
+            {
+                var oldFilePath = Path.Combine(wwwRootPath, existingPath.TrimStart('/'));
+                if (File.Exists(oldFilePath)) File.Delete(oldFilePath);
+            }
+
+            // Save new file
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string newFilePath = Path.Combine(uploadPath, fileName);
+            using (var fileStream = new FileStream(newFilePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+            return "/uploads/" + fileName;
+        }
+
+        private async Task<string?> HandleMultipleFileUploads(List<IFormFile>? files, string? existingPaths)
+        {
+            if (files == null || !files.Any()) return existingPaths;
+            
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+            string uploadPath = Path.Combine(wwwRootPath, "uploads");
+            if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
+
+            // Delete old files
+            if (!string.IsNullOrEmpty(existingPaths))
+            {
+                foreach (var oldPath in existingPaths.Split(',', StringSplitOptions.RemoveEmptyEntries))
                 {
-                    FacultyId = student.AcademicEnrollment.FacultyId,
-                    ProgramName = student.AcademicEnrollment.ProgramName,
-                    EnrollmentDate = student.AcademicEnrollment.EnrollmentDate,
-                    StudentIdNumber = student.AcademicEnrollment.StudentIdNumber
-                } : null,
-                Achievements = student.Achievements?.Select(a => new AchievementDTO
+                    var oldFilePath = Path.Combine(wwwRootPath, oldPath.TrimStart('/'));
+                    if (File.Exists(oldFilePath)) File.Delete(oldFilePath);
+                }
+            }
+
+            // Save new files
+            var newPaths = new List<string>();
+            foreach (var file in files)
+            {
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                string newFilePath = Path.Combine(uploadPath, fileName);
+                using (var fileStream = new FileStream(newFilePath, FileMode.Create))
                 {
-                    Title = a.Title,
-                    Description = a.Description,
-                    DateOfAchievement = a.DateOfAchievement
-                }).ToList() ?? new List<AchievementDTO>(),
-                Hobbies = student.Hobbies?.Select(h => new HobbyDTO
-                {
-                    Name = h.Name
-                }).ToList() ?? new List<HobbyDTO>(),
-                Disability = student.Disability != null ? new DisabilityDTO
-                {
-                    DisabilityType = student.Disability.DisabilityType,
-                    Description = student.Disability.Description,
-                    DisabilityPercentage = student.Disability.DisabilityPercentage
-                } : null,
-                Scholarship = student.Scholarship != null ? new ScholarshipDTO
-                {
-                    ScholarshipName = student.Scholarship.ScholarshipName,
-                    Amount = student.Scholarship.Amount,
-                    StartDate = student.Scholarship.StartDate,
-                    EndDate = student.Scholarship.EndDate
-                } : null
-            };
+                    await file.CopyToAsync(fileStream);
+                }
+                newPaths.Add("/uploads/" + fileName);
+            }
+            return string.Join(",", newPaths);
         }
 
 
-        public async Task<List<StudentDTO>> GetAllStudentsAsync()
+        // Implementing other methods to make the service complete
+        public async Task<StudentReadDTO> CreateStudentAsync(CreateStudentDTO createStudentDto)
         {
-            var students = await _unitOfWork.GetRepository<Student>().GetAllAsync("SecondaryInfos,Citizenship,Addresses,Parents,AcademicHistories,AcademicEnrollment,Achievements,Hobbies,Disability,Scholarship");
-            var studentDtos = students.Select(student => new StudentDTO
+            var student = _mapper.Map<Student>(createStudentDto);
+
+            // Handle file uploads
+            student.ProfileImagePath = await HandleFileUpload(createStudentDto.ProfileImage, null);
+            if (createStudentDto.AcademicCertificates != null && createStudentDto.AcademicCertificates.Any())
             {
-                Id = student.Id,
-                FirstName = student.FirstName,
-                LastName = student.LastName,
-                DateOfBirth = student.DateOfBirth,
-                Gender = student.Gender,
-                BloodGroup = student.BloodGroup,
-                PrimaryMobile = student.PrimaryMobile,
-                PrimaryEmail = student.PrimaryEmail,
-                ProfileImagePath = student.ProfileImagePath,
-                Citizenship = student.Citizenship != null ? new CitizenshipDTO
-                {
-                    CitizenshipNumber = student.Citizenship.CitizenshipNumber,
-                    CountryOfIssuance = student.Citizenship.CountryOfIssuance,
-                    DateOfIssuance = student.Citizenship.DateOfIssuance,
-                    PlaceOfIssuance = student.Citizenship.PlaceOfIssuance
-                } : null,
-                SecondaryInfos = student.SecondaryInfos != null ? new SecondaryInfosDTO
-                {
-                    MiddleName = student.SecondaryInfos.MiddleName,
-                    AlternateMobile = student.SecondaryInfos.AlternateMobile,
-                    AlternateEmail = student.SecondaryInfos.AlternateEmail,
-                    AcademicCertificatePaths = student.SecondaryInfos.AcademicCertificatePaths
-                } : null,
-                // ... (rest of the properties are the same)
-                 Addresses = student.Addresses?.Select(a => new AddressDTO
-                {
-                    Province = a.Province,
-                    Municipality = a.Municipality,
-                    Ward = a.Ward,
-                    Street = a.Street,
-                    Country = a.Country,
-                    Type = a.Type
-                }).ToList() ?? new List<AddressDTO>(),
-                Parents = student.Parents?.Select(p => new ParentDTO
-                {
-                    FirstName = p.FirstName,
-                    MiddleName = p.MiddleName,
-                    LastName = p.LastName,
-                    Relation = p.Relation,
-                    Occupation = p.Occupation,
-                    AnnualIncome = p.AnnualIncome,
-                    MobileNumber = p.MobileNumber,
-                    Email = p.Email
-                }).ToList() ?? new List<ParentDTO>(),
-                AcademicHistories = student.AcademicHistories?.Select(ah => new AcademicHistoryDTO
-                {
-                    InstitutionName = ah.InstitutionName,
-                    Level = ah.Level,
-                    Board = ah.Board,
-                    PercentageOrGPA = ah.PercentageOrGPA,
-                    PassedYear = ah.PassedYear
-                }).ToList() ?? new List<AcademicHistoryDTO>(),
-                AcademicEnrollment = student.AcademicEnrollment != null ? new AcademicEnrollmentDTO
-                {
-                    FacultyId = student.AcademicEnrollment.FacultyId,
-                    ProgramName = student.AcademicEnrollment.ProgramName,
-                    EnrollmentDate = student.AcademicEnrollment.EnrollmentDate,
-                    StudentIdNumber = student.AcademicEnrollment.StudentIdNumber
-                } : null,
-                Achievements = student.Achievements?.Select(a => new AchievementDTO
-                {
-                    Title = a.Title,
-                    Description = a.Description,
-                    DateOfAchievement = a.DateOfAchievement
-                }).ToList() ?? new List<AchievementDTO>(),
-                Hobbies = student.Hobbies?.Select(h => new HobbyDTO
-                {
-                    Name = h.Name
-                }).ToList() ?? new List<HobbyDTO>(),
-                Disability = student.Disability != null ? new DisabilityDTO
-                {
-                    DisabilityType = student.Disability.DisabilityType,
-                    Description = student.Disability.Description,
-                    DisabilityPercentage = student.Disability.DisabilityPercentage
-                } : null,
-                Scholarship = student.Scholarship != null ? new ScholarshipDTO
-                {
-                    ScholarshipName = student.Scholarship.ScholarshipName,
-                    Amount = student.Scholarship.Amount,
-                    StartDate = student.Scholarship.StartDate,
-                    EndDate = student.Scholarship.EndDate
-                } : null
-            }).ToList();
-
-                        return studentDtos;
-
-                    }
-
-            
-
-                    public async Task<StudentDTO?> UpdateStudentAsync(int id, StudentDTO studentDto, IFormFile? profileImage, List<IFormFile>? academicCertificates)
-
-                    {
-
-                        var students = await _unitOfWork.GetRepository<Student>().FindAsync(s => s.Id == id, "SecondaryInfos,Citizenship,Addresses,Parents,AcademicHistories,AcademicEnrollment,Achievements,Hobbies,Disability,Scholarship");
-
-                        var student = students.FirstOrDefault();
-
-            
-
-                        if (student == null)
-
-                        {
-
-                            return null;
-
-                        }
-
-            
-
-                        string wwwRootPath = _webHostEnvironment.WebRootPath;
-
-                        if (string.IsNullOrEmpty(wwwRootPath))
-
-                        {
-
-                            wwwRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-
-                        }
-
-                        string uploadPath = Path.Combine(wwwRootPath, "uploads");
-
-            
-
-                        // Handle profile image update
-
-                        if (profileImage != null)
-
-                        {
-
-                            // Delete old profile image if it exists
-
-                            if (!string.IsNullOrEmpty(student.ProfileImagePath))
-
-                            {
-
-                                var oldImagePath = Path.Combine(wwwRootPath, student.ProfileImagePath.TrimStart('/'));
-
-                                if (File.Exists(oldImagePath))
-
-                                {
-
-                                    File.Delete(oldImagePath);
-
-                                }
-
-                            }
-
-            
-
-                            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(profileImage.FileName);
-
-                            string filePath = Path.Combine(uploadPath, fileName);
-
-            
-
-                            using (var fileStream = new FileStream(filePath, FileMode.Create))
-
-                            {
-
-                                await profileImage.CopyToAsync(fileStream);
-
-                            }
-
-                            student.ProfileImagePath = "/uploads/" + fileName;
-
-                        }
-
-            
-
-                        // Handle academic certificates update
-
-                        if (academicCertificates != null && academicCertificates.Count > 0)
-
-                        {
-
-                            // Delete old certificates if they exist
-
-                            if (student.SecondaryInfos != null && !string.IsNullOrEmpty(student.SecondaryInfos.AcademicCertificatePaths))
-
-                            {
-
-                                var oldCertificatePaths = student.SecondaryInfos.AcademicCertificatePaths.Split(',');
-
-                                foreach (var oldPath in oldCertificatePaths)
-
-                                {
-
-                                    var oldCertPath = Path.Combine(wwwRootPath, oldPath.TrimStart('/'));
-
-                                    if (File.Exists(oldCertPath))
-
-                                    {
-
-                                        File.Delete(oldCertPath);
-
-                                    }
-
-                                }
-
-                            }
-
-            
-
-                            var certificatePaths = new List<string>();
-
-                            foreach (var certificateFile in academicCertificates)
-
-                            {
-
-                                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(certificateFile.FileName);
-
-                                string filePath = Path.Combine(uploadPath, fileName);
-
-            
-
-                                using (var fileStream = new FileStream(filePath, FileMode.Create))
-
-                                {
-
-                                    await certificateFile.CopyToAsync(fileStream);
-
-                                }
-
-                                certificatePaths.Add("/uploads/" + fileName);
-
-                            }
-
-            
-
-                            if (student.SecondaryInfos == null)
-
-                            {
-
-                                student.SecondaryInfos = new SecondaryInfos();
-
-                            }
-
-                            student.SecondaryInfos.AcademicCertificatePaths = string.Join(",", certificatePaths);
-
-                        }
-
-            
-
-                        // Update student properties from DTO
-
-                        student.FirstName = studentDto.FirstName;
-
-                        student.LastName = studentDto.LastName;
-
-                        student.DateOfBirth = studentDto.DateOfBirth;
-
-                        student.Gender = studentDto.Gender;
-
-                        student.BloodGroup = studentDto.BloodGroup;
-
-                        student.PrimaryMobile = studentDto.PrimaryMobile;
-
-                        student.PrimaryEmail = studentDto.PrimaryEmail;
-
-            
-
-                        // ... update all other properties in a similar way
-
-            
-
-                        _unitOfWork.GetRepository<Student>().Update(student);
-
-                        await _unitOfWork.CompleteAsync();
-
-            
-
-                        return await GetStudentByIdAsync(student.Id);
-
-                    }
-
-            
-
-                    public async Task<bool> DeleteStudentAsync(int id)
-
-                    {
-
-                        var students = await _unitOfWork.GetRepository<Student>().FindAsync(s => s.Id == id);
-
-                        var student = students.FirstOrDefault();
-
-            
-
-                        if (student == null)
-
-                        {
-
-                            return false;
-
-                        }
-
-            
-
-                        _unitOfWork.GetRepository<Student>().Remove(student);
-
-                        await _unitOfWork.CompleteAsync();
-
-            
-
-                        return true;
-
-                    }
-
-                }
-
+                 student.SecondaryInfos ??= new SecondaryInfos();
+                 student.SecondaryInfos.AcademicCertificatePaths = await HandleMultipleFileUploads(createStudentDto.AcademicCertificates, null);
             }
 
+            // Set FKs for child collections
+            foreach(var item in student.Addresses) item.StudentPID = student.PID;
+            foreach(var item in student.Parents) item.StudentPID = student.PID;
+            foreach(var item in student.AcademicHistories) item.StudentPID = student.PID;
+            foreach(var item in student.Achievements) item.StudentPID = student.PID;
+            foreach(var item in student.Hobbies) item.StudentPID = student.PID;
             
+            // Set FKs for 1-to-1 relationships
+            if(student.Citizenship != null) student.Citizenship.StudentPID = student.PID;
+            if(student.SecondaryInfos != null) student.SecondaryInfos.StudentPID = student.PID;
+            if(student.Disability != null) student.Disability.StudentPID = student.PID;
+            if(student.Scholarship != null) student.Scholarship.StudentPID = student.PID;
+            if(student.AcademicEnrollment != null) student.AcademicEnrollment.StudentPID = student.PID;
+
+            await _unitOfWork.Students.AddAsync(student);
+            await _unitOfWork.SaveAsync();
+
+            return _mapper.Map<StudentReadDTO>(student);
+        }
+
+        public async Task<StudentReadDTO?> GetStudentByPIDAsync(Guid pid)
+        {
+            var student = await _unitOfWork.Students.GetByPIDAsync(pid, q => q
+                .Include(s => s.Addresses)
+                .Include(s => s.Parents)
+                .Include(s => s.AcademicHistories)
+                .Include(s => s.AcademicEnrollment).ThenInclude(ae => ae!.Faculty)
+                .Include(s => s.Achievements)
+                .Include(s => s.Hobbies)
+                .Include(s => s.Disability)
+                .Include(s => s.Scholarship)
+                .Include(s => s.Citizenship)
+                .Include(s => s.SecondaryInfos));
+            
+            return _mapper.Map<StudentReadDTO>(student);
+        }
+
+        public async Task<IEnumerable<StudentSummaryDTO>> GetAllStudentsAsync()
+        {
+            var students = await _unitOfWork.Students.GetAllAsync(q => q
+                .Include(s => s.SecondaryInfos)
+                .Include(s => s.AcademicEnrollment)
+                .Include(s => s.Addresses));
+            
+            return _mapper.Map<IEnumerable<StudentSummaryDTO>>(students);
+        }
+
+        public async Task<bool> DeleteStudentAsync(Guid pid)
+        {
+            var student = await _unitOfWork.Students.GetByPIDAsync(pid);
+            if (student == null) return false;
+
+            _unitOfWork.Students.Remove(student);
+            await _unitOfWork.SaveAsync();
+            return true;
+        }
+    }
+}

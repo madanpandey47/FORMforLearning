@@ -5,11 +5,8 @@ using FormBackend.Models.Enum;
 
 namespace FormBackend.Models
 {
-    public class Student
+    public class Student : BaseEntity
     {
-        [Key]
-        public int Id { get; set; }
-
         [Required]
         public required string FirstName { get; set; }
         [Required]
@@ -18,8 +15,8 @@ namespace FormBackend.Models
         public DateTime DateOfBirth { get; set; }
         [Required]
         public Gender Gender { get; set; }
-        [Phone]
         [Required]
+        [Phone]
         public required string PrimaryMobile { get; set; }
         [Required]
         [EmailAddress]

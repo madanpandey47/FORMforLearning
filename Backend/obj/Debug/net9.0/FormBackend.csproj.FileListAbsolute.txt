@@ -496,3 +496,5 @@ C:\Users\ZEUS\Desktop\solvetech\FORMEXTRA\Backend2\obj\Debug\net9.0\staticwebass
 C:\Users\ZEUS\Desktop\solvetech\FORMEXTRA\Backend2\obj\Debug\net9.0\FormBack.55F5F69B.Up2Date
 C:\Users\ZEUS\Desktop\solvetech\FORMEXTRA\Backend2\obj\Debug\net9.0\FormBackend.genruntimeconfig.cache
 C:\Users\ZEUS\Desktop\solvetech\FORMEXTRA\Backend2\obj\Debug\net9.0\ref\FormBackend.dll
+C:\Users\ZEUS\Desktop\solvetech\FORM\Backend\bin\Debug\net9.0\AutoMapper.dll
+C:\Users\ZEUS\Desktop\solvetech\FORM\Backend\bin\Debug\net9.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll

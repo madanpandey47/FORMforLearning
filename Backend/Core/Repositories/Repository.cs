@@ -1,7 +1,9 @@
 using FormBackend.Core.Interfaces;
 using FormBackend.Data;
+using FormBackend.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using AutoMapper;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -9,47 +11,35 @@ using System.Threading.Tasks;
 
 namespace FormBackend.Core.Repositories
 {
-    public class Repository<T> : IRepository<T> where T : class
+    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         protected readonly ApplicationDbContext _context;
         protected readonly DbSet<T> _dbSet;
 
-        public Repository(ApplicationDbContext context)
+        public GenericRepository(ApplicationDbContext context)
         {
             _context = context;
             _dbSet = context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(string? includeProperties = null)
+        public async Task<IEnumerable<T>> GetAllAsync(Func<IQueryable<T>, IQueryable<T>>? include = null)
         {
             IQueryable<T> query = _dbSet;
-            if (includeProperties != null)
+            if (include != null)
             {
-                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeProp);
-                }
+                query = include(query);
             }
             return await query.ToListAsync();
         }
 
-        public IQueryable<T> GetAll()
-        {
-            return _dbSet.AsQueryable();
-        }
-
-
-        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression, string? includeProperties = null)
+        public async Task<T?> GetByPIDAsync(Guid pid, Func<IQueryable<T>, IQueryable<T>>? include = null)
         {
             IQueryable<T> query = _dbSet;
-            if (includeProperties != null)
+            if (include != null)
             {
-                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeProp);
-                }
+                query = include(query);
             }
-            return await query.Where(expression).ToListAsync();
+            return await query.FirstOrDefaultAsync(entity => entity.PID == pid);
         }
 
         public async Task AddAsync(T entity)
@@ -66,5 +56,13 @@ namespace FormBackend.Core.Repositories
         {
             _dbSet.Remove(entity);
         }
+    }
+
+    public class StudentRepository : GenericRepository<Student>, IStudentRepository
+    {
+        public StudentRepository(ApplicationDbContext context) : base(context)
+        {
+        }
+        // Student-specific repository methods would go here
     }
 }
