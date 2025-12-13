@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FormBackend.Models
 {
-    public class Citizenship : BaseEntity
+    public class Citizenship
     {
         [Required]
         public required string CitizenshipNumber { get; set; }
@@ -13,10 +13,5 @@ namespace FormBackend.Models
         [Required]
         public DateTime DateOfIssuance { get; set; }
         public string? PlaceOfIssuance { get; set; }
-
-        // Foreign Key to Student
-        [ForeignKey("Student")]
-        public Guid StudentPID { get; set; }
-        public virtual Student? Student { get; set; }
     }
 }

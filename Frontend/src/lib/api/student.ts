@@ -68,6 +68,8 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
     permanentAddress,
     temporaryAddress,
     middleName,
+    citizenship,
+    secondaryInfos,
     ...rest
   } = formData;
 
@@ -76,6 +78,7 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
     ...rest,
     primaryMobile: contactInfo?.primaryMobile || "",
     primaryEmail: contactInfo?.primaryEmail || "",
+    citizenship: citizenship,
   };
 
   // Add secondary info with middleName and alternate contact
@@ -85,6 +88,7 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
     contactInfo?.alternateEmail
   ) {
     transformed.secondaryInfos = {
+      pid: secondaryInfos?.pid,
       middleName: middleName || null,
       alternateMobile: contactInfo?.alternateMobile || null,
       alternateEmail: contactInfo?.alternateEmail || null,

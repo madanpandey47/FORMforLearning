@@ -76,8 +76,8 @@ namespace FormBackend.Controllers
             }
             catch (Exception ex)
             {
-                // In a real app, use a logger
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                // TODO: Log the exception details using a proper logger (e.g., ILogger<StudentController>)
+                return StatusCode(500, "An internal server error occurred while updating the student.");
             }
         }
 

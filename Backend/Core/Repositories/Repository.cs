@@ -3,7 +3,6 @@ using FormBackend.Data;
 using FormBackend.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
-using AutoMapper;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace FormBackend.Core.Repositories
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
+    public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         protected readonly ApplicationDbContext _context;
         protected readonly DbSet<T> _dbSet;
@@ -32,6 +31,17 @@ namespace FormBackend.Core.Repositories
             return await query.ToListAsync();
         }
 
+        public async Task<T?> GetByIdAsync(int id, Func<IQueryable<T>, IQueryable<T>>? include = null)
+        {
+            IQueryable<T> query = _dbSet;
+            if (include != null)
+            {
+                query = include(query);
+            }
+            // This requires the entity to have an 'Id' property.
+            return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
+        }
+
         public async Task<T?> GetByPIDAsync(Guid pid, Func<IQueryable<T>, IQueryable<T>>? include = null)
         {
             IQueryable<T> query = _dbSet;
@@ -39,7 +49,8 @@ namespace FormBackend.Core.Repositories
             {
                 query = include(query);
             }
-            return await query.FirstOrDefaultAsync(entity => entity.PID == pid);
+            // This requires the entity to have a 'PID' property.
+            return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "PID") == pid);
         }
 
         public async Task AddAsync(T entity)

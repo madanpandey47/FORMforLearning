@@ -6,10 +6,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace FormBackend.DTOs
 {
-    // Base DTOs for nested objects, now with PID
+    // Base DTOs for nested objects
     public class AddressDTO
     {
-        public Guid PID { get; set; }
         public required string Province { get; set; }
         public required string Municipality { get; set; }
         public required string Ward { get; set; }
@@ -20,7 +19,7 @@ namespace FormBackend.DTOs
 
     public class ParentDTO
     {
-        public Guid PID { get; set; }
+        public int Id { get; set; }
         public required string FirstName { get; set; }
         public string? MiddleName { get; set; }
         public required string LastName { get; set; }
@@ -33,7 +32,6 @@ namespace FormBackend.DTOs
     
     public class CitizenshipDTO
     {
-        public Guid PID { get; set; }
         public required string CitizenshipNumber { get; set; }
         public required string CountryOfIssuance { get; set; }
         public DateTime DateOfIssuance { get; set; }
@@ -42,7 +40,6 @@ namespace FormBackend.DTOs
 
     public class SecondaryInfosDTO
     {
-        public Guid PID { get; set; }
         public string? MiddleName { get; set; }
         public string? AlternateMobile { get; set; }
         public string? AlternateEmail { get; set; }
@@ -51,7 +48,7 @@ namespace FormBackend.DTOs
 
     public class AcademicHistoryDTO
     {
-        public Guid PID { get; set; }
+        public int Id { get; set; }
         public required string InstitutionName { get; set; }
         public required AcademicLevel Level { get; set; }
         public string? Board { get; set; }
@@ -61,15 +58,15 @@ namespace FormBackend.DTOs
 
     public class FacultyDTO
     {
-        public Guid PID { get; set; }
+        public int Id { get; set; }
         public FacultyType Type { get; set; }
         public required string ProgramName { get; set; }
     }
 
     public class AcademicEnrollmentDTO
     {
-        public Guid PID { get; set; }
-        public Guid FacultyPID { get; set; }
+        public int Id { get; set; }
+        public int FacultyId { get; set; }
         public virtual FacultyDTO? Faculty { get; set; }
         public required string ProgramName { get; set; }
         public DateTime EnrollmentDate { get; set; }
@@ -78,7 +75,6 @@ namespace FormBackend.DTOs
 
     public class AchievementDTO
     {
-        public Guid PID { get; set; }
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
         public DateTime? DateOfAchievement { get; set; }
@@ -86,13 +82,11 @@ namespace FormBackend.DTOs
 
     public class HobbyDTO
     {
-        public Guid PID { get; set; }
         public string Name { get; set; } = string.Empty;
     }
 
     public class DisabilityDTO
     {
-        public Guid PID { get; set; }
         public string DisabilityType { get; set; } = string.Empty;
         public string? Description { get; set; }
         public double? DisabilityPercentage { get; set; }
@@ -100,7 +94,6 @@ namespace FormBackend.DTOs
 
     public class ScholarshipDTO
     {
-        public Guid PID { get; set; }
         public string ScholarshipName { get; set; } = string.Empty;
         public decimal? Amount { get; set; }
         public DateTime? StartDate { get; set; }

@@ -1,11 +1,16 @@
 using System;
 using System.Threading.Tasks;
+using FormBackend.Models;
 
 namespace FormBackend.Core.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
         IStudentRepository Students { get; }
+        IGenericRepository<Parent> Parents { get; }
+        IGenericRepository<AcademicHistory> AcademicHistories { get; }
+        IGenericRepository<AcademicEnrollment> AcademicEnrollments { get; }
+        IGenericRepository<Faculty> Faculties { get; }
         Task<int> SaveAsync();
     }
 }

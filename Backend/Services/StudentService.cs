@@ -47,35 +47,27 @@ namespace FormBackend.Services
             }
 
             // Handle file uploads
-            updateStudentDto.ProfileImagePath = await HandleFileUpload(updateStudentDto.ProfileImage, student.ProfileImagePath);
-            if (student.SecondaryInfos != null)
+            if (updateStudentDto.ProfileImage != null)
+            {
+                student.ProfileImagePath = await HandleFileUpload(updateStudentDto.ProfileImage, student.ProfileImagePath);
+            }
+
+            if (student.SecondaryInfos != null && updateStudentDto.AcademicCertificates != null && updateStudentDto.AcademicCertificates.Any())
             {
                  student.SecondaryInfos.AcademicCertificatePaths = await HandleMultipleFileUploads(updateStudentDto.AcademicCertificates, student.SecondaryInfos.AcademicCertificatePaths);
-            }
-            else if (updateStudentDto.AcademicCertificates != null && updateStudentDto.AcademicCertificates.Any())
-            {
-                student.SecondaryInfos = new SecondaryInfos()
-                {
-                     AcademicCertificatePaths = await HandleMultipleFileUploads(updateStudentDto.AcademicCertificates, null)
-                };
             }
             
             // Use AutoMapper to map the updated fields from the DTO to the existing student entity
             _mapper.Map(updateStudentDto, student);
 
-            // Handle collections (add, update, remove)
-            UpdateChildCollection(student.Addresses, updateStudentDto.Addresses, student.PID);
+            // Handle independent collections (add, update, remove)
             UpdateChildCollection(student.Parents, updateStudentDto.Parents, student.PID);
             UpdateChildCollection(student.AcademicHistories, updateStudentDto.AcademicHistories, student.PID);
-            UpdateChildCollection(student.Achievements, updateStudentDto.Achievements, student.PID);
-            UpdateChildCollection(student.Hobbies, updateStudentDto.Hobbies, student.PID);
-            
-            // Handle one-to-one relationships
-            student.Citizenship = UpdateOneToOne(student.Citizenship, updateStudentDto.Citizenship, student.PID);
-            student.SecondaryInfos = UpdateOneToOne(student.SecondaryInfos, updateStudentDto.SecondaryInfos, student.PID);
-            student.Disability = UpdateOneToOne(student.Disability, updateStudentDto.Disability, student.PID);
-            student.Scholarship = UpdateOneToOne(student.Scholarship, updateStudentDto.Scholarship, student.PID);
-            student.AcademicEnrollment = UpdateOneToOne(student.AcademicEnrollment, updateStudentDto.AcademicEnrollment, student.PID);
+
+            // Handle owned collections (clear and re-add)
+            UpdateOwnedCollection(student.Addresses, updateStudentDto.Addresses);
+            UpdateOwnedCollection(student.Hobbies, updateStudentDto.Hobbies);
+            UpdateOwnedCollection(student.Achievements, updateStudentDto.Achievements);
 
             // Update the student in the repository
             _unitOfWork.Students.Update(student);
@@ -90,12 +82,12 @@ namespace FormBackend.Services
         // --- Helper Methods for Update ---
 
         private void UpdateChildCollection<TEntity, TDto>(ICollection<TEntity> existingCollection, ICollection<TDto> dtoCollection, Guid studentPid)
-            where TEntity : BaseEntity where TDto : class
+            where TEntity : BaseIdEntity where TDto : class
         {
             if (dtoCollection == null) dtoCollection = new List<TDto>();
 
             // Remove entities that are no longer in the DTO
-            var itemsToRemove = existingCollection.Where(e => !dtoCollection.Any(d => (Guid)(d.GetType().GetProperty("PID")?.GetValue(d) ?? Guid.Empty) == e.PID)).ToList();
+            var itemsToRemove = existingCollection.Where(e => !dtoCollection.Any(d => (int)(d.GetType().GetProperty("Id")?.GetValue(d) ?? 0) == e.Id)).ToList();
             foreach (var item in itemsToRemove)
             {
                 existingCollection.Remove(item);
@@ -104,8 +96,8 @@ namespace FormBackend.Services
             // Add or Update entities
             foreach (var dtoItem in dtoCollection)
             {
-                var pid = (Guid)(dtoItem.GetType().GetProperty("PID")?.GetValue(dtoItem) ?? Guid.Empty);
-                var existingItem = pid != Guid.Empty ? existingCollection.FirstOrDefault(e => e.PID == pid) : null;
+                var id = (int)(dtoItem.GetType().GetProperty("Id")?.GetValue(dtoItem) ?? 0);
+                var existingItem = id != 0 ? existingCollection.FirstOrDefault(e => e.Id == id) : null;
 
                 if (existingItem != null)
                 {
@@ -121,29 +113,20 @@ namespace FormBackend.Services
                 }
             }
         }
-        
-        private TEntity? UpdateOneToOne<TEntity, TDto>(TEntity? existingEntity, TDto? dtoItem, Guid studentPid)
-            where TEntity : BaseEntity where TDto : class
-        {
-             if (dtoItem != null)
-            {
-                if (existingEntity == null)
-                {
-                    existingEntity = _mapper.Map<TEntity>(dtoItem);
-                    existingEntity.GetType().GetProperty("StudentPID")?.SetValue(existingEntity, studentPid);
-                }
-                else
-                {
-                    _mapper.Map(dtoItem, existingEntity);
-                }
-            }
-            else
-            {
-                existingEntity = null; // Mark for removal by EF Core if the relationship is optional
-            }
-            return existingEntity;
-        }
 
+        private void UpdateOwnedCollection<TEntity, TDto>(ICollection<TEntity> existingCollection, ICollection<TDto> dtoCollection)
+            where TEntity : class where TDto : class
+        {
+            existingCollection.Clear();
+            if (dtoCollection != null)
+            {
+                foreach (var dtoItem in dtoCollection)
+                {
+                    existingCollection.Add(_mapper.Map<TEntity>(dtoItem));
+                }
+            }
+        }
+        
         private async Task<string?> HandleFileUpload(IFormFile? file, string? existingPath)
         {
             if (file == null) return existingPath;
@@ -210,25 +193,10 @@ namespace FormBackend.Services
 
             // Handle file uploads
             student.ProfileImagePath = await HandleFileUpload(createStudentDto.ProfileImage, null);
-            if (createStudentDto.AcademicCertificates != null && createStudentDto.AcademicCertificates.Any())
+            if (student.SecondaryInfos != null && createStudentDto.AcademicCertificates != null && createStudentDto.AcademicCertificates.Any())
             {
-                 student.SecondaryInfos ??= new SecondaryInfos();
                  student.SecondaryInfos.AcademicCertificatePaths = await HandleMultipleFileUploads(createStudentDto.AcademicCertificates, null);
             }
-
-            // Set FKs for child collections
-            foreach(var item in student.Addresses) item.StudentPID = student.PID;
-            foreach(var item in student.Parents) item.StudentPID = student.PID;
-            foreach(var item in student.AcademicHistories) item.StudentPID = student.PID;
-            foreach(var item in student.Achievements) item.StudentPID = student.PID;
-            foreach(var item in student.Hobbies) item.StudentPID = student.PID;
-            
-            // Set FKs for 1-to-1 relationships
-            if(student.Citizenship != null) student.Citizenship.StudentPID = student.PID;
-            if(student.SecondaryInfos != null) student.SecondaryInfos.StudentPID = student.PID;
-            if(student.Disability != null) student.Disability.StudentPID = student.PID;
-            if(student.Scholarship != null) student.Scholarship.StudentPID = student.PID;
-            if(student.AcademicEnrollment != null) student.AcademicEnrollment.StudentPID = student.PID;
 
             await _unitOfWork.Students.AddAsync(student);
             await _unitOfWork.SaveAsync();
@@ -253,14 +221,21 @@ namespace FormBackend.Services
             return _mapper.Map<StudentReadDTO>(student);
         }
 
-        public async Task<IEnumerable<StudentSummaryDTO>> GetAllStudentsAsync()
+        public async Task<IEnumerable<StudentReadDTO>> GetAllStudentsAsync()
         {
             var students = await _unitOfWork.Students.GetAllAsync(q => q
-                .Include(s => s.SecondaryInfos)
-                .Include(s => s.AcademicEnrollment)
-                .Include(s => s.Addresses));
+                .Include(s => s.Addresses)
+                .Include(s => s.Parents)
+                .Include(s => s.AcademicHistories)
+                .Include(s => s.AcademicEnrollment).ThenInclude(ae => ae!.Faculty)
+                .Include(s => s.Achievements)
+                .Include(s => s.Hobbies)
+                .Include(s => s.Disability)
+                .Include(s => s.Scholarship)
+                .Include(s => s.Citizenship)
+                .Include(s => s.SecondaryInfos));
             
-            return _mapper.Map<IEnumerable<StudentSummaryDTO>>(students);
+            return _mapper.Map<IEnumerable<StudentReadDTO>>(students);
         }
 
         public async Task<bool> DeleteStudentAsync(Guid pid)

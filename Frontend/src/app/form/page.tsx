@@ -64,17 +64,14 @@ const FormPage: React.FC = () => {
     mode: "onSubmit",
     reValidateMode: "onSubmit",
     defaultValues: {
-      pid: undefined,
       contactInfo: { primaryMobile: "", primaryEmail: "" },
       citizenship: {
-        pid: undefined,
         citizenshipNumber: "",
         countryOfIssuance: "",
         dateOfIssuance: "",
         placeOfIssuance: "",
       },
       permanentAddress: {
-        pid: undefined,
         province: "",
         municipality: "",
         ward: "",
@@ -82,41 +79,36 @@ const FormPage: React.FC = () => {
         type: 0,
       },
       temporaryAddress: {
-        pid: undefined,
         province: "",
         municipality: "",
         ward: "",
         country: "",
         type: 1,
       },
-      parents: [{ pid: undefined, firstName: "", lastName: "", relation: 0 }],
+      parents: [{ firstName: "", lastName: "", relation: 0 }],
       academicHistories: [
         {
-          pid: undefined,
           institutionName: "",
           level: 0,
           board: "",
           percentageOrGPA: 0,
-          passingYear: 0,
+          passedYear: "2024",
         },
       ],
-      hobbies: [{ pid: undefined, name: "" }],
-      achievements: [{ pid: undefined, title: "", description: "", dateOfAchievement: "" }],
+      hobbies: [{ name: "" }],
+      achievements: [{ title: "", description: "", dateOfAchievement: "" }],
       academicEnrollment: {
-        pid: undefined,
         facultyId: 0,
         programName: "",
         enrollmentDate: "",
         studentIdNumber: "",
       },
       disability: {
-        pid: undefined,
         disabilityType: "",
         description: "",
         disabilityPercentage: 0,
       },
       scholarship: {
-        pid: undefined,
         scholarshipName: "",
         amount: 0,
         startDate: "",
@@ -284,7 +276,7 @@ const FormPage: React.FC = () => {
               academicHistories: student.academicHistories?.length
                 ? student.academicHistories.map((ah) => ({
                     ...ah,
-                    passingYear: ah.passedYear ? parseInt(ah.passedYear) : 0,
+                    passedYear: ah.passedYear,
                   }))
                 : [
                     {
@@ -292,7 +284,7 @@ const FormPage: React.FC = () => {
                       level: 0,
                       board: "",
                       percentageOrGPA: 0,
-                      passingYear: 0,
+                      passedYear: "2024",
                     },
                   ],
               hobbies: student.hobbies?.length
@@ -320,6 +312,7 @@ const FormPage: React.FC = () => {
                   },
               disability: student.disability || undefined,
               scholarship: student.scholarship || undefined,
+              secondaryInfos: student.secondaryInfos || undefined,
             };
 
             reset(formData as FormData);

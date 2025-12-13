@@ -1,6 +1,7 @@
 using AutoMapper;
 using FormBackend.DTOs;
 using FormBackend.Models;
+using System.Linq;
 
 namespace FormBackend.Mappings
 {
@@ -40,12 +41,12 @@ namespace FormBackend.Mappings
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
             
             CreateMap<AddressDTO, Address>();
-            CreateMap<ParentDTO, Parent>();
+            CreateMap<ParentDTO, Parent>().ForMember(dest => dest.Id, opt => opt.Ignore());
             CreateMap<CitizenshipDTO, Citizenship>();
             CreateMap<SecondaryInfosDTO, SecondaryInfos>();
-            CreateMap<AcademicHistoryDTO, AcademicHistory>();
-            CreateMap<FacultyDTO, Faculty>();
-            CreateMap<AcademicEnrollmentDTO, AcademicEnrollment>();
+            CreateMap<AcademicHistoryDTO, AcademicHistory>().ForMember(dest => dest.Id, opt => opt.Ignore());
+            CreateMap<FacultyDTO, Faculty>().ForMember(dest => dest.Id, opt => opt.Ignore());
+            CreateMap<AcademicEnrollmentDTO, AcademicEnrollment>().ForMember(dest => dest.Id, opt => opt.Ignore());
             CreateMap<AchievementDTO, Achievement>();
             CreateMap<HobbyDTO, Hobby>();
             CreateMap<DisabilityDTO, Disability>();

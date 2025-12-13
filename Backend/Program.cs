@@ -74,10 +74,13 @@ if (app.Environment.IsDevelopment())
 
 
 // Configure the HTTP request pipeline.
-app.UseCors("AllowAll");
-// app.UseHttpsRedirection();
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("AllowAll"); // WARNING: This is very permissive and should be restricted in production.
+}
+app.UseHttpsRedirection();
 app.UseStaticFiles();
-// app.UseAuthentication();
+// app.UseAuthentication(); // Uncomment and configure when authentication is implemented.
 app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())

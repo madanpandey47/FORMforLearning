@@ -25,7 +25,6 @@ export const ParentTypeEnum = z.union([
   z.literal(0),
   z.literal(1),
   z.literal(2),
-  z.literal(3),
 ]);
 
 export const FacultyEnum = z.number().int().min(1);
@@ -55,7 +54,8 @@ export const academicHistorySchema = z.object({
   level: z.number().int(),
   board: z.string().optional(),
   percentageOrGPA: z.number().min(0).max(100),
-  passingYear: z.number().int().min(1900).max(new Date().getFullYear()),
+  passedYear: z.string()
+    .refine((s) => s.length === 4 && /^\d{4}$/.test(s) && parseInt(s) >= 1900 && parseInt(s) <= new Date().getFullYear(), "Passing year must be a 4-digit number between 1900 and the current year"),
 });
 
 const citizenshipSchema = z.object({

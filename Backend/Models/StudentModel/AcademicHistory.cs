@@ -1,10 +1,11 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using FormBackend.Models.Enum;
 
 namespace FormBackend.Models
 {
-    public class AcademicHistory : BaseEntity
+    public class AcademicHistory : BaseIdEntity
     {
         [Required]
         public required string InstitutionName { get; set; }

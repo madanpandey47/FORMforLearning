@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
+using System.Linq;
 
 namespace FormBackend.Data
 {
@@ -13,17 +14,10 @@ namespace FormBackend.Data
         }
 
         public DbSet<Student> Students { get; set; }
-        public DbSet<Address> Addresses { get; set; }
         public DbSet<Parent> Parents { get; set; }
         public DbSet<AcademicHistory> AcademicHistories { get; set; }
         public DbSet<AcademicEnrollment> AcademicEnrollments { get; set; }
-        public DbSet<Achievement> Achievements { get; set; }
-        public DbSet<Citizenship> Citizenships { get; set; }
-        public DbSet<SecondaryInfos> SecondaryInfos { get; set; }
-        public DbSet<Disability> Disabilities { get; set; }
-        public DbSet<Hobby> Hobbies { get; set; }
         public DbSet<Faculty> Faculties { get; set; }
-        public DbSet<Scholarship> Scholarships { get; set; }
         
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -34,29 +28,22 @@ namespace FormBackend.Data
                 .Property(p => p.AnnualIncome)
                 .HasPrecision(18, 2);
 
-            modelBuilder.Entity<Scholarship>()
-                .Property(s => s.Amount)
-                .HasPrecision(18, 2);
-
             // Configure Student and its relationships with explicit foreign keys
             modelBuilder.Entity<Student>(entity =>
             {
                 entity.HasKey(e => e.PID);
 
-                entity.HasOne(s => s.Citizenship)
-                      .WithOne(c => c.Student)
-                      .HasForeignKey<Citizenship>(c => c.StudentPID)
-                      .OnDelete(DeleteBehavior.Cascade);
+                entity.OwnsOne(s => s.Citizenship, c => { c.ToTable("Citizenships"); });
+                entity.OwnsOne(s => s.SecondaryInfos, si => { si.ToTable("SecondaryInfos"); });
+                entity.OwnsOne(s => s.Disability, d => { d.ToTable("Disabilities"); });
+                entity.OwnsOne(s => s.Scholarship, sch => {
+                    sch.ToTable("Scholarships");
+                    sch.Property(s => s.Amount).HasPrecision(18, 2);
+                });
 
-                entity.HasOne(s => s.SecondaryInfos)
-                      .WithOne(si => si.Student)
-                      .HasForeignKey<SecondaryInfos>(si => si.StudentPID)
-                      .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasMany(s => s.Addresses)
-                      .WithOne(a => a.Student)
-                      .HasForeignKey(a => a.StudentPID)
-                      .OnDelete(DeleteBehavior.Cascade);
+                entity.OwnsMany(s => s.Addresses, a => { a.ToTable("Addresses"); });
+                entity.OwnsMany(s => s.Hobbies, h => { h.ToTable("Hobbies"); });
+                entity.OwnsMany(s => s.Achievements, a => { a.ToTable("Achievements"); });
 
                 entity.HasMany(s => s.Parents)
                       .WithOne(p => p.Student)
@@ -72,51 +59,47 @@ namespace FormBackend.Data
                       .WithOne(ae => ae.Student)
                       .HasForeignKey<AcademicEnrollment>(ae => ae.StudentPID)
                       .OnDelete(DeleteBehavior.Cascade);
-                
-                entity.HasMany(s => s.Achievements)
-                      .WithOne(a => a.Student)
-                      .HasForeignKey(a => a.StudentPID)
-                      .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasMany(s => s.Hobbies)
-                      .WithOne(h => h.Student)
-                      .HasForeignKey(h => h.StudentPID)
-                      .OnDelete(DeleteBehavior.Cascade);
-                
-                entity.HasOne(s => s.Disability)
-                      .WithOne(d => d.Student)
-                      .HasForeignKey<Disability>(d => d.StudentPID)
-                      .OnDelete(DeleteBehavior.Cascade);
-                
-                entity.HasOne(s => s.Scholarship)
-                      .WithOne(sch => sch.Student)
-                      .HasForeignKey<Scholarship>(sch => sch.StudentPID)
-                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Configure Faculty to AcademicEnrollment relationship
             modelBuilder.Entity<AcademicEnrollment>()
                 .HasOne(ae => ae.Faculty)
                 .WithMany() // No navigation property on Faculty back to AcademicEnrollment
-                .HasForeignKey(ae => ae.FacultyPID)
+                .HasForeignKey(ae => ae.FacultyId)
                 .OnDelete(DeleteBehavior.Restrict); // Don't delete a faculty if it's in use
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var entries = ChangeTracker
+            var studentEntries = ChangeTracker
                 .Entries()
-                .Where(e => e.Entity is BaseEntity && (
+                .Where(e => e.Entity is BaseStudentEntity && (
                         e.State == EntityState.Added
                         || e.State == EntityState.Modified));
 
-            foreach (var entityEntry in entries)
+            foreach (var entityEntry in studentEntries)
             {
-                ((BaseEntity)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
+                ((BaseStudentEntity)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
 
                 if (entityEntry.State == EntityState.Added)
                 {
-                    ((BaseEntity)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
+                    ((BaseStudentEntity)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
+                }
+            }
+
+            var idEntries = ChangeTracker
+                .Entries()
+                .Where(e => e.Entity is BaseIdEntity && (
+                        e.State == EntityState.Added
+                        || e.State == EntityState.Modified));
+
+            foreach (var entityEntry in idEntries)
+            {
+                ((BaseIdEntity)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
+
+                if (entityEntry.State == EntityState.Added)
+                {
+                    ((BaseIdEntity)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
                 }
             }
 

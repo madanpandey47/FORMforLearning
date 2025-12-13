@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FormBackend.Models
 {
-    public class AcademicEnrollment : BaseEntity
+    public class AcademicEnrollment : BaseIdEntity
     {
 
         [Required]
@@ -12,7 +12,7 @@ namespace FormBackend.Models
         public virtual Student? Student { get; set; }
 
         [Required]
-        public Guid FacultyPID { get; set; }
+        public int FacultyId { get; set; }
         public virtual Faculty? Faculty { get; set; }
 
         [Required]

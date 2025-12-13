@@ -1,9 +1,10 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using FormBackend.Models.Enum;
 
 namespace FormBackend.Models
 {
-    public class Faculty : BaseEntity
+    public class Faculty : BaseIdEntity
     {
         [Required]
         public FacultyType Type { get; set; }

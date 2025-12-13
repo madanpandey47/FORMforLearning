@@ -1,9 +1,9 @@
 import { useRouter } from "next/navigation";
 import React from "react";
-import { StudentSummaryDTO, Gender } from "@/lib/types";
+import { StudentDTO, Gender } from "@/lib/types";
 
 interface ApplicationCardProps {
-  student: StudentSummaryDTO;
+  student: StudentDTO;
   onDelete: (pid: string) => void;
 }
 
@@ -43,7 +43,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
     : undefined;
 
   return (
-    <div className="w-[400px] h-[200px] rounded-[30px] bg-[#e0e0e0] shadow-[15px_15px_30px_#bebebe,-15px_-15px_30px_#ffffff] flex p-4">
+    <div className="w-[400px] h-[200px] rounded-[30px] bg-[#ffffff] shadow-[15px_15px_30px_#bebebe,-15px_-15px_30px_#ffffff] flex p-4">
       {/* Left side - Profile Image and Name */}
       <div className="flex flex-col items-center justify-center w-1/3 border-r border-gray-300 pr-4">
         {fullImageUrl && !imageError ? (
@@ -66,7 +66,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
         )}
         <h2 className="text-base font-semibold text-center">
           {student.firstName}{" "}
-          {student.middleName && <span>{student.middleName} </span>}
+          {student.secondaryInfos?.middleName && <span>{student.secondaryInfos.middleName} </span>}
           {student.lastName}
         </h2>
       </div>
@@ -93,15 +93,15 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
               {student.primaryMobile}
             </p>
           )}
-          {student.programName && (
+          {student.academicEnrollment?.programName && (
             <p className="text-xs text-gray-700">
               <span className="font-semibold">Program:</span>{" "}
-              {student.programName}
+              {student.academicEnrollment.programName}
             </p>
           )}
-          {student.country && (
+          {student.addresses && student.addresses.length > 0 && (
             <p className="text-xs text-gray-700">
-              <span className="font-semibold">Country:</span> {student.country}
+              <span className="font-semibold">Country:</span> {student.addresses[0].country}
             </p>
           )}
         </div>

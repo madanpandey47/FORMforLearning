@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FormBackend.Models
 {
-    public class SecondaryInfos : BaseEntity
+    public class SecondaryInfos
     {
         public string? MiddleName { get; set; }
         [Phone]
@@ -11,9 +11,5 @@ namespace FormBackend.Models
         [EmailAddress]
         public string? AlternateEmail { get; set; }
         public string? AcademicCertificatePaths { get; set; }
-
-        [ForeignKey("Student")]
-        public Guid StudentPID { get; set; }
-        public virtual Student? Student { get; set; }
     }
 }

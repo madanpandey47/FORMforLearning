@@ -9,7 +9,7 @@ namespace FormBackend.Core.Interfaces
     {
         Task<StudentReadDTO> CreateStudentAsync(CreateStudentDTO createStudentDto);
         Task<StudentReadDTO?> GetStudentByPIDAsync(Guid pid);
-        Task<IEnumerable<StudentSummaryDTO>> GetAllStudentsAsync();
+        Task<IEnumerable<StudentReadDTO>> GetAllStudentsAsync();
         Task<StudentReadDTO?> UpdateStudentAsync(Guid pid, UpdateStudentDTO updateStudentDto);
         Task<bool> DeleteStudentAsync(Guid pid);
     }

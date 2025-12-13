@@ -1,16 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import ApplicationCard from "@/components/ApplicationCard";
-import { StudentSummaryDTO } from "@/lib/types";
+import { StudentDTO } from "@/lib/types";
 import { deleteStudent } from "@/lib/api/student";
 
-async function getStudents(): Promise<StudentSummaryDTO[]> {
+async function getStudents(): Promise<StudentDTO[]> {
   try {
     const res = await fetch("http://localhost:5000/api/Student");
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
     }
-    const students: StudentSummaryDTO[] = await res.json();
+    const students: StudentDTO[] = await res.json();
     return students;
   } catch (error) {
     console.error("Failed to fetch students:", error);
@@ -19,7 +19,7 @@ async function getStudents(): Promise<StudentSummaryDTO[]> {
 }
 
 const Home = () => {
-  const [students, setStudents] = useState<StudentSummaryDTO[]>([]);
+  const [students, setStudents] = useState<StudentDTO[]>([]);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -48,7 +48,7 @@ const Home = () => {
         Application Forms
       </h1>
       <div className="flex flex-wrap gap-8 justify-center">
-        {students.map((student: StudentSummaryDTO) => (
+        {students.map((student: StudentDTO) => (
           <ApplicationCard
             key={student.pid}
             student={student}
