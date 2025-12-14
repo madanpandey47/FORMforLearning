@@ -33,29 +33,32 @@ export const addressSchema = z.object({
   province: z.string().min(1, "Province is required"),
   municipality: z.string().min(1, "Municipality is required"),
   ward: z.string().min(1, "Ward is required"),
-  street: z.string().optional(),
+  street: z.string().nullable().optional(),
   country: z.string().min(3, "Country is required"),
   type: z.union([z.literal(0), z.literal(1), z.literal(2)]),
 });
 
 export const parentSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
-  middleName: z.string().optional(),
+  middleName: z.string().nullable().optional(),
   lastName: z.string().min(2, "Last name is required"),
   relation: ParentTypeEnum.nullable(),
-  occupation: z.string().optional(),
+  occupation: z.string().nullable().optional(),
   annualIncome: z
     .union([z.number().nonnegative(), z.nan()])
     .optional()
     .nullable(),
-  mobileNumber: z.string().optional(),
-  email: z.union([z.string().email("Invalid email"), z.literal("")]).optional(),
+  mobileNumber: z.string().nullable().optional(),
+  email: z
+    .union([z.string().email("Invalid email"), z.literal(""), z.literal(null)])
+    .optional()
+    .nullable(),
 });
 
 export const academicHistorySchema = z.object({
   institutionName: z.string().min(4, "Institution name is required"),
   level: z.number().int().nullable(),
-  board: z.string().optional(),
+  board: z.string().nullable().optional(),
   percentageOrGPA: z.number().min(0).max(100).nullable(),
   passedYear: z
     .number()
@@ -74,26 +77,31 @@ const citizenshipSchema = z.object({
 
 const contactInfoSchema = z.object({
   primaryMobile: z.string().min(7, "Enter a valid mobile number"),
-  alternateMobile: z.string().optional(),
+  alternateMobile: z.string().nullable().optional(),
   primaryEmail: z.string().email("Invalid email"),
   alternateEmail: z
-    .union([z.string().email("Invalid alternate email"), z.literal("")])
-    .optional(),
+    .union([
+      z.string().email("Invalid alternate email"),
+      z.literal(""),
+      z.literal(null),
+    ])
+    .optional()
+    .nullable(),
 });
 
 const achievementSchema = z.object({
-  title: z.string().optional(),
-  description: z.string().optional(),
-  dateOfAchievement: z.string().optional(),
+  title: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  dateOfAchievement: z.string().nullable().optional(),
 });
 
 const hobbiesSchema = z.object({
-  name: z.string().optional(),
+  name: z.string().nullable().optional(),
 });
 
 const disabilitySchema = z.object({
-  disabilityType: z.string().optional(),
-  description: z.string().optional(),
+  disabilityType: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
   disabilityPercentage: z
     .union([z.number().min(0).max(100), z.nan()])
     .optional()
@@ -101,17 +109,17 @@ const disabilitySchema = z.object({
 });
 
 const scholarshipSchema = z.object({
-  scholarshipName: z.string().optional(),
+  scholarshipName: z.string().nullable().optional(),
   amount: z.union([z.number().nonnegative(), z.nan()]).optional().nullable(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
+  startDate: z.string().nullable().optional(),
+  endDate: z.string().nullable().optional(),
 });
 
 const academicEnrollmentSchema = z.object({
   facultyId: z.number().int().min(1, "Faculty is required").nullable(),
   programName: z.string().min(1, "Program name is required"),
   enrollmentDate: dateStringSchema,
-  studentIdNumber: z.string().optional(),
+  studentIdNumber: z.string().nullable().optional(),
 });
 
 export const formSchema = z.object({

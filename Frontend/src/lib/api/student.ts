@@ -3,26 +3,71 @@ import { FieldValues } from "react-hook-form";
 
 const API_BASE_URL = "http://localhost:5000/api/student";
 
+const isEmptyObject = (obj: unknown): boolean => {
+  if (obj === null || obj === undefined) return true;
+  if (typeof obj !== "object" || obj instanceof File) return false;
+  if (Array.isArray(obj)) {
+    return obj.length === 0 || obj.every((item) => isEmptyObject(item));
+  }
+  const record = obj as Record<string, unknown>;
+  return Object.keys(record).every(
+    (key) =>
+      record[key] === null ||
+      record[key] === undefined ||
+      record[key] === "" ||
+      (typeof record[key] === "number" && isNaN(record[key] as number)) ||
+      (typeof record[key] === "object" && isEmptyObject(record[key]))
+  );
+};
+
 const sanitizeData = (obj: unknown): unknown => {
   if (obj === null || obj === undefined) return null;
 
   if (Array.isArray(obj)) {
-    return obj.map((item) => sanitizeData(item));
+    const sanitized = obj
+      .map((item) => sanitizeData(item))
+      .filter((item) => !isEmptyObject(item));
+    return sanitized.length > 0 ? sanitized : null;
   }
 
   if (typeof obj === "object" && !(obj instanceof File)) {
     const sanitized: FieldValues = {};
     const objRecord = obj as Record<string, unknown>;
+
     for (const key in objRecord) {
       if (Object.prototype.hasOwnProperty.call(objRecord, key)) {
         const value = objRecord[key];
+
+        // Handle NaN values - convert to null
+        if (typeof value === "number" && isNaN(value)) {
+          sanitized[key] = null;
+          continue;
+        }
+
+        // Convert empty strings to null for date fields
         if (
           value === "" &&
           (key.toLowerCase().includes("date") || key === "studentIdNumber")
         ) {
           sanitized[key] = null;
-        } else if (value !== undefined) {
-          sanitized[key] = sanitizeData(value);
+          continue;
+        }
+
+        if (value !== undefined && value !== null) {
+          const sanitizedValue = sanitizeData(value);
+
+          // Skip optional array/object fields if empty
+          if (
+            ["hobbies", "achievements", "scholarship", "disability"].includes(
+              key
+            )
+          ) {
+            if (!isEmptyObject(sanitizedValue)) {
+              sanitized[key] = sanitizedValue;
+            }
+          } else {
+            sanitized[key] = sanitizedValue;
+          }
         }
       }
     }
@@ -83,6 +128,8 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
     middleName,
     citizenship,
     secondaryInfos,
+    academicHistories,
+    scholarship,
     ...rest
   } = formData;
 
@@ -93,6 +140,31 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
     primaryEmail: contactInfo?.primaryEmail || "",
     citizenship: citizenship,
   };
+
+  // Transform academicHistories - convert passedYear number to date string
+  if (Array.isArray(academicHistories)) {
+    transformed.academicHistories = academicHistories.map(
+      (ah: FieldValues) => ({
+        ...ah,
+        passedYear:
+          ah.passedYear && typeof ah.passedYear === "number"
+            ? `${ah.passedYear}-01-01`
+            : ah.passedYear,
+      })
+    );
+  }
+
+  // Transform scholarship - filter out NaN values
+  if (scholarship) {
+    const transformedScholarship: FieldValues = { ...scholarship };
+    if (
+      typeof transformedScholarship.amount === "number" &&
+      isNaN(transformedScholarship.amount)
+    ) {
+      transformedScholarship.amount = null;
+    }
+    transformed.scholarship = transformedScholarship;
+  }
 
   // Add secondary info with middleName and alternate contact
   if (

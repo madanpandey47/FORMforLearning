@@ -66,7 +66,9 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
         )}
         <h2 className="text-base font-semibold text-center">
           {student.firstName}{" "}
-          {student.secondaryInfos?.middleName && <span>{student.secondaryInfos.middleName} </span>}
+          {student.secondaryInfos?.middleName && (
+            <span>{student.secondaryInfos.middleName} </span>
+          )}
           {student.lastName}
         </h2>
       </div>
@@ -93,17 +95,14 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
               {student.primaryMobile}
             </p>
           )}
-          {student.academicEnrollment?.programName && (
             <p className="text-xs text-gray-700">
               <span className="font-semibold">Program:</span>{" "}
-              {student.academicEnrollment.programName}
+              {student.academicEnrollment?.programName || "N/A"}
             </p>
-          )}
-          {student.addresses && student.addresses.length > 0 && (
             <p className="text-xs text-gray-700">
-              <span className="font-semibold">Country:</span> {student.addresses[0].country}
+              <span className="font-semibold">Country:</span>{" "}
+              {student.addresses.find(a => a.type === 0)?.country?.trim() || "N/A"}
             </p>
-          )}
         </div>
 
         {/* Action Buttons */}

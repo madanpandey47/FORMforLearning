@@ -183,7 +183,6 @@ const FormPage: React.FC = () => {
     name: "temporaryAddress.province",
   });
 
-  // Load lookup data
   React.useEffect(() => {
     (async () => {
       try {
@@ -325,54 +324,6 @@ const FormPage: React.FC = () => {
     };
   }, [profileImagePreviewUrl, academicCertificatesPreviewUrls]);
 
-  const handleNext = async () => {
-    const fields = steps[currentStep - 1].fields;
-    const output = await trigger(fields as (keyof FormData)[]);
-    if (output) setCurrentStep((s) => Math.min(s + 1, steps.length));
-  };
-
-  const handleBack = () => {
-    setCurrentStep((s) => Math.max(s - 1, 1));
-  };
-
-  const handleCancel = () => {
-    router.push("/");
-  };
-
-  const handleSave = () => {
-    handleSubmit(onSubmit, onError)();
-  };
-
-  const onSubmit = async (data: FormData) => {
-    try {
-      let result;
-      if (isEditMode && studentId) {
-        result = await updateStudent(studentId, data);
-      } else {
-        result = await submitStudent(data);
-      }
-      if (result) {
-        alert(
-          isEditMode
-            ? "Application updated successfully!"
-            : "Application submitted successfully!"
-        );
-        router.push("/"); // Redirect to home on success
-      }
-    } catch (err) {
-      alert("Submission failed. Check console.");
-      console.error(err);
-    }
-  };
-
-  const onError = (err: Record<string, { message?: string }>) => {
-    console.error("Validation errors:", err);
-    const messages = Object.values(err)
-      .map((e) => e?.message)
-      .filter(Boolean);
-    alert("Please fix errors:\n" + messages.join("\n"));
-  };
-
   const countryOptions = [
     { label: "Nepal", value: "Nepal" },
     { label: "India", value: "India" },
@@ -420,6 +371,87 @@ const FormPage: React.FC = () => {
     { name: "Documents & Confirmation", fields: ["agree"] },
   ];
 
+  const handleNext = async () => {
+    const fields = steps[currentStep - 1].fields;
+    const output = await trigger(fields as (keyof FormData)[]);
+    if (output) setCurrentStep((s) => Math.min(s + 1, steps.length));
+  };
+
+  const handleBack = () => {
+    setCurrentStep((s) => Math.max(s - 1, 1));
+  };
+
+  const handleCancel = () => {
+    router.push("/");
+  };
+
+  const handleSave = async () => {
+    const isValid = await trigger();
+    if (isValid) {
+      const data = getValues();
+      await onSubmit(data);
+    } else {
+      onError(errors as Record<string, { message?: string }>);
+    }
+  };
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      let result;
+      if (isEditMode && studentId) {
+        result = await updateStudent(studentId, data);
+      } else {
+        result = await submitStudent(data);
+      }
+      if (result) {
+        alert(
+          isEditMode
+            ? "Application updated successfully!"
+            : "Application submitted successfully!"
+        );
+        router.push("/"); // Redirect to home on success
+      }
+    } catch (err) {
+      alert("Submission failed. Check console.");
+      console.error(err);
+    }
+  };
+
+  const onError = (err: Record<string, { message?: string }>) => {
+    console.error("Validation errors:", err);
+    const errorMessages: string[] = [];
+
+    // Recursively extract error messages from nested objects
+    const extractMessages = (
+      obj: Record<string, unknown>,
+      prefix = ""
+    ): void => {
+      Object.entries(obj).forEach(([key, value]: [string, unknown]) => {
+        const fieldName = prefix ? `${prefix}.${key}` : key;
+        if (typeof value === "object" && value !== null && "message" in value) {
+          const errorObj = value as { message?: string };
+          if (errorObj.message) {
+            errorMessages.push(`${fieldName}: ${errorObj.message}`);
+          }
+        } else if (
+          typeof value === "object" &&
+          value !== null &&
+          !Array.isArray(value)
+        ) {
+          extractMessages(value as Record<string, unknown>, fieldName);
+        }
+      });
+    };
+
+    extractMessages(err);
+
+    if (errorMessages.length > 0) {
+      alert("Please fix errors:\n" + errorMessages.join("\n"));
+    } else {
+      alert("Please check all required fields before submitting.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-100 to-slate-50 py-8">
       <div className="mx-auto max-w-4xl rounded-lg bg-white p-8 shadow-lg">
@@ -439,7 +471,17 @@ const FormPage: React.FC = () => {
           </div>
         </div>
 
-        <Form onSubmit={handleSubmit(onSubmit, onError)}>
+        <Form
+          onSubmit={handleSubmit(async (data) => {
+            // Validate all fields before submission
+            const isValid = await trigger();
+            if (!isValid) {
+              onError(errors as Record<string, { message?: string }>);
+              return;
+            }
+            await onSubmit(data);
+          }, onError)}
+        >
           {/* STEP 1: Personal */}
           {currentStep === 1 && (
             <div className="space-y-6">

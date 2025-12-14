@@ -120,7 +120,6 @@ export interface ScholarshipDTO {
 }
 
 export interface StudentSummaryDTO {
-
   pid: string;
 
   firstName: string;
@@ -140,13 +139,9 @@ export interface StudentSummaryDTO {
   programName?: string;
 
   country?: string;
-
 }
 
-
-
 export interface StudentDTO {
-
   pid: string;
 
   firstName: string;
@@ -164,8 +159,6 @@ export interface StudentDTO {
   bloodGroup: BloodType;
 
   profileImagePath?: string;
-
-
 
   citizenship?: CitizenshipDTO;
 
@@ -186,5 +179,4 @@ export interface StudentDTO {
   disability?: DisabilityDTO;
 
   scholarship?: ScholarshipDTO;
-
 }
