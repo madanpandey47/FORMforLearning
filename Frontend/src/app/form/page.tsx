@@ -92,7 +92,7 @@ const FormPage: React.FC = () => {
           level: 0,
           board: "",
           percentageOrGPA: 0,
-          passedYear: "2024",
+          passedYear: 2024,
         },
       ],
       hobbies: [{ name: "" }],
@@ -225,101 +225,53 @@ const FormPage: React.FC = () => {
     if (isEditMode && studentId) {
       (async () => {
         try {
-          const student = await getStudent(studentId);
-          if (student) {
-            const formData: Partial<FormData> = {
-              pid: student.pid,
-              firstName: student.firstName,
-              middleName: student.secondaryInfos?.middleName || "",
-              lastName: student.lastName,
-              dateOfBirth: student.dateOfBirth.split("T")[0],
-              gender: student.gender,
-              bloodGroup: student.bloodGroup,
-              citizenship: student.citizenship
-                ? {
-                    ...student.citizenship,
-                    dateOfIssuance: student.citizenship.dateOfIssuance?.split("T")[0] || "",
-                  }
-                : {
-                    citizenshipNumber: "",
-                    countryOfIssuance: "",
-                    dateOfIssuance: "",
-                    placeOfIssuance: "",
-                  },
-              contactInfo: {
-                primaryMobile: student.primaryMobile,
-                primaryEmail: student.primaryEmail,
-                alternateMobile: student.secondaryInfos?.alternateMobile || "",
-                alternateEmail: student.secondaryInfos?.alternateEmail || "",
-              },
-              permanentAddress: student.addresses?.find((a) => a.type === 0) || {
-                province: "",
-                municipality: "",
-                ward: "",
-                street: "",
-                country: "",
-                type: 0,
-              },
-              temporaryAddress: student.addresses?.find((a) => a.type === 1) || {
-                province: "",
-                municipality: "",
-                ward: "",
-                street: "",
-                country: "",
-                type: 1,
-              },
-              parents: student.parents?.length
-                ? student.parents.map((p) => ({
-                    ...p,
-                  }))
-                : [{ firstName: "", lastName: "", relation: 0 }],
-              academicHistories: student.academicHistories?.length
-                ? student.academicHistories.map((ah) => ({
-                    ...ah,
-                    passedYear: ah.passedYear,
-                  }))
-                : [
-                    {
-                      institutionName: "",
-                      level: 0,
-                      board: "",
-                      percentageOrGPA: 0,
-                      passedYear: "2024",
-                    },
-                  ],
-              hobbies: student.hobbies?.length
-                ? student.hobbies
-                : [{ name: "" }],
-              achievements: student.achievements?.length
-                ? student.achievements.map((a) => ({
-                    ...a,
-                    dateOfAchievement: a.dateOfAchievement?.split("T")[0] || "",
-                  }))
-                : [{ title: "", description: "", dateOfAchievement: "" }],
-              academicEnrollment: student.academicEnrollment
-                ? {
-                  ...student.academicEnrollment,
-                    enrollmentDate:
-                      student.academicEnrollment.enrollmentDate?.split(
-                        "T"
-                      )[0] || "",
-                  }
-                : {
-                    facultyId: 0,
-                    programName: "",
-                    enrollmentDate: "",
-                    studentIdNumber: "",
-                  },
-              disability: student.disability || undefined,
-              scholarship: student.scholarship || undefined,
-              secondaryInfos: student.secondaryInfos || undefined,
-            };
+          const studentFormData = await getStudent(studentId);
+          if (studentFormData) {
+            interface AcademicHistoryApiData {
+              passedYear?: string;
+              [key: string]: unknown;
+            }
+            if (studentFormData.academicHistories) {
+              studentFormData.academicHistories =
+                studentFormData.academicHistories.map(
+                  (history: AcademicHistoryApiData) => ({
+                    ...history,
+                    passedYear: history.passedYear
+                      ? new Date(history.passedYear).getFullYear()
+                      : null,
+                  })
+                );
+            }
 
-            reset(formData as FormData);
+            reset(studentFormData as FormData);
+            setValue("agree", true); // Set agree to true in edit mode
 
-            if (student.profileImagePath) {
+            if (studentFormData.profileImagePath) {
               setProfileImagePreviewUrl(
-                `http://localhost:5000${student.profileImagePath}`
+                `http://localhost:5000${studentFormData.profileImagePath}`
+              );
+            }
+
+            if (studentFormData.permanentAddress?.province) {
+              getMunicipalities(studentFormData.permanentAddress.province).then(
+                (municipalities) => {
+                  setPermanentMunicipalities(municipalities);
+                  setValue(
+                    "permanentAddress.municipality",
+                    studentFormData.permanentAddress.municipality
+                  );
+                }
+              );
+            }
+            if (studentFormData.temporaryAddress?.province) {
+              getMunicipalities(studentFormData.temporaryAddress.province).then(
+                (municipalities) => {
+                  setTemporaryMunicipalities(municipalities);
+                  setValue(
+                    "temporaryAddress.municipality",
+                    studentFormData.temporaryAddress.municipality
+                  );
+                }
               );
             }
 
@@ -343,7 +295,7 @@ const FormPage: React.FC = () => {
             if (
               perm.province && // only check if permanent address exists
               JSON.stringify(permWithoutType) ===
-              JSON.stringify(tempWithoutType)
+                JSON.stringify(tempWithoutType)
             ) {
               setSameAsPermanent(true);
             }
@@ -353,7 +305,7 @@ const FormPage: React.FC = () => {
         }
       })();
     }
-  }, [isEditMode, studentId, reset, getValues]);
+  }, [isEditMode, studentId, reset, getValues, setValue]);
 
   // Sync temporary address
   useSyncTemporaryAddress(
@@ -387,11 +339,8 @@ const FormPage: React.FC = () => {
     router.push("/");
   };
 
-  const handleSave = async () => {
-    const isValid = await trigger();
-    if (isValid) {
-      handleSubmit(onSubmit)();
-    }
+  const handleSave = () => {
+    handleSubmit(onSubmit, onError)();
   };
 
   const onSubmit = async (data: FormData) => {
@@ -448,7 +397,7 @@ const FormPage: React.FC = () => {
     },
     {
       name: "Address",
-      fields: ["permanentAddress.province", "temporaryAddress.province"],
+      fields: ["permanentAddress", "temporaryAddress"],
     },
     {
       name: "Family Details",
@@ -760,7 +709,7 @@ const FormPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() =>
-                  appendParent({ pid: undefined, firstName: "", lastName: "", relation: 0 })
+                  appendParent({ firstName: "", lastName: "", relation: 0 })
                 }
                 className="flex items-center gap-2 text-sky-600 hover:text-sky-700"
               >
@@ -826,12 +775,8 @@ const FormPage: React.FC = () => {
                     <Input
                       label="Passing Year"
                       type="number"
-                      {...register(`academicHistories.${i}.passingYear`, {
-                        valueAsNumber: true,
-                      })}
-                      error={
-                        errors.academicHistories?.[i]?.passingYear?.message
-                      }
+                      {...register(`academicHistories.${i}.passedYear`)}
+                      error={errors.academicHistories?.[i]?.passedYear?.message}
                     />
                   </div>
                 </div>
@@ -840,12 +785,11 @@ const FormPage: React.FC = () => {
                 type="button"
                 onClick={() =>
                   appendAcademic({
-                    pid: undefined,
                     institutionName: "",
-                    level: 0,
+                    level: null,
                     board: "",
-                    percentageOrGPA: 0,
-                    passingYear: 0,
+                    percentageOrGPA: null,
+                    passedYear: null,
                   })
                 }
                 className="flex items-center gap-2 text-sky-600"
@@ -951,7 +895,7 @@ const FormPage: React.FC = () => {
                 ))}
                 <button
                   type="button"
-                  onClick={() => appendHobby({ pid: undefined, name: "" })}
+                  onClick={() => appendHobby({ name: "" })}
                   className="flex items-center gap-2 text-sky-600"
                 >
                   <FiPlus /> Add Hobby
@@ -1001,7 +945,6 @@ const FormPage: React.FC = () => {
                   type="button"
                   onClick={() =>
                     appendAchievement({
-                      pid: undefined,
                       title: "",
                       description: "",
                       dateOfAchievement: "",
@@ -1189,7 +1132,7 @@ const FormPage: React.FC = () => {
                   <Checkbox
                     label="I agree to the terms and conditions"
                     name="agree"
-                    checked={field.value}
+                    checked={!!field.value}
                     onChange={field.onChange}
                     error={errors.agree?.message}
                   />

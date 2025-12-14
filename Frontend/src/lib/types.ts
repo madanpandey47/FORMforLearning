@@ -81,7 +81,7 @@ export interface AcademicHistoryDTO {
   level?: AcademicLevel;
   board?: string;
   percentageOrGPA?: number;
-  passedYear?: string;
+  passedYear?: number;
 }
 
 export interface AcademicEnrollmentDTO {

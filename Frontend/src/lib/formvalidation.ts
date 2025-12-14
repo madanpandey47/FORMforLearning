@@ -42,20 +42,27 @@ export const parentSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
   middleName: z.string().optional(),
   lastName: z.string().min(2, "Last name is required"),
-  relation: ParentTypeEnum,
+  relation: ParentTypeEnum.nullable(),
   occupation: z.string().optional(),
-  annualIncome: z.union([z.number().nonnegative(), z.nan()]).optional(),
+  annualIncome: z
+    .union([z.number().nonnegative(), z.nan()])
+    .optional()
+    .nullable(),
   mobileNumber: z.string().optional(),
   email: z.union([z.string().email("Invalid email"), z.literal("")]).optional(),
 });
 
 export const academicHistorySchema = z.object({
   institutionName: z.string().min(4, "Institution name is required"),
-  level: z.number().int(),
+  level: z.number().int().nullable(),
   board: z.string().optional(),
-  percentageOrGPA: z.number().min(0).max(100),
-  passedYear: z.string()
-    .refine((s) => s.length === 4 && /^\d{4}$/.test(s) && parseInt(s) >= 1900 && parseInt(s) <= new Date().getFullYear(), "Passing year must be a 4-digit number between 1900 and the current year"),
+  percentageOrGPA: z.number().min(0).max(100).nullable(),
+  passedYear: z
+    .number()
+    .int()
+    .min(1900)
+    .max(new Date().getFullYear())
+    .nullable(),
 });
 
 const citizenshipSchema = z.object({
@@ -89,18 +96,19 @@ const disabilitySchema = z.object({
   description: z.string().optional(),
   disabilityPercentage: z
     .union([z.number().min(0).max(100), z.nan()])
-    .optional(),
+    .optional()
+    .nullable(),
 });
 
 const scholarshipSchema = z.object({
   scholarshipName: z.string().optional(),
-  amount: z.union([z.number().nonnegative(), z.nan()]).optional(),
+  amount: z.union([z.number().nonnegative(), z.nan()]).optional().nullable(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
 });
 
 const academicEnrollmentSchema = z.object({
-  facultyId: z.number().int().min(1, "Faculty is required"),
+  facultyId: z.number().int().min(1, "Faculty is required").nullable(),
   programName: z.string().min(1, "Program name is required"),
   enrollmentDate: dateStringSchema,
   studentIdNumber: z.string().optional(),
@@ -114,8 +122,8 @@ export const formSchema = z.object({
     (val) => val !== undefined,
     "Date of birth is required"
   ),
-  gender: GenderEnum,
-  bloodGroup: BloodGroupEnum,
+  gender: GenderEnum.nullable(),
+  bloodGroup: BloodGroupEnum.nullable(),
   citizenship: citizenshipSchema,
   contactInfo: contactInfoSchema,
   permanentAddress: addressSchema,

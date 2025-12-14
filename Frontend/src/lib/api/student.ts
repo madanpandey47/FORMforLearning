@@ -3,7 +3,7 @@ import { FieldValues } from "react-hook-form";
 
 const API_BASE_URL = "http://localhost:5000/api/student";
 
-const sanitizeData = (obj: any): any => {
+const sanitizeData = (obj: unknown): unknown => {
   if (obj === null || obj === undefined) return null;
 
   if (Array.isArray(obj)) {
@@ -12,9 +12,10 @@ const sanitizeData = (obj: any): any => {
 
   if (typeof obj === "object" && !(obj instanceof File)) {
     const sanitized: FieldValues = {};
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        const value = obj[key];
+    const objRecord = obj as Record<string, unknown>;
+    for (const key in objRecord) {
+      if (Object.prototype.hasOwnProperty.call(objRecord, key)) {
+        const value = objRecord[key];
         if (
           value === "" &&
           (key.toLowerCase().includes("date") || key === "studentIdNumber")
@@ -33,7 +34,7 @@ const sanitizeData = (obj: any): any => {
 
 // Helper to convert a JS object to FormData
 const objectToFormData = (
-  obj: any,
+  obj: unknown,
   formData = new FormData(),
   parentKey = ""
 ) => {
@@ -41,9 +42,14 @@ const objectToFormData = (
     return;
   }
 
-  if (typeof obj === "object" && !(obj instanceof File) && !Array.isArray(obj)) {
-    Object.keys(obj).forEach((key) => {
-      const value = obj[key];
+  if (
+    typeof obj === "object" &&
+    !(obj instanceof File) &&
+    !Array.isArray(obj)
+  ) {
+    const objRecord = obj as Record<string, unknown>;
+    Object.keys(objRecord).forEach((key) => {
+      const value = objRecord[key];
       const newKey = parentKey ? `${parentKey}.${key}` : key;
       objectToFormData(value, formData, newKey);
     });
@@ -55,11 +61,18 @@ const objectToFormData = (
   } else {
     // Primitives or Files
     if (parentKey) {
-      formData.append(parentKey, obj);
+      if (obj instanceof File) {
+        formData.append(parentKey, obj);
+      } else if (
+        typeof obj === "string" ||
+        typeof obj === "number" ||
+        typeof obj === "boolean"
+      ) {
+        formData.append(parentKey, String(obj));
+      }
     }
   }
 };
-
 
 // Transform form data structure to match backend DTO
 export const transformToDTO = (formData: FieldValues): FieldValues => {
@@ -110,6 +123,86 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
   return transformed;
 };
 
+// Transform backend DTO to form data structure
+export const transformFromDTO = (dto: StudentDTO): FieldValues => {
+  const {
+    primaryMobile,
+    primaryEmail,
+    secondaryInfos,
+    addresses,
+    parents,
+    academicHistories,
+    hobbies,
+    achievements,
+    dateOfBirth,
+    citizenship,
+    academicEnrollment,
+    scholarship,
+    ...rest
+  } = dto;
+
+  const transformed: FieldValues = {
+    ...rest,
+    dateOfBirth: dateOfBirth
+      ? new Date(dateOfBirth).toISOString().split("T")[0]
+      : "",
+    middleName: secondaryInfos?.middleName || "",
+    contactInfo: {
+      primaryMobile: primaryMobile || "",
+      primaryEmail: primaryEmail || "",
+      alternateMobile: secondaryInfos?.alternateMobile || "",
+      alternateEmail: secondaryInfos?.alternateEmail || "",
+    },
+    permanentAddress: addresses?.find((a) => a.type === 0) || {},
+    temporaryAddress: addresses?.find((a) => a.type === 1) || {},
+    parents: parents?.length ? parents : [{}],
+    academicHistories: academicHistories?.length
+      ? academicHistories.map((ah) => ({
+          ...ah,
+          passedYear: ah.passedYear,
+        }))
+      : [{}],
+    hobbies: hobbies?.length ? hobbies : [{}],
+    achievements: achievements?.length
+      ? achievements.map((a) => ({
+          ...a,
+          dateOfAchievement: a.dateOfAchievement?.split("T")[0] || "",
+        }))
+      : [{}],
+    citizenship: citizenship
+      ? {
+          ...citizenship,
+          dateOfIssuance: citizenship.dateOfIssuance
+            ? new Date(citizenship.dateOfIssuance).toISOString().split("T")[0]
+            : "",
+        }
+      : {},
+    academicEnrollment: academicEnrollment
+      ? {
+          ...academicEnrollment,
+          enrollmentDate: academicEnrollment.enrollmentDate
+            ? new Date(academicEnrollment.enrollmentDate)
+                .toISOString()
+                .split("T")[0]
+            : "",
+        }
+      : {},
+    scholarship: scholarship
+      ? {
+          ...scholarship,
+          startDate: scholarship.startDate
+            ? new Date(scholarship.startDate).toISOString().split("T")[0]
+            : "",
+          endDate: scholarship.endDate
+            ? new Date(scholarship.endDate).toISOString().split("T")[0]
+            : "",
+        }
+      : {},
+  };
+
+  return transformed;
+};
+
 export const submitStudent = async (
   data: FieldValues
 ): Promise<StudentDTO | null> => {
@@ -137,12 +230,12 @@ export const submitStudent = async (
         }
       });
     }
-    
+
     const response = await fetch(API_BASE_URL, {
       method: "POST",
       body: formData,
     });
-    
+
     const responseData = await response.json();
 
     if (!response.ok) {
@@ -151,7 +244,7 @@ export const submitStudent = async (
         responseData.message || "Failed to submit student application"
       );
     }
-    
+
     return responseData;
   } catch (error) {
     console.error("Error submitting student:", error);
@@ -159,7 +252,9 @@ export const submitStudent = async (
   }
 };
 
-export const getStudent = async (pid: string): Promise<StudentDTO | null> => {
+export const getStudentById = async (
+  pid: string
+): Promise<StudentDTO | null> => {
   try {
     const response = await fetch(`${API_BASE_URL}/${pid}`);
 
@@ -170,6 +265,19 @@ export const getStudent = async (pid: string): Promise<StudentDTO | null> => {
     return await response.json();
   } catch (error) {
     console.error("Error fetching student:", error);
+    return null;
+  }
+};
+
+export const getStudent = async (pid: string): Promise<FieldValues | null> => {
+  try {
+    const studentDTO = await getStudentById(pid);
+    if (studentDTO) {
+      return transformFromDTO(studentDTO);
+    }
+    return null;
+  } catch (error) {
+    console.error("Error transforming student data:", error);
     return null;
   }
 };
@@ -186,21 +294,20 @@ export const deleteStudent = async (pid: string): Promise<void> => {
 
 export const updateStudent = async (
   pid: string,
-  data: FieldValues, // Pass the entire form data
+  data: FieldValues // Pass the entire form data
 ): Promise<StudentDTO> => {
-  
   const formData = new FormData();
   const { profileImage, academicCertificates, ...restOfData } = data;
-  
+
   // 1. Transform the form structure to match backend DTO
   const transformedData = transformToDTO(restOfData);
-  
+
   // 2. Sanitize
-  const sanitizedData = sanitizeData(transformedData);
+  const sanitizedData = sanitizeData(transformedData) as FieldValues;
 
   // 3. Set PID for the update
   sanitizedData.pid = pid;
-  
+
   // 4. Convert the DTO to form data
   objectToFormData(sanitizedData, formData);
 
