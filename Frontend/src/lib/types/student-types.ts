@@ -18,22 +18,132 @@ export enum BloodType {
 export enum AddressType {
   Permanent = 0,
   Temporary = 1,
-  Correspondence = 2,
 }
 
 export enum ParentType {
   Father = 0,
   Mother = 1,
-  Guardian = 2,
+  Sibling = 2,
+  Other = 3,
 }
 
 export enum AcademicLevel {
-  SEE = 0,
-  PlusTwo = 1,
+  Secondary = 0,
+  HighSchool = 1,
   Bachelors = 2,
   Masters = 3,
-  PHD = 4,
 }
+
+export enum FacultyType {
+  Science = 0,
+  Commerce = 1,
+  Arts = 2,
+  Engineering = 3,
+  Medicine = 4,
+  Law = 5,
+  Education = 6,
+  Management = 7,
+  IT = 8,
+  Agriculture = 9,
+  Forestry = 10,
+  Humanities = 11,
+  SocialSciences = 12,
+  FineArts = 13,
+  Journalism = 14,
+  PublicHealth = 15,
+  Architecture = 16,
+}
+
+// Enum Mappers
+export const genderMap: Record<Gender | number | string, string> = {
+  [Gender.Male]: "Male",
+  [Gender.Female]: "Female",
+  [Gender.Other]: "Other",
+};
+
+export const bloodTypeMap: Record<BloodType | number | string, string> = {
+  [BloodType.APositive]: "A+",
+  [BloodType.ANegative]: "A-",
+  [BloodType.BPositive]: "B+",
+  [BloodType.BNegative]: "B-",
+  [BloodType.ABPositive]: "AB+",
+  [BloodType.ABNegative]: "AB-",
+  [BloodType.OPositive]: "O+",
+  [BloodType.ONegative]: "O-",
+};
+
+export const addressTypeMap: Record<AddressType | number | string, string> = {
+  [AddressType.Permanent]: "Permanent Address",
+  [AddressType.Temporary]: "Temporary Address",
+};
+
+export const parentTypeMap: Record<ParentType | number | string, string> = {
+  [ParentType.Father]: "Father",
+  [ParentType.Mother]: "Mother",
+  [ParentType.Sibling]: "Sibling",
+  [ParentType.Other]: "Other",
+};
+
+export const academicLevelMap: Record<AcademicLevel | number | string, string> =
+  {
+    [AcademicLevel.Secondary]: "Secondary",
+    [AcademicLevel.HighSchool]: "High School",
+    [AcademicLevel.Bachelors]: "Bachelors",
+    [AcademicLevel.Masters]: "Masters",
+  };
+
+export const facultyTypeMap: Record<FacultyType | number | string, string> = {
+  [FacultyType.Science]: "Science",
+  [FacultyType.Commerce]: "Commerce",
+  [FacultyType.Arts]: "Arts",
+  [FacultyType.Engineering]: "Engineering",
+  [FacultyType.Medicine]: "Medicine",
+  [FacultyType.Law]: "Law",
+  [FacultyType.Education]: "Education",
+  [FacultyType.Management]: "Management",
+  [FacultyType.IT]: "IT",
+  [FacultyType.Agriculture]: "Agriculture",
+  [FacultyType.Forestry]: "Forestry",
+  [FacultyType.Humanities]: "Humanities",
+  [FacultyType.SocialSciences]: "Social Sciences",
+  [FacultyType.FineArts]: "Fine Arts",
+  [FacultyType.Journalism]: "Journalism",
+  [FacultyType.PublicHealth]: "Public Health",
+  [FacultyType.Architecture]: "Architecture",
+};
+
+// Helper functions
+export const getEnumDisplay = (
+  value: number | string | undefined,
+  enumMap: Record<string | number, string>
+): string => {
+  if (value === null || value === undefined) return "N/A";
+  return enumMap[value] || String(value);
+};
+
+export const getGenderDisplay = (
+  value: Gender | number | string | undefined
+): string => getEnumDisplay(value, genderMap);
+
+export const getBloodTypeDisplay = (
+  value: BloodType | number | string | undefined
+): string => getEnumDisplay(value, bloodTypeMap);
+
+export const getAddressTypeDisplay = (
+  value: AddressType | number | string | undefined
+): string => getEnumDisplay(value, addressTypeMap);
+
+export const getParentTypeDisplay = (
+  value: ParentType | number | string | undefined
+): string => getEnumDisplay(value, parentTypeMap);
+
+export const getAcademicLevelDisplay = (
+  value: AcademicLevel | number | string | undefined
+): string => getEnumDisplay(value, academicLevelMap);
+
+export const getFacultyTypeDisplay = (
+  value: FacultyType | number | string | undefined
+): string => getEnumDisplay(value, facultyTypeMap);
 
 export interface CitizenshipDTO {
   pid?: string;

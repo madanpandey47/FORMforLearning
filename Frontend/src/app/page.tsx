@@ -2,28 +2,14 @@
 import React, { useEffect, useState } from "react";
 import ApplicationCard from "@/components/ApplicationCard";
 import { StudentDTO } from "@/lib/types/student-types";
-import { deleteStudent } from "@/lib/api/student-api";
-
-async function getStudents(): Promise<StudentDTO[]> {
-  try {
-    const res = await fetch("http://localhost:5000/api/Student");
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
-    const students: StudentDTO[] = await res.json();
-    return students;
-  } catch (error) {
-    console.error("Failed to fetch students:", error);
-    return [];
-  }
-}
+import { deleteStudent, getAllStudents } from "@/lib/api/student-api";
 
 const Home = () => {
   const [students, setStudents] = useState<StudentDTO[]>([]);
 
   useEffect(() => {
     const fetchStudents = async () => {
-      const fetchedStudents = await getStudents();
+      const fetchedStudents = await getAllStudents();
       setStudents(fetchedStudents);
     };
     fetchStudents();

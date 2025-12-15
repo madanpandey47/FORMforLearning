@@ -1,7 +1,7 @@
 import React from "react";
 import { UseFormSetValue } from "react-hook-form";
 import { z } from "zod";
-import { formSchema } from "../lib/formvalidation";
+import { formSchema } from "../lib/validation/formvalidation";
 
 type FormData = z.infer<typeof formSchema>;
 

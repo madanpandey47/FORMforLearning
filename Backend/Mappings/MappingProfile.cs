@@ -11,10 +11,11 @@ namespace FormBackend.Mappings
         {
             // For reading (Entity -> DTO)
             CreateMap<Student, StudentReadDTO>();
+            CreateMap<SecondaryInfos, SecondaryInfosReadDTO>();
             CreateMap<Address, AddressDTO>();
             CreateMap<Parent, ParentDTO>();
             CreateMap<Citizenship, CitizenshipDTO>();
-            CreateMap<SecondaryInfos, SecondaryInfosDTO>();
+            CreateMap<SecondaryInfosDTO, SecondaryInfos>();
             CreateMap<AcademicHistory, AcademicHistoryDTO>();
             CreateMap<Faculty, FacultyDTO>();
             CreateMap<AcademicEnrollment, AcademicEnrollmentDTO>();

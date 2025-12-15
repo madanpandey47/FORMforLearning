@@ -24,7 +24,7 @@ import { useSyncTemporaryAddress } from "../../hooks/useSyncTemporaryAddress";
 import { useForm, useFieldArray, useWatch, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formSchema } from "../../lib/formvalidation";
+import { formSchema } from "../../lib/validation/formvalidation";
 import {
   getBloodTypes,
   getAcademicLevels,
@@ -245,8 +245,11 @@ const FormPage: React.FC = () => {
             setValue("agree", true);
 
             if (studentFormData.profileImagePath) {
-              setProfileImagePreviewUrl(
-                `http://localhost:5000${studentFormData.profileImagePath}`
+              setProfileImagePreviewUrl(studentFormData.profileImagePath);
+            }
+            if (studentFormData.academicCertificatePaths) {
+              setAcademicCertificatesPreviewUrls(
+                studentFormData.academicCertificatePaths
               );
             }
 
@@ -823,7 +826,9 @@ const FormPage: React.FC = () => {
                     <Input
                       label="Passing Year"
                       type="number"
-                      {...register(`academicHistories.${i}.passedYear`)}
+                      {...register(`academicHistories.${i}.passedYear`, {
+                        valueAsNumber: true,
+                      })}
                       error={errors.academicHistories?.[i]?.passedYear?.message}
                     />
                   </div>
@@ -1071,7 +1076,7 @@ const FormPage: React.FC = () => {
                         <img
                           src={profileImagePreviewUrl}
                           alt="Preview"
-                          className="mx-auto h-32 w-32 rounded-full object-cover shadow-md"
+                          className="mx-auto h-32 w-32 rounded-full object-cover shadow-md border-2 border-red-500"
                         />
                         <button
                           type="button"
@@ -1121,6 +1126,7 @@ const FormPage: React.FC = () => {
                             ? Array.from(e.target.files)
                             : [];
                           field.onChange(files);
+                          // Clear existing previews and show new ones
                           setAcademicCertificatesPreviewUrls(
                             files.map((f) => URL.createObjectURL(f))
                           );
@@ -1132,39 +1138,47 @@ const FormPage: React.FC = () => {
                       <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
                         {academicCertificatesPreviewUrls.map((url, i) => (
                           <div key={i} className="relative">
-                            {getValues("academicCertificates")?.[
-                              i
-                            ]?.type.startsWith("image/") ? (
-                              <>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                            {url.startsWith("blob:") ? ( // New file
+                              getValues("academicCertificates")?.[
+                                i
+                              ]?.type.startsWith("image/") ? (
                                 <img
                                   src={url}
                                   alt=""
-                                  className="h-32 w-full rounded object-cover shadow-md"
+                                  className="h-32 w-full rounded object-cover shadow-md border-2 border-red-500"
                                 />
-                              </>
+                              ) : (
+                                <div className="flex h-32 items-center justify-center rounded bg-gray-200 shadow-md border-2 border-red-500">
+                                  <FiFileText className="h-12 w-12 text-gray-500" />
+                                </div>
+                              )
                             ) : (
-                              <div className="flex h-32 items-center justify-center rounded bg-gray-200 shadow-md">
-                                <FiFileText className="h-12 w-12 text-gray-500" />
-                              </div>
+                              // Existing file
+                              <img
+                                src={url}
+                                alt=""
+                                className="h-32 w-full rounded object-cover shadow-md border-2 border-red-500"
+                              />
                             )}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newFiles =
-                                  field.value?.filter(
-                                    (_file: File, idx: number) => idx !== i
-                                  ) || [];
-                                field.onChange(newFiles);
-                                URL.revokeObjectURL(url);
-                                setAcademicCertificatesPreviewUrls((prev) =>
-                                  prev.filter((_, idx) => idx !== i)
-                                );
-                              }}
-                              className="absolute right-1 top-1 rounded-full bg-red-500 p-1 text-white shadow"
-                            >
-                              <FiTrash2 className="h-4 w-4" />
-                            </button>
+                            {url.startsWith("blob:") && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newFiles =
+                                    field.value?.filter(
+                                      (_file: File, idx: number) => idx !== i
+                                    ) || [];
+                                  field.onChange(newFiles);
+                                  URL.revokeObjectURL(url);
+                                  setAcademicCertificatesPreviewUrls((prev) =>
+                                    prev.filter((_, idx) => idx !== i)
+                                  );
+                                }}
+                                className="absolute right-1 top-1 rounded-full bg-red-500 p-1 text-white shadow"
+                              >
+                                <FiTrash2 className="h-4 w-4" />
+                              </button>
+                            )}
                           </div>
                         ))}
                       </div>

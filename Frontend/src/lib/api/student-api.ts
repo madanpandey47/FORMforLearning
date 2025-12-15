@@ -1,11 +1,21 @@
 import { FieldValues } from "react-hook-form";
 import { StudentDTO } from "../types/student-types";
-import { sanitizeData } from "../student/sanitize";
-import { objectToFormData, transformToDTO, transformFromDTO } from "../student/transform";
+import { sanitizeData } from "../utils/sanitize";
+import {
+  objectToFormData,
+  transformToDTO,
+  transformFromDTO,
+} from "../utils/transform";
 
 // API Configuration
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/student";
+
+// Helper function to construct full image URL
+export const getImageUrl = (imagePath?: string | null): string | undefined => {
+  if (!imagePath) return undefined;
+  return `http://localhost:5000${imagePath}`;
+};
 
 // CREATE
 export const submitStudent = async (data: FieldValues): Promise<StudentDTO> => {
@@ -67,7 +77,23 @@ export const getStudent = async (pid: string): Promise<FieldValues | null> => {
   return dto ? transformFromDTO(dto) : null;
 };
 
-// DELETE
+// LIST
+export const getAllStudents = async (): Promise<StudentDTO[]> => {
+  try {
+    const response = await fetch(
+      API_BASE_URL.replace(/\/student$/, "/student"),
+      {
+        cache: "no-store",
+      }
+    );
+    if (!response.ok) throw new Error("Failed to fetch students");
+    return (await response.json()) as StudentDTO[];
+  } catch (error) {
+    console.error("Error fetching students:", error);
+    return [];
+  }
+};
+
 export const deleteStudent = async (pid: string): Promise<void> => {
   const response = await fetch(`${API_BASE_URL}/${pid}`, { method: "DELETE" });
 
