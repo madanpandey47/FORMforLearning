@@ -76,36 +76,7 @@ namespace FormBackend.Services
             await _unitOfWork.SaveAsync();
 
             // Map the updated entity back to a DTO to return
-            var studentDto = _mapper.Map<StudentReadDTO>(student);
-            if (!string.IsNullOrEmpty(student.ProfileImagePath))
-            {
-                var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, student.ProfileImagePath.TrimStart('/'));
-                if (System.IO.File.Exists(imagePath))
-                {
-                    var imageBytes = await System.IO.File.ReadAllBytesAsync(imagePath);
-                    var base64String = Convert.ToBase64String(imageBytes);
-                    studentDto.ProfileImagePath = $"data:image/{Path.GetExtension(imagePath).Trim('.')};base64,{base64String}";
-                }
-            }
-
-            if (student.SecondaryInfos != null && !string.IsNullOrEmpty(student.SecondaryInfos.AcademicCertificatePaths))
-            {
-                studentDto.SecondaryInfos ??= new SecondaryInfosReadDTO();
-                studentDto.SecondaryInfos.AcademicCertificatePaths = new List<string>();
-                var certificatePaths = student.SecondaryInfos.AcademicCertificatePaths.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                foreach (var path in certificatePaths)
-                {
-                    var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, path.TrimStart('/'));
-                    if (System.IO.File.Exists(imagePath))
-                    {
-                        var imageBytes = await System.IO.File.ReadAllBytesAsync(imagePath);
-                        var base64String = Convert.ToBase64String(imageBytes);
-                        studentDto.SecondaryInfos.AcademicCertificatePaths.Add($"data:image/{Path.GetExtension(imagePath).Trim('.')};base64,{base64String}");
-                    }
-                }
-            }
-            
-            return studentDto;
+            return _mapper.Map<StudentReadDTO>(student);
         }
 
         // --- Helper Methods for Update ---
@@ -230,36 +201,7 @@ namespace FormBackend.Services
             await _unitOfWork.Students.AddAsync(student);
             await _unitOfWork.SaveAsync();
 
-            var studentDto = _mapper.Map<StudentReadDTO>(student);
-            if (!string.IsNullOrEmpty(student.ProfileImagePath))
-            {
-                var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, student.ProfileImagePath.TrimStart('/'));
-                if (System.IO.File.Exists(imagePath))
-                {
-                    var imageBytes = await System.IO.File.ReadAllBytesAsync(imagePath);
-                    var base64String = Convert.ToBase64String(imageBytes);
-                    studentDto.ProfileImagePath = $"data:image/{Path.GetExtension(imagePath).Trim('.')};base64,{base64String}";
-                }
-            }
-
-            if (student.SecondaryInfos != null && !string.IsNullOrEmpty(student.SecondaryInfos.AcademicCertificatePaths))
-            {
-                studentDto.SecondaryInfos ??= new SecondaryInfosReadDTO();
-                studentDto.SecondaryInfos.AcademicCertificatePaths = new List<string>();
-                var certificatePaths = student.SecondaryInfos.AcademicCertificatePaths.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                foreach (var path in certificatePaths)
-                {
-                    var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, path.TrimStart('/'));
-                    if (System.IO.File.Exists(imagePath))
-                    {
-                        var imageBytes = await System.IO.File.ReadAllBytesAsync(imagePath);
-                        var base64String = Convert.ToBase64String(imageBytes);
-                        studentDto.SecondaryInfos.AcademicCertificatePaths.Add($"data:image/{Path.GetExtension(imagePath).Trim('.')};base64,{base64String}");
-                    }
-                }
-            }
-            
-            return studentDto;
+            return _mapper.Map<StudentReadDTO>(student);
         }
 
         public async Task<StudentReadDTO?> GetStudentByPIDAsync(Guid pid)
@@ -276,90 +218,40 @@ namespace FormBackend.Services
                 .Include(s => s.Citizenship)
                 .Include(s => s.SecondaryInfos));
             
-            if (student == null) return null;
-
-            var studentDto = _mapper.Map<StudentReadDTO>(student);
-
-            if (!string.IsNullOrEmpty(student.ProfileImagePath))
-            {
-                var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, student.ProfileImagePath.TrimStart('/'));
-                if (System.IO.File.Exists(imagePath))
-                {
-                    var imageBytes = await System.IO.File.ReadAllBytesAsync(imagePath);
-                    var base64String = Convert.ToBase64String(imageBytes);
-                    studentDto.ProfileImagePath = $"data:image/{Path.GetExtension(imagePath).Trim('.')};base64,{base64String}";
-                }
-            }
-
-            if (student.SecondaryInfos != null && !string.IsNullOrEmpty(student.SecondaryInfos.AcademicCertificatePaths))
-            {
-                studentDto.SecondaryInfos ??= new SecondaryInfosReadDTO();
-                studentDto.SecondaryInfos.AcademicCertificatePaths = new List<string>();
-                var certificatePaths = student.SecondaryInfos.AcademicCertificatePaths.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                foreach (var path in certificatePaths)
-                {
-                    var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, path.TrimStart('/'));
-                    if (System.IO.File.Exists(imagePath))
-                    {
-                        var imageBytes = await System.IO.File.ReadAllBytesAsync(imagePath);
-                        var base64String = Convert.ToBase64String(imageBytes);
-                        studentDto.SecondaryInfos.AcademicCertificatePaths.Add($"data:image/{Path.GetExtension(imagePath).Trim('.')};base64,{base64String}");
-                    }
-                }
-            }
-
-            return studentDto;
+            return _mapper.Map<StudentReadDTO>(student);
         }
 
-                public async Task<IEnumerable<StudentReadDTO>> GetAllStudentsAsync()
-                {
-                    var students = await _unitOfWork.Students.GetAllAsync(q => q
-                        .Include(s => s.Addresses)
-                        .Include(s => s.Parents)
-                        .Include(s => s.AcademicHistories)
-                        .Include(s => s.AcademicEnrollment).ThenInclude(ae => ae!.Faculty)
-                        .Include(s => s.Achievements)
-                        .Include(s => s.Hobbies)
-                        .Include(s => s.Disability)
-                        .Include(s => s.Scholarship)
-                        .Include(s => s.Citizenship)
-                        .Include(s => s.SecondaryInfos));
-                    
-                    var studentDtos = _mapper.Map<IEnumerable<StudentReadDTO>>(students).ToList();
-        
-                    for (int i = 0; i < students.Count(); i++)
-                    {
-                        var student = students.ElementAt(i);
-                        if (!string.IsNullOrEmpty(student.ProfileImagePath))
+                        public async Task<IEnumerable<StudentReadDTO>> GetAllStudentsAsync()
+
                         {
-                            var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, student.ProfileImagePath.TrimStart('/'));
-                            if (System.IO.File.Exists(imagePath))
-                            {
-                                var imageBytes = await System.IO.File.ReadAllBytesAsync(imagePath);
-                                                        var base64String = Convert.ToBase64String(imageBytes);
-                                                        studentDtos[i].ProfileImagePath = $"data:image/{Path.GetExtension(imagePath).Trim('.')};base64,{base64String}";
-                                                    }
-                                                }
-                                
-                                                if (student.SecondaryInfos != null && !string.IsNullOrEmpty(student.SecondaryInfos.AcademicCertificatePaths))
-                                                {
-                                                    studentDtos[i].SecondaryInfos ??= new SecondaryInfosReadDTO();
-                                                    studentDtos[i].SecondaryInfos.AcademicCertificatePaths = new List<string>();
-                                                    var certificatePaths = student.SecondaryInfos.AcademicCertificatePaths.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                                                    foreach (var path in certificatePaths)
-                                                    {
-                                                        var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, path.TrimStart('/'));
-                                                        if (System.IO.File.Exists(imagePath))
-                                                        {
-                                                            var imageBytes = await System.IO.File.ReadAllBytesAsync(imagePath);
-                                                            var base64String = Convert.ToBase64String(imageBytes);
-                                                            studentDtos[i].SecondaryInfos.AcademicCertificatePaths.Add($"data:image/{Path.GetExtension(imagePath).Trim('.')};base64,{base64String}");
-                                                        }
-                                                    }
-                                                }
-                                            }        
-                    return studentDtos;
-                }
+
+                            var students = await _unitOfWork.Students.GetAllAsync(q => q
+
+                                .Include(s => s.Addresses)
+
+                                .Include(s => s.Parents)
+
+                                .Include(s => s.AcademicHistories)
+
+                                .Include(s => s.AcademicEnrollment).ThenInclude(ae => ae!.Faculty)
+
+                                .Include(s => s.Achievements)
+
+                                .Include(s => s.Hobbies)
+
+                                .Include(s => s.Disability)
+
+                                .Include(s => s.Scholarship)
+
+                                .Include(s => s.Citizenship)
+
+                                .Include(s => s.SecondaryInfos));
+
+                            
+
+                            return _mapper.Map<IEnumerable<StudentReadDTO>>(students);
+
+                        }
         public async Task<bool> DeleteStudentAsync(Guid pid)
         {
             var student = await _unitOfWork.Students.GetByPIDAsync(pid);

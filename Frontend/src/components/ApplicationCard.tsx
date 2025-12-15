@@ -29,10 +29,14 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
     }
   };
 
-  const fullImageUrl = getImageUrl(student.profileImagePath);
+  const imageUrl = student.profileImagePath;
+  const fullImageUrl = imageUrl
+    ? `http://localhost:5000${imageUrl}`
+    : undefined;
 
   return (
     <div className="w-[400px] h-[200px] rounded-[30px] bg-[#ffffff] shadow-[15px_15px_30px_#bebebe,-15px_-15px_30px_#ffffff] flex p-4">
+      {/* Left side - Profile Image and Name */}
       <div className="flex flex-col items-center justify-center w-1/3 border-r border-gray-300 pr-4">
         {fullImageUrl && !imageError ? (
           // eslint-disable-next-line @next/next/no-img-element

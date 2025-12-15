@@ -38,14 +38,6 @@ namespace FormBackend.DTOs
         public string? PlaceOfIssuance { get; set; }
     }
 
-    public class SecondaryInfosReadDTO
-    {
-        public string? MiddleName { get; set; }
-        public string? AlternateMobile { get; set; }
-        public string? AlternateEmail { get; set; }
-        public List<string>? AcademicCertificatePaths { get; set; }
-    }
-    
     public class SecondaryInfosDTO
     {
         public string? MiddleName { get; set; }
@@ -122,7 +114,7 @@ namespace FormBackend.DTOs
         public BloodType BloodGroup { get; set; }
         public string? ProfileImagePath { get; set; }
         public CitizenshipDTO? Citizenship { get; set; }
-        public SecondaryInfosReadDTO? SecondaryInfos { get; set; }
+        public SecondaryInfosDTO? SecondaryInfos { get; set; }
         public ICollection<AddressDTO> Addresses { get; set; } = new List<AddressDTO>();
         public ICollection<ParentDTO> Parents { get; set; } = new List<ParentDTO>();
         public ICollection<AcademicHistoryDTO> AcademicHistories { get; set; } = new List<AcademicHistoryDTO>();

@@ -177,7 +177,7 @@ const StudentViewPage = () => {
           {student.profileImagePath && !imageError ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={getImageUrl(student.profileImagePath)}
+              src={`http://localhost:5000${student.profileImagePath}`}
               alt="Profile"
               className="w-36 h-36 rounded-full object-cover border-2 border-gray-300"
               onError={() => setImageError(true)}

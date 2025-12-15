@@ -245,11 +245,15 @@ const FormPage: React.FC = () => {
             setValue("agree", true);
 
             if (studentFormData.profileImagePath) {
-              setProfileImagePreviewUrl(studentFormData.profileImagePath);
+              setProfileImagePreviewUrl(
+                `http://localhost:5000${studentFormData.profileImagePath}`
+              );
             }
-            if (studentFormData.academicCertificatePaths) {
+            if (studentFormData.secondaryInfos?.academicCertificatePaths && typeof studentFormData.secondaryInfos.academicCertificatePaths === 'string') {
               setAcademicCertificatesPreviewUrls(
-                studentFormData.academicCertificatePaths
+                studentFormData.secondaryInfos.academicCertificatePaths.split(',').map(
+                  (path: string) => `http://localhost:5000${path}`
+                )
               );
             }
 
