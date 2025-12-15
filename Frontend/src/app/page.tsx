@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import ApplicationCard from "@/components/ApplicationCard";
-import { StudentDTO } from "@/lib/types";
-import { deleteStudent } from "@/lib/api/student";
+import { StudentDTO } from "@/lib/types/student-types";
+import { deleteStudent } from "@/lib/api/student-api";
 
 async function getStudents(): Promise<StudentDTO[]> {
   try {

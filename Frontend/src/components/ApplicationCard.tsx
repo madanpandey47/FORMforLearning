@@ -1,6 +1,6 @@
 import { useRouter } from "next/navigation";
 import React from "react";
-import { StudentDTO, Gender } from "@/lib/types";
+import { StudentDTO, Gender } from "@/lib/types/student-types";
 
 interface ApplicationCardProps {
   student: StudentDTO;
@@ -95,14 +95,15 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
               {student.primaryMobile}
             </p>
           )}
-            <p className="text-xs text-gray-700">
-              <span className="font-semibold">Program:</span>{" "}
-              {student.academicEnrollment?.programName || "N/A"}
-            </p>
-            <p className="text-xs text-gray-700">
-              <span className="font-semibold">Country:</span>{" "}
-              {student.addresses.find(a => a.type === 0)?.country?.trim() || "N/A"}
-            </p>
+          <p className="text-xs text-gray-700">
+            <span className="font-semibold">Program:</span>{" "}
+            {student.academicEnrollment?.programName || "N/A"}
+          </p>
+          <p className="text-xs text-gray-700">
+            <span className="font-semibold">Country:</span>{" "}
+            {student.addresses.find((a) => a.type === 0)?.country?.trim() ||
+              "N/A"}
+          </p>
         </div>
 
         {/* Action Buttons */}

@@ -39,7 +39,7 @@ import {
   submitStudent,
   getStudent,
   updateStudent,
-} from "../../lib/api/student";
+} from "../../lib/api/student-api";
 import { useSearchParams, useRouter } from "next/navigation";
 
 type FormData = z.infer<typeof formSchema>;
@@ -219,7 +219,6 @@ const FormPage: React.FC = () => {
     else setTemporaryMunicipalities([]);
   }, [temporaryProvince]);
 
-  // Load student in edit mode
   React.useEffect(() => {
     if (isEditMode && studentId) {
       (async () => {
@@ -243,7 +242,7 @@ const FormPage: React.FC = () => {
             }
 
             reset(studentFormData as FormData);
-            setValue("agree", true); // Set agree to true in edit mode
+            setValue("agree", true);
 
             if (studentFormData.profileImagePath) {
               setProfileImagePreviewUrl(
@@ -386,7 +385,8 @@ const FormPage: React.FC = () => {
   };
 
   const handleSave = async () => {
-    const isValid = await trigger();
+    const fields = steps[currentStep - 1].fields;
+    const isValid = await trigger(fields as (keyof FormData)[]);
     if (isValid) {
       const data = getValues();
       await onSubmit(data);
@@ -418,6 +418,12 @@ const FormPage: React.FC = () => {
   };
 
   const onError = (err: Record<string, { message?: string }>) => {
+    // Avoid noisy console logs when there are no errors
+    if (!err || Object.keys(err).length === 0) {
+      alert("Please check all required fields before submitting.");
+      return;
+    }
+
     console.error("Validation errors:", err);
     const errorMessages: string[] = [];
 

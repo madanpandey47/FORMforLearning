@@ -1,5 +1,3 @@
-// Frontend/src/lib/types.ts
-
 export enum Gender {
   Male = 0,
   Female = 1,
@@ -81,7 +79,7 @@ export interface AcademicHistoryDTO {
   level?: AcademicLevel;
   board?: string;
   percentageOrGPA?: number;
-  passedYear?: number;
+  passedYear?: string;
 }
 
 export interface AcademicEnrollmentDTO {
