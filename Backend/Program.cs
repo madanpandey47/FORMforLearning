@@ -1,7 +1,7 @@
 using FormBackend.Core.Interfaces;
 using FormBackend.Core.Repositories;
 using FormBackend.Data;
-using FormBackend.Mappings; // Add this for AutoMapper
+using FormBackend.Mappings;
 using FormBackend.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -13,6 +13,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+// Dependency Injection
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddSingleton<ILookupService, LookupService>();

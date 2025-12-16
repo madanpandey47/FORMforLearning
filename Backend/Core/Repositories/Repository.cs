@@ -38,7 +38,6 @@ namespace FormBackend.Core.Repositories
             {
                 query = include(query);
             }
-            // This requires the entity to have an 'Id' property.
             return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
         }
 
@@ -49,7 +48,6 @@ namespace FormBackend.Core.Repositories
             {
                 query = include(query);
             }
-            // This requires the entity to have a 'PID' property.
             return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "PID") == pid);
         }
 
@@ -67,13 +65,5 @@ namespace FormBackend.Core.Repositories
         {
             _dbSet.Remove(entity);
         }
-    }
-
-    public class StudentRepository : GenericRepository<Student>, IStudentRepository
-    {
-        public StudentRepository(ApplicationDbContext context) : base(context)
-        {
-        }
-        // Student-specific repository methods would go here
     }
 }

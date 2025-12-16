@@ -39,6 +39,7 @@ namespace FormBackend.Services
         //     return _mapper.Map<IEnumerable<StudentReadDTO>>(students);
         // }
 
+// Get lookup data for all students
         public async Task<IEnumerable<StudentLookupDTO>> GetAllLookupAsync()
         {
             var students = await _unitOfWork.Students.GetAllAsync(query => query
@@ -64,6 +65,7 @@ namespace FormBackend.Services
             });
         }
 
+// Get student by PID with related data
         public async Task<StudentReadDTO?> GetByIdAsync(Guid pid)
         {
             var student = await _unitOfWork.Students.GetByPIDAsync(pid, query => query
@@ -83,6 +85,7 @@ namespace FormBackend.Services
             return _mapper.Map<StudentReadDTO>(student);
         }
 
+// Create a new student
         public async Task<StudentReadDTO> CreateAsync(CreateStudentDTO createStudentDto)
         {
             var student = _mapper.Map<Student>(createStudentDto);
@@ -148,6 +151,7 @@ namespace FormBackend.Services
             return true;
         }
 
+// Delete a student by PID
         public async Task<bool> DeleteAsync(Guid pid)
         {
             var student = await _unitOfWork.Students.GetByPIDAsync(pid);
@@ -193,6 +197,8 @@ namespace FormBackend.Services
             }
         }
 
+// Update owned collection (no Id)
+// e.g., Addresses, Hobbies, Achievements
         private void UpdateOwnedCollection<TEntity, TDto>(ICollection<TEntity> existingCollection, ICollection<TDto> dtoCollection)
             where TEntity : class where TDto : class
         {

@@ -125,7 +125,6 @@ namespace FormBackend.DTOs
         public ScholarshipDTO? Scholarship { get; set; }
     }
 
-    // DTO for Creating a Student
     public class CreateStudentDTO
     {
         public required string FirstName { get; set; }
@@ -148,23 +147,8 @@ namespace FormBackend.DTOs
         public DisabilityDTO? Disability { get; set; }
         public ScholarshipDTO? Scholarship { get; set; }
     }
-    
-    // DTO for list views
-    public class StudentSummaryDTO
-    {
-        public Guid PID { get; set; }
-        public required string FirstName { get; set; }
-        public required string LastName { get; set; }
-        public string? MiddleName { get; set; }
-        public string? ProfileImagePath { get; set; }
-        public Gender Gender { get; set; }
-        public required string PrimaryEmail { get; set; }
-        public required string PrimaryMobile { get; set; }
-        public string? ProgramName { get; set; }
-        public string? Country { get; set; }
-    }
 
-    // DTO for lookup views
+    // DTO for lookup views in the dashboard, for easier listing
     public class StudentLookupDTO
     {
 
@@ -180,6 +164,7 @@ namespace FormBackend.DTOs
         public string? ProgramName { get; set; }
         public string? Country { get; set; }
     }
+    
     // DTO for Updating a Student
     public class UpdateStudentDTO : CreateStudentDTO
     {
