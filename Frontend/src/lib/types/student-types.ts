@@ -227,27 +227,7 @@ export interface ScholarshipDTO {
   endDate?: string;
 }
 
-export interface StudentSummaryDTO {
-  pid: string;
 
-  firstName: string;
-
-  lastName: string;
-
-  middleName?: string;
-
-  profileImagePath?: string;
-
-  gender: Gender;
-
-  primaryEmail: string;
-
-  primaryMobile: string;
-
-  programName?: string;
-
-  country?: string;
-}
 
 export interface StudentDTO {
   pid: string;

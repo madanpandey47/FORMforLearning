@@ -1,6 +1,7 @@
 import { FieldValues } from "react-hook-form";
 import { StudentDTO } from "../types/student-types";
 import { sanitizeData } from "../utils/sanitize";
+import { StudentLookupDTO } from "../types/student-lookup-types";
 import {
   objectToFormData,
   transformToDTO,
@@ -78,16 +79,16 @@ export const getStudent = async (pid: string): Promise<FieldValues | null> => {
 };
 
 // LIST
-export const getAllStudents = async (): Promise<StudentDTO[]> => {
+export const getAllStudents = async (): Promise<StudentLookupDTO[]> => {
   try {
     const response = await fetch(
-      API_BASE_URL.replace(/\/student$/, "/student"),
+      `${API_BASE_URL}/lookup`,
       {
         cache: "no-store",
       }
     );
     if (!response.ok) throw new Error("Failed to fetch students");
-    return (await response.json()) as StudentDTO[];
+    return (await response.json()) as StudentLookupDTO[];
   } catch (error) {
     console.error("Error fetching students:", error);
     return [];

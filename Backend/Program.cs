@@ -9,16 +9,10 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-// Configure DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// Register application services and repositories
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddSingleton<ILookupService, LookupService>();
@@ -40,7 +34,6 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -53,7 +46,6 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Seed the database
 if (app.Environment.IsDevelopment())
 {
     using (var scope = app.Services.CreateScope())
@@ -72,16 +64,13 @@ if (app.Environment.IsDevelopment())
     }
 }
 
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors("AllowAll"); // WARNING: This is very permissive and should be restricted in production.
+    app.UseCors("AllowAll");
 }
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-// app.UseAuthentication(); // Uncomment and configure when authentication is implemented.
-app.UseAuthorization();
+//app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {

@@ -1,7 +1,9 @@
+
 using FormBackend.Core.Interfaces;
 using FormBackend.Data;
 using FormBackend.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,20 +14,25 @@ namespace FormBackend.Services
     public class DbInitializer : IDbInitializer
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<DbInitializer> _logger;
 
-        public DbInitializer(ApplicationDbContext context)
+        public DbInitializer(ApplicationDbContext context, ILogger<DbInitializer> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public void Initialize()
         {
+            _logger.LogInformation("DbInitializer.Initialize() called.");
             _context.Database.EnsureCreated(); // Ensure database and tables exist
 
             if (_context.Students.Any())
             {
+                _logger.LogInformation("Database has already been seeded.");
                 return; // DB has been seeded
             }
+            _logger.LogInformation("Seeding database...");
 
             var faculties = new Faculty[]
             {

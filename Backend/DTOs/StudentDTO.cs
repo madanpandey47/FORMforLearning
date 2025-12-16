@@ -164,6 +164,20 @@ namespace FormBackend.DTOs
         public string? Country { get; set; }
     }
 
+    // DTO for lookup views
+    public class StudentLookupDTO
+    {
+        public Guid PID { get; set; }
+        public required string FirstName { get; set; }
+        public required string LastName { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public Gender Gender { get; set; }
+        public required string PrimaryMobile { get; set; }
+        public string? ProfileImagePath { get; set; }
+        public string? ProgramName { get; set; }
+        public string? Country { get; set; }
+    }
+
     // DTO for Updating a Student
     public class UpdateStudentDTO : CreateStudentDTO
     {

@@ -22,11 +22,7 @@ namespace FormBackend.Mappings
             CreateMap<Disability, DisabilityDTO>();
             CreateMap<Scholarship, ScholarshipDTO>();
 
-            // For summary view
-            CreateMap<Student, StudentSummaryDTO>()
-                .ForMember(dest => dest.MiddleName, opt => opt.MapFrom(src => src.SecondaryInfos != null ? src.SecondaryInfos.MiddleName : null))
-                .ForMember(dest => dest.ProgramName, opt => opt.MapFrom(src => src.AcademicEnrollment != null ? src.AcademicEnrollment.ProgramName : null))
-                .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.Addresses.Where(a => a.Type == Models.Enum.AddressType.Permanent).Select(a => a.Country).FirstOrDefault()));
+
 
             // For creating (DTO -> Entity)
             CreateMap<CreateStudentDTO, Student>()

@@ -1,10 +1,12 @@
 import { useRouter } from "next/navigation";
 import React from "react";
-import { StudentDTO, getGenderDisplay } from "@/lib/types/student-types";
+import { StudentLookupDTO } from "@/lib/types/student-lookup-types";
 import { getImageUrl } from "@/lib/api/student-api";
+import { getGenderDisplay } from "@/lib/types/student-types";
+
 
 interface ApplicationCardProps {
-  student: StudentDTO;
+  student: StudentLookupDTO;
   onDelete: (pid: string) => void;
 }
 
@@ -55,11 +57,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
           </div>
         )}
         <h2 className="text-base font-semibold text-center">
-          {student.firstName}{" "}
-          {student.secondaryInfos?.middleName && (
-            <span>{student.secondaryInfos.middleName} </span>
-          )}
-          {student.lastName}
+          {student.firstName} {student.lastName}
         </h2>
       </div>
 
@@ -67,29 +65,24 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
       <div className="flex flex-col justify-between w-2/3 pl-4">
         <div className="space-y-1">
           <p className="text-xs text-gray-700">
+            <span className="font-semibold">DOB:</span>{" "}
+            {new Date(student.dateOfBirth).toLocaleDateString()}
+          </p>
+          <p className="text-xs text-gray-700">
             <span className="font-semibold">Gender:</span>{" "}
             {getGenderDisplay(student.gender)}
           </p>
-          {student.primaryEmail && (
-            <p className="text-xs text-gray-700 truncate">
-              <span className="font-semibold">Email:</span>{" "}
-              {student.primaryEmail}
-            </p>
-          )}
-          {student.primaryMobile && (
-            <p className="text-xs text-gray-700">
-              <span className="font-semibold">Phone:</span>{" "}
-              {student.primaryMobile}
-            </p>
-          )}
+          <p className="text-xs text-gray-700">
+            <span className="font-semibold">Phone:</span>{" "}
+            {student.primaryMobile}
+          </p>
           <p className="text-xs text-gray-700">
             <span className="font-semibold">Program:</span>{" "}
-            {student.academicEnrollment?.programName || "N/A"}
+            {student.programName || "N/A"}
           </p>
           <p className="text-xs text-gray-700">
             <span className="font-semibold">Country:</span>{" "}
-            {student.addresses.find((a) => a.type === 0)?.country?.trim() ||
-              "N/A"}
+            {student.country || "N/A"}
           </p>
         </div>
 
