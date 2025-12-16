@@ -15,13 +15,6 @@ namespace FormBackend.Controllers
             _service = service;
         }
 
-        // [HttpGet]
-        // public async Task<IActionResult> GetAll()
-        // {
-        //     var students = await _service.GetAllAsync();
-        //     return Ok(students);
-        // }
-
         [HttpGet("lookup")]
         public async Task<IActionResult> GetAllLookup()
         {
@@ -38,7 +31,7 @@ namespace FormBackend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] CreateStudentDTO studentDto)
+        public async Task<IActionResult> Create([FromBody] CreateStudentDTO studentDto)
         {
             var student = await _service.CreateAsync(studentDto);
             return CreatedAtAction(nameof(GetById), new { pid = student.PID }, student);
@@ -48,8 +41,11 @@ namespace FormBackend.Controllers
         public async Task<IActionResult> Update(Guid pid, [FromForm] UpdateStudentDTO studentDto)
         {
             var success = await _service.UpdateAsync(pid, studentDto);
-            return success ? Ok() : NotFound();
+            if (!success) return NotFound();
+            var updatedStudent = await _service.GetByIdAsync(pid);
+            return Ok(updatedStudent);
         }
+
 
         [HttpDelete("{pid:guid}")]
         public async Task<IActionResult> Delete(Guid pid)

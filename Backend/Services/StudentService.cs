@@ -110,7 +110,7 @@ namespace FormBackend.Services
         public async Task<bool> UpdateAsync(Guid pid, UpdateStudentDTO updateStudentDto)
         {
             var student = await _unitOfWork.Students.GetByPIDAsync(pid, query => query
-                .Include(s => s.AcademicEnrollment).ThenInclude(ae => ae!.Faculty)
+                .Include(s => s.AcademicEnrollment)
                 .Include(s => s.Addresses)
                 .Include(s => s.Parents)
                 .Include(s => s.AcademicHistories)
@@ -124,26 +124,49 @@ namespace FormBackend.Services
 
             if (student == null) return false;
 
-            // Handle file uploads
+            // Handle file upload for ProfileImage
             if (updateStudentDto.ProfileImage != null)
             {
                 student.ProfileImagePath = await HandleFileUploadAsync(updateStudentDto.ProfileImage, student.ProfileImagePath);
             }
 
-            if (student.SecondaryInfos != null && updateStudentDto.AcademicCertificates != null && updateStudentDto.AcademicCertificates.Any())
+            // Manually map non-null simple properties
+            if (updateStudentDto.FirstName != null) student.FirstName = updateStudentDto.FirstName;
+            if (updateStudentDto.LastName != null) student.LastName = updateStudentDto.LastName;
+            if (updateStudentDto.DateOfBirth.HasValue) student.DateOfBirth = updateStudentDto.DateOfBirth.Value;
+            if (updateStudentDto.Gender.HasValue) student.Gender = updateStudentDto.Gender.Value;
+            if (updateStudentDto.PrimaryMobile != null) student.PrimaryMobile = updateStudentDto.PrimaryMobile;
+            if (updateStudentDto.PrimaryEmail != null) student.PrimaryEmail = updateStudentDto.PrimaryEmail;
+            if (updateStudentDto.BloodGroup.HasValue) student.BloodGroup = updateStudentDto.BloodGroup.Value;
+
+            // Manually map non-null nested objects
+            if (updateStudentDto.Citizenship != null) student.Citizenship = _mapper.Map<Citizenship>(updateStudentDto.Citizenship);
+            if (updateStudentDto.SecondaryInfos != null) student.SecondaryInfos = _mapper.Map<SecondaryInfos>(updateStudentDto.SecondaryInfos);
+            if (updateStudentDto.AcademicEnrollment != null) student.AcademicEnrollment = _mapper.Map<AcademicEnrollment>(updateStudentDto.AcademicEnrollment);
+            if (updateStudentDto.Disability != null) student.Disability = _mapper.Map<Disability>(updateStudentDto.Disability);
+            if (updateStudentDto.Scholarship != null) student.Scholarship = _mapper.Map<Scholarship>(updateStudentDto.Scholarship);
+            
+            // Update collections only if they are provided in the DTO
+            if (updateStudentDto.Parents != null)
             {
-                student.SecondaryInfos.AcademicCertificatePaths = await HandleMultipleFileUploadsAsync(updateStudentDto.AcademicCertificates, student.SecondaryInfos.AcademicCertificatePaths);
+                UpdateChildCollection(student.Parents, updateStudentDto.Parents, student.PID);
             }
-
-            // Map updated fields
-            _mapper.Map(updateStudentDto, student);
-
-            // Update collections
-            UpdateChildCollection(student.Parents, updateStudentDto.Parents ?? new List<ParentDTO>(), student.PID);
-            UpdateChildCollection(student.AcademicHistories, updateStudentDto.AcademicHistories ?? new List<AcademicHistoryDTO>(), student.PID);
-            UpdateOwnedCollection(student.Addresses, updateStudentDto.Addresses ?? new List<AddressDTO>());
-            UpdateOwnedCollection(student.Hobbies, updateStudentDto.Hobbies ?? new List<HobbyDTO>());
-            UpdateOwnedCollection(student.Achievements, updateStudentDto.Achievements ?? new List<AchievementDTO>());
+            if (updateStudentDto.AcademicHistories != null)
+            {
+                UpdateChildCollection(student.AcademicHistories, updateStudentDto.AcademicHistories, student.PID);
+            }
+            if (updateStudentDto.Addresses != null)
+            {
+                UpdateOwnedCollection(student.Addresses, updateStudentDto.Addresses);
+            }
+            if (updateStudentDto.Hobbies != null)
+            {
+                UpdateOwnedCollection(student.Hobbies, updateStudentDto.Hobbies);
+            }
+            if (updateStudentDto.Achievements != null)
+            {
+                UpdateOwnedCollection(student.Achievements, updateStudentDto.Achievements);
+            }
 
             _unitOfWork.Students.Update(student);
             await _unitOfWork.SaveAsync();
