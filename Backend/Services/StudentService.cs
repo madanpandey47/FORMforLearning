@@ -20,30 +20,31 @@ namespace FormBackend.Services
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<IEnumerable<StudentReadDTO>> GetAllAsync()
-        {
-            var students = await _unitOfWork.Students.GetAllAsync(query => query
-                .AsNoTracking()
-                .Include(s => s.AcademicEnrollment).ThenInclude(ae => ae!.Faculty)
-                .Include(s => s.Addresses)
-                .Include(s => s.Parents)
-                .Include(s => s.AcademicHistories)
-                .Include(s => s.Achievements)
-                .Include(s => s.Hobbies)
-                .Include(s => s.Disability)
-                .Include(s => s.Scholarship)
-                .Include(s => s.Citizenship)
-                .Include(s => s.SecondaryInfos)
-            );
+        // public async Task<IEnumerable<StudentReadDTO>> GetAllAsync()
+        // {
+        //     var students = await _unitOfWork.Students.GetAllAsync(query => query
+        //         .AsNoTracking()
+        //         .Include(s => s.AcademicEnrollment).ThenInclude(ae => ae!.Faculty)
+        //         .Include(s => s.Addresses)
+        //         .Include(s => s.Parents)
+        //         .Include(s => s.AcademicHistories)
+        //         .Include(s => s.Achievements)
+        //         .Include(s => s.Hobbies)
+        //         .Include(s => s.Disability)
+        //         .Include(s => s.Scholarship)
+        //         .Include(s => s.Citizenship)
+        //         .Include(s => s.SecondaryInfos)
+        //     );
 
-            return _mapper.Map<IEnumerable<StudentReadDTO>>(students);
-        }
+        //     return _mapper.Map<IEnumerable<StudentReadDTO>>(students);
+        // }
 
         public async Task<IEnumerable<StudentLookupDTO>> GetAllLookupAsync()
         {
             var students = await _unitOfWork.Students.GetAllAsync(query => query
                 .AsNoTracking()
                 .Include(s => s.AcademicEnrollment)
+                .Include(s => s.SecondaryInfos)
                 .Include(s => s.Citizenship)
             );
 
@@ -51,10 +52,12 @@ namespace FormBackend.Services
             {
                 PID = s.PID,
                 FirstName = s.FirstName,
+                MiddleName = s.SecondaryInfos?.MiddleName,
                 LastName = s.LastName,
                 DateOfBirth = s.DateOfBirth,
                 Gender = s.Gender,
                 PrimaryMobile = s.PrimaryMobile,
+                PrimaryEmail = s.PrimaryEmail,
                 ProfileImagePath = s.ProfileImagePath,
                 ProgramName = s.AcademicEnrollment?.ProgramName,
                 Country = s.Citizenship?.CountryOfIssuance
@@ -150,7 +153,6 @@ namespace FormBackend.Services
             var student = await _unitOfWork.Students.GetByPIDAsync(pid);
             if (student == null) return false;
 
-            // Delete profile image if exists
             if (!string.IsNullOrEmpty(student.ProfileImagePath))
             {
                 DeleteFile(student.ProfileImagePath);
@@ -161,13 +163,11 @@ namespace FormBackend.Services
             return true;
         }
 
-        // Helper methods
         private void UpdateChildCollection<TEntity, TDto>(ICollection<TEntity> existingCollection, ICollection<TDto> dtoCollection, Guid studentPid)
             where TEntity : BaseIdEntity where TDto : class
         {
             if (dtoCollection == null) dtoCollection = new List<TDto>();
-
-            // Remove entities that are no longer in the DTO
+            // Remove items that are no longer in the DTO collection
             var itemsToRemove = existingCollection.Where(e => !dtoCollection.Any(d => (int)(d.GetType().GetProperty("Id")?.GetValue(d) ?? 0) == e.Id)).ToList();
             foreach (var item in itemsToRemove)
             {

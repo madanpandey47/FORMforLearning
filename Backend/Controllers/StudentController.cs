@@ -15,12 +15,12 @@ namespace FormBackend.Controllers
             _service = service;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var students = await _service.GetAllAsync();
-            return Ok(students);
-        }
+        // [HttpGet]
+        // public async Task<IActionResult> GetAll()
+        // {
+        //     var students = await _service.GetAllAsync();
+        //     return Ok(students);
+        // }
 
         [HttpGet("lookup")]
         public async Task<IActionResult> GetAllLookup()

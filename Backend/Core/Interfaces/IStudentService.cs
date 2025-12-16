@@ -4,7 +4,7 @@ namespace FormBackend.Core.Interfaces
 {
     public interface IStudentService
     {
-        Task<IEnumerable<StudentReadDTO>> GetAllAsync();
+     //   Task<IEnumerable<StudentReadDTO>> GetAllAsync();
         Task<IEnumerable<StudentLookupDTO>> GetAllLookupAsync();
         Task<StudentReadDTO?> GetByIdAsync(Guid pid);
         Task<StudentReadDTO> CreateAsync(CreateStudentDTO createStudentDto);

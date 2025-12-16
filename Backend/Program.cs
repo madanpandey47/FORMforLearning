@@ -16,8 +16,6 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddSingleton<ILookupService, LookupService>();
-builder.Services.AddScoped<IDbInitializer, DbInitializer>();
-
 
 builder.Services.AddCors(options =>
 {
@@ -45,24 +43,6 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    using (var scope = app.Services.CreateScope())
-    {
-        var services = scope.ServiceProvider;
-        try
-        {
-            var initializer = services.GetRequiredService<IDbInitializer>();
-            initializer.Initialize();
-        }
-        catch (Exception ex)
-        {
-            var logger = services.GetRequiredService<ILogger<Program>>();
-            logger.LogError(ex, "An error occurred while seeding the database.");
-        }
-    }
-}
 
 if (app.Environment.IsDevelopment())
 {
