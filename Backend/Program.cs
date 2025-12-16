@@ -3,6 +3,7 @@ using FormBackend.Core.Repositories;
 using FormBackend.Data;
 using FormBackend.Mappings;
 using FormBackend.Services;
+using FormBackend.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Text.Json;
@@ -44,6 +45,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+// Add global exception handling middleware
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

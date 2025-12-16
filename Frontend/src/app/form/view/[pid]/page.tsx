@@ -132,7 +132,7 @@ const StudentViewPage = () => {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={fullImageUrl}
-              alt={`${student.firstName} ${student.lastName}`}
+              alt={`${student.firstName} ${student.middleName} ${student.lastName}`}
               className="w-36 h-36 rounded-full object-cover border-2 border-gray-300"
               onError={() => setImageError(true)}
             />

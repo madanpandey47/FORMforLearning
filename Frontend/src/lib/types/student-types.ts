@@ -227,8 +227,6 @@ export interface ScholarshipDTO {
   endDate?: string;
 }
 
-
-
 export interface StudentDTO {
   pid: string;
 

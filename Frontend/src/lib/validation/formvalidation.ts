@@ -1,4 +1,12 @@
 import { z } from "zod";
+import {
+  Gender,
+  BloodType,
+  AddressType,
+  ParentType,
+  AcademicLevel,
+  FacultyType,
+} from "../types/student-types";
 
 const dateStringSchema = z
   .string()
@@ -8,26 +16,27 @@ const dateStringSchema = z
   )
   .optional();
 
-export const GenderEnum = z.union([z.literal(0), z.literal(1), z.literal(2)]);
+export const GenderEnum = z.number().min(0).max(2) as z.ZodType<Gender>;
 
-export const BloodGroupEnum = z.union([
-  z.literal(0),
-  z.literal(1),
-  z.literal(2),
-  z.literal(3),
-  z.literal(4),
-  z.literal(5),
-  z.literal(6),
-  z.literal(7),
-]);
+export const BloodGroupEnum = z.number().min(0).max(7) as z.ZodType<BloodType>;
 
-export const ParentTypeEnum = z.union([
-  z.literal(0),
-  z.literal(1),
-  z.literal(2),
-]);
+export const AddressTypeEnum = z
+  .number()
+  .min(0)
+  .max(1) as z.ZodType<AddressType>;
 
-export const FacultyEnum = z.number().int().min(1);
+export const ParentTypeEnum = z.number().min(0).max(3) as z.ZodType<ParentType>;
+
+export const FacultyEnum = z
+  .number()
+  .int()
+  .min(0)
+  .max(16) as z.ZodType<FacultyType>;
+
+export const AcademicLevelEnum = z
+  .number()
+  .min(0)
+  .max(3) as z.ZodType<AcademicLevel>;
 
 export const addressSchema = z.object({
   province: z.string().min(1, "Province is required"),
@@ -35,7 +44,7 @@ export const addressSchema = z.object({
   ward: z.string().min(1, "Ward is required"),
   street: z.string().nullable().optional(),
   country: z.string().min(3, "Country is required"),
-  type: z.union([z.literal(0), z.literal(1), z.literal(2)]),
+  type: AddressTypeEnum,
 });
 
 export const parentSchema = z.object({
@@ -145,7 +154,7 @@ export const formSchema = z.object({
   hobbies: z.array(hobbiesSchema).optional(),
   disability: disabilitySchema.optional(),
   scholarship: scholarshipSchema.optional(),
-  profileImage: z.instanceof(File).optional(), // Made optional for edit mode
+  profileImage: z.instanceof(File).optional(),
   academicCertificates: z.array(z.instanceof(File)).optional(),
   agree: z
     .boolean()

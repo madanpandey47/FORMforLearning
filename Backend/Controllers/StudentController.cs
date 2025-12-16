@@ -38,16 +38,16 @@ namespace FormBackend.Controllers
         }
 
         [HttpPost]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> Create([FromForm] CreateStudentDTO studentDto)
+        [Consumes("application/json")]
+        public async Task<IActionResult> Create([FromBody] CreateStudentDTO studentDto)
         {
             var student = await _service.CreateAsync(studentDto);
             return CreatedAtAction(nameof(GetById), new { pid = student.PID }, student);
         }
 
         [HttpPut("{pid:guid}")]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> Update(Guid pid, [FromForm] UpdateStudentDTO studentDto)
+        [Consumes("application/json")]
+        public async Task<IActionResult> Update(Guid pid, [FromBody] UpdateStudentDTO studentDto)
         {
             var success = await _service.UpdateAsync(pid, studentDto);
             return success ? Ok() : NotFound();

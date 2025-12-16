@@ -15,7 +15,7 @@ const API_BASE_URL =
 // Helper function to construct full image URL
 export const getImageUrl = (imagePath?: string | null): string | undefined => {
   if (!imagePath) return undefined;
-  return `http://localhost:5000${imagePath}`;
+  return `${process.env.NEXT_PUBLIC_API_BASE_URL}${imagePath}`;
 };
 
 // CREATE
@@ -28,10 +28,10 @@ export const submitStudent = async (data: FieldValues): Promise<StudentDTO> => {
 
   objectToFormData(sanitized, formData);
 
-  // Append files
   if (profileImage instanceof File) {
     formData.append("ProfileImage", profileImage);
   }
+
   if (Array.isArray(academicCertificates)) {
     academicCertificates.forEach((file: unknown) => {
       if (file instanceof File) {
@@ -45,14 +45,22 @@ export const submitStudent = async (data: FieldValues): Promise<StudentDTO> => {
     body: formData,
   });
 
-  const result = await response.json();
+  const responseText = await response.text();
+  let result: Record<string, unknown>;
+
+  try {
+    result = JSON.parse(responseText);
+  } catch {
+    console.error("Response was not valid JSON:", responseText);
+    throw new Error("Invalid response from server");
+  }
 
   if (!response.ok) {
     console.error("Server error:", result);
-    throw new Error(result.message || "Failed to submit student application");
+    throw new Error(result.message?.toString() || "Failed to submit student");
   }
 
-  return result as StudentDTO;
+  return result as unknown as StudentDTO;
 };
 
 // READ
@@ -81,12 +89,9 @@ export const getStudent = async (pid: string): Promise<FieldValues | null> => {
 // LIST
 export const getAllStudents = async (): Promise<StudentLookupDTO[]> => {
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/lookup`,
-      {
-        cache: "no-store",
-      }
-    );
+    const response = await fetch(`${API_BASE_URL}/lookup`, {
+      cache: "no-store",
+    });
     if (!response.ok) throw new Error("Failed to fetch students");
     return (await response.json()) as StudentLookupDTO[];
   } catch (error) {
