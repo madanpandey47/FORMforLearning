@@ -125,28 +125,45 @@ namespace FormBackend.DTOs
         public ScholarshipDTO? Scholarship { get; set; }
     }
 
-    public class CreateStudentDTO
-    {
-        public required string FirstName { get; set; }
-        public required string LastName { get; set; }
-        public DateTime DateOfBirth { get; set; }
-        public Gender Gender { get; set; }
-        public required string PrimaryMobile { get; set; }
-        public required string PrimaryEmail { get; set; }
-        public BloodType BloodGroup { get; set; }
-        public IFormFile? ProfileImage { get; set; }
-        public List<IFormFile>? AcademicCertificates { get; set; }
-        public CitizenshipDTO? Citizenship { get; set; }
-        public SecondaryInfosDTO? SecondaryInfos { get; set; }
-        public ICollection<AddressDTO> Addresses { get; set; } = new List<AddressDTO>();
-        public ICollection<ParentDTO> Parents { get; set; } = new List<ParentDTO>();
-        public ICollection<AcademicHistoryDTO> AcademicHistories { get; set; } = new List<AcademicHistoryDTO>();
-        public AcademicEnrollmentDTO? AcademicEnrollment { get; set; }
-        public ICollection<AchievementDTO> Achievements { get; set; } = new List<AchievementDTO>();
-        public ICollection<HobbyDTO> Hobbies { get; set; } = new List<HobbyDTO>();
-        public DisabilityDTO? Disability { get; set; }
-        public ScholarshipDTO? Scholarship { get; set; }
-    }
+ public class CreateStudentDTO
+{
+    [Required]
+    public required string FirstName { get; set; }
+
+    [Required]
+    public required string LastName { get; set; }
+    [Required]
+    public DateTime DateOfBirth { get; set; }
+    [Required]
+    public Gender Gender { get; set; }
+
+    [Required]
+    public required string PrimaryMobile { get; set; }
+
+    [Required]
+    public required string PrimaryEmail { get; set; }
+
+    public BloodType BloodGroup { get; set; }
+
+    // FILES
+    public IFormFile? ProfileImage { get; set; }
+    public List<IFormFile>? AcademicCertificates { get; set; }
+
+    // NESTED DATA
+    public CitizenshipDTO? Citizenship { get; set; }
+    public SecondaryInfosDTO? SecondaryInfos { get; set; }
+
+    public ICollection<AddressDTO> Addresses { get; set; } = new List<AddressDTO>();
+    public ICollection<ParentDTO> Parents { get; set; } = new List<ParentDTO>();
+    public ICollection<AcademicHistoryDTO> AcademicHistories { get; set; } = new List<AcademicHistoryDTO>();
+
+    public AcademicEnrollmentDTO? AcademicEnrollment { get; set; }
+    public ICollection<AchievementDTO> Achievements { get; set; } = new List<AchievementDTO>();
+    public ICollection<HobbyDTO> Hobbies { get; set; } = new List<HobbyDTO>();
+    public DisabilityDTO? Disability { get; set; }
+    public ScholarshipDTO? Scholarship { get; set; }
+}
+
 
     // DTO for lookup views in the dashboard, for easier listing
     public class StudentLookupDTO
@@ -164,11 +181,39 @@ namespace FormBackend.DTOs
         public string? ProgramName { get; set; }
         public string? Country { get; set; }
     }
-    
     // DTO for Updating a Student
-    public class UpdateStudentDTO : CreateStudentDTO
-    {
-        public Guid PID { get; set; }
-        public string? ProfileImagePath { get; set; } // To carry over existing path if no new image is uploaded
-    }
+    public class UpdateStudentDTO
+{
+    [Required]
+    public Guid PID { get; set; }
+
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public DateTime? DateOfBirth { get; set; }
+    public Gender? Gender { get; set; }
+
+    public string? PrimaryMobile { get; set; }
+    public string? PrimaryEmail { get; set; }
+    public BloodType? BloodGroup { get; set; }
+
+    // FILES
+    public IFormFile? ProfileImage { get; set; }
+    public List<IFormFile>? AcademicCertificates { get; set; }
+
+    // Keep existing if null
+    public string? ProfileImagePath { get; set; }
+
+    public CitizenshipDTO? Citizenship { get; set; }
+    public SecondaryInfosDTO? SecondaryInfos { get; set; }
+
+    public ICollection<AddressDTO>? Addresses { get; set; }
+    public ICollection<ParentDTO>? Parents { get; set; }
+    public ICollection<AcademicHistoryDTO>? AcademicHistories { get; set; }
+
+    public AcademicEnrollmentDTO? AcademicEnrollment { get; set; }
+    public ICollection<AchievementDTO>? Achievements { get; set; }
+    public ICollection<HobbyDTO>? Hobbies { get; set; }
+    public DisabilityDTO? Disability { get; set; }
+    public ScholarshipDTO? Scholarship { get; set; }
+}
 }

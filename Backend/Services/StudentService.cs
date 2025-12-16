@@ -139,11 +139,11 @@ namespace FormBackend.Services
             _mapper.Map(updateStudentDto, student);
 
             // Update collections
-            UpdateChildCollection(student.Parents, updateStudentDto.Parents, student.PID);
-            UpdateChildCollection(student.AcademicHistories, updateStudentDto.AcademicHistories, student.PID);
-            UpdateOwnedCollection(student.Addresses, updateStudentDto.Addresses);
-            UpdateOwnedCollection(student.Hobbies, updateStudentDto.Hobbies);
-            UpdateOwnedCollection(student.Achievements, updateStudentDto.Achievements);
+            UpdateChildCollection(student.Parents, updateStudentDto.Parents ?? new List<ParentDTO>(), student.PID);
+            UpdateChildCollection(student.AcademicHistories, updateStudentDto.AcademicHistories ?? new List<AcademicHistoryDTO>(), student.PID);
+            UpdateOwnedCollection(student.Addresses, updateStudentDto.Addresses ?? new List<AddressDTO>());
+            UpdateOwnedCollection(student.Hobbies, updateStudentDto.Hobbies ?? new List<HobbyDTO>());
+            UpdateOwnedCollection(student.Achievements, updateStudentDto.Achievements ?? new List<AchievementDTO>());
 
             _unitOfWork.Students.Update(student);
             await _unitOfWork.SaveAsync();
