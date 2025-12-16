@@ -10,12 +10,13 @@ import {
 
 // API Configuration
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/student";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+const API_ENDPOINT = `${API_BASE_URL}/api/student`;
 
 // Helper function to construct full image URL
 export const getImageUrl = (imagePath?: string | null): string | undefined => {
   if (!imagePath) return undefined;
-  return `${process.env.NEXT_PUBLIC_API_BASE_URL}${imagePath}`;
+  return `${API_BASE_URL}${imagePath}`;
 };
 
 // CREATE
@@ -40,7 +41,7 @@ export const submitStudent = async (data: FieldValues): Promise<StudentDTO> => {
     });
   }
 
-  const response = await fetch(API_BASE_URL, {
+  const response = await fetch(API_ENDPOINT, {
     method: "POST",
     body: formData,
   });
@@ -68,8 +69,8 @@ export const getStudentById = async (
   pid: string
 ): Promise<StudentDTO | null> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${pid}`, {
-      cache: "no-store", // Recommended for dynamic data in Next.js
+    const response = await fetch(`${API_ENDPOINT}/${pid}`, {
+      cache: "no-store",
     });
 
     if (!response.ok) throw new Error("Student not found");
@@ -89,7 +90,7 @@ export const getStudent = async (pid: string): Promise<FieldValues | null> => {
 // LIST
 export const getAllStudents = async (): Promise<StudentLookupDTO[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/lookup`, {
+    const response = await fetch(`${API_ENDPOINT}/lookup`, {
       cache: "no-store",
     });
     if (!response.ok) throw new Error("Failed to fetch students");
@@ -101,7 +102,7 @@ export const getAllStudents = async (): Promise<StudentLookupDTO[]> => {
 };
 
 export const deleteStudent = async (pid: string): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/${pid}`, { method: "DELETE" });
+  const response = await fetch(`${API_ENDPOINT}/${pid}`, { method: "DELETE" });
 
   if (!response.ok) {
     throw new Error("Failed to delete student");
@@ -119,7 +120,6 @@ export const updateStudent = async (
   const transformed = transformToDTO(rest);
   const sanitized = sanitizeData(transformed) as FieldValues;
 
-  // Ensure PID is included
   sanitized.pid = pid;
 
   objectToFormData(sanitized, formData);
@@ -135,7 +135,7 @@ export const updateStudent = async (
     });
   }
 
-  const response = await fetch(`${API_BASE_URL}/${pid}`, {
+  const response = await fetch(`${API_ENDPOINT}/${pid}`, {
     method: "PUT",
     body: formData,
   });
@@ -146,6 +146,5 @@ export const updateStudent = async (
     console.error("Update failed:", result);
     throw new Error(result.message || "Failed to update student");
   }
-
   return result as StudentDTO;
 };

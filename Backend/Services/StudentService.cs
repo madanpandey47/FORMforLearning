@@ -12,7 +12,6 @@ namespace FormBackend.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _webHostEnvironment;
-
         public StudentService(IUnitOfWork unitOfWork, IMapper mapper, IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
@@ -20,26 +19,7 @@ namespace FormBackend.Services
             _webHostEnvironment = webHostEnvironment;
         }
 
-        // public async Task<IEnumerable<StudentReadDTO>> GetAllAsync()
-        // {
-        //     var students = await _unitOfWork.Students.GetAllAsync(query => query
-        //         .AsNoTracking()
-        //         .Include(s => s.AcademicEnrollment).ThenInclude(ae => ae!.Faculty)
-        //         .Include(s => s.Addresses)
-        //         .Include(s => s.Parents)
-        //         .Include(s => s.AcademicHistories)
-        //         .Include(s => s.Achievements)
-        //         .Include(s => s.Hobbies)
-        //         .Include(s => s.Disability)
-        //         .Include(s => s.Scholarship)
-        //         .Include(s => s.Citizenship)
-        //         .Include(s => s.SecondaryInfos)
-        //     );
-
-        //     return _mapper.Map<IEnumerable<StudentReadDTO>>(students);
-        // }
-
-// Get lookup data for all students
+    // Get lookup data for all students
         public async Task<IEnumerable<StudentLookupDTO>> GetAllLookupAsync()
         {
             var students = await _unitOfWork.Students.GetAllAsync(query => query
@@ -65,7 +45,7 @@ namespace FormBackend.Services
             });
         }
 
-// Get student by PID with related data
+        // Get student by PID with related data
         public async Task<StudentReadDTO?> GetByIdAsync(Guid pid)
         {
             var student = await _unitOfWork.Students.GetByPIDAsync(pid, query => query
@@ -85,10 +65,37 @@ namespace FormBackend.Services
             return _mapper.Map<StudentReadDTO>(student);
         }
 
-// Create a new student
+        // Create a new student
         public async Task<StudentReadDTO> CreateAsync(CreateStudentDTO createStudentDto)
         {
             var student = _mapper.Map<Student>(createStudentDto);
+
+            // Handle Academic Enrollment and Faculty
+            if (createStudentDto.AcademicEnrollment != null)
+            {
+                var allFaculties = await _unitOfWork.Faculties.GetAllAsync();
+                var faculty = allFaculties.FirstOrDefault(f =>
+                    f.Type == createStudentDto.AcademicEnrollment.FacultyType &&
+                    f.ProgramName == createStudentDto.AcademicEnrollment.ProgramName);
+
+                if (faculty == null)
+                {
+                    faculty = new Faculty
+                    {
+                        Type = createStudentDto.AcademicEnrollment.FacultyType,
+                        ProgramName = createStudentDto.AcademicEnrollment.ProgramName
+                    };
+                }
+                
+                // This will be a new enrollment for a new student
+                student.AcademicEnrollment = new AcademicEnrollment
+                {
+                    Faculty = faculty,
+                    ProgramName = createStudentDto.AcademicEnrollment.ProgramName,
+                    EnrollmentDate = createStudentDto.AcademicEnrollment.EnrollmentDate,
+                    StudentIdNumber = createStudentDto.AcademicEnrollment.StudentIdNumber
+                };
+            }
 
             // Handle file uploads
             if (createStudentDto.ProfileImage != null)
@@ -110,7 +117,7 @@ namespace FormBackend.Services
         public async Task<bool> UpdateAsync(Guid pid, UpdateStudentDTO updateStudentDto)
         {
             var student = await _unitOfWork.Students.GetByPIDAsync(pid, query => query
-                .Include(s => s.AcademicEnrollment)
+                .Include(s => s.AcademicEnrollment).ThenInclude(ae => ae!.Faculty)
                 .Include(s => s.Addresses)
                 .Include(s => s.Parents)
                 .Include(s => s.AcademicHistories)
@@ -124,13 +131,49 @@ namespace FormBackend.Services
 
             if (student == null) return false;
 
+            // Handle Academic Enrollment and Faculty
+            if (updateStudentDto.AcademicEnrollment != null)
+            {
+                var enrollmentDto = updateStudentDto.AcademicEnrollment;
+                var allFaculties = await _unitOfWork.Faculties.GetAllAsync();
+                var faculty = allFaculties.FirstOrDefault(f =>
+                    f.Type == enrollmentDto.FacultyType && f.ProgramName == enrollmentDto.ProgramName);
+
+                if (faculty == null)
+                {
+                    faculty = new Faculty
+                    {
+                        Type = enrollmentDto.FacultyType,
+                        ProgramName = enrollmentDto.ProgramName
+                    };
+                }
+
+                if (student.AcademicEnrollment != null)
+                {
+                    var existingEnrollment = student.AcademicEnrollment;
+                    existingEnrollment.Faculty = faculty;
+                    existingEnrollment.ProgramName = enrollmentDto.ProgramName;
+                    existingEnrollment.EnrollmentDate = enrollmentDto.EnrollmentDate;
+                    existingEnrollment.StudentIdNumber = enrollmentDto.StudentIdNumber;
+                }
+                else
+                {
+                    student.AcademicEnrollment = new AcademicEnrollment
+                    {
+                        Faculty = faculty,
+                        ProgramName = enrollmentDto.ProgramName,
+                        EnrollmentDate = enrollmentDto.EnrollmentDate,
+                        StudentIdNumber = enrollmentDto.StudentIdNumber
+                    };
+                }
+            }
+            
             // Handle file upload for ProfileImage
             if (updateStudentDto.ProfileImage != null)
             {
                 student.ProfileImagePath = await HandleFileUploadAsync(updateStudentDto.ProfileImage, student.ProfileImagePath);
             }
 
-            // Manually map non-null simple properties
             if (updateStudentDto.FirstName != null) student.FirstName = updateStudentDto.FirstName;
             if (updateStudentDto.LastName != null) student.LastName = updateStudentDto.LastName;
             if (updateStudentDto.DateOfBirth.HasValue) student.DateOfBirth = updateStudentDto.DateOfBirth.Value;
@@ -139,14 +182,11 @@ namespace FormBackend.Services
             if (updateStudentDto.PrimaryEmail != null) student.PrimaryEmail = updateStudentDto.PrimaryEmail;
             if (updateStudentDto.BloodGroup.HasValue) student.BloodGroup = updateStudentDto.BloodGroup.Value;
 
-            // Manually map non-null nested objects
             if (updateStudentDto.Citizenship != null) student.Citizenship = _mapper.Map<Citizenship>(updateStudentDto.Citizenship);
             if (updateStudentDto.SecondaryInfos != null) student.SecondaryInfos = _mapper.Map<SecondaryInfos>(updateStudentDto.SecondaryInfos);
-            if (updateStudentDto.AcademicEnrollment != null) student.AcademicEnrollment = _mapper.Map<AcademicEnrollment>(updateStudentDto.AcademicEnrollment);
             if (updateStudentDto.Disability != null) student.Disability = _mapper.Map<Disability>(updateStudentDto.Disability);
             if (updateStudentDto.Scholarship != null) student.Scholarship = _mapper.Map<Scholarship>(updateStudentDto.Scholarship);
             
-            // Update collections only if they are provided in the DTO
             if (updateStudentDto.Parents != null)
             {
                 UpdateChildCollection(student.Parents, updateStudentDto.Parents, student.PID);
@@ -174,7 +214,7 @@ namespace FormBackend.Services
             return true;
         }
 
-// Delete a student by PID
+        // Delete a student by PID
         public async Task<bool> DeleteAsync(Guid pid)
         {
             var student = await _unitOfWork.Students.GetByPIDAsync(pid);
@@ -220,8 +260,8 @@ namespace FormBackend.Services
             }
         }
 
-// Update owned collection (no Id)
-// e.g., Addresses, Hobbies, Achievements
+        // Update owned collection (no Id)
+        // e.g., Addresses, Hobbies, Achievements
         private void UpdateOwnedCollection<TEntity, TDto>(ICollection<TEntity> existingCollection, ICollection<TDto> dtoCollection)
             where TEntity : class where TDto : class
         {

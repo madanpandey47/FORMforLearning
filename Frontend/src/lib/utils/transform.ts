@@ -2,7 +2,6 @@ import { FieldValues } from "react-hook-form";
 import { StudentDTO } from "@lib/types/student-types";
 import { isEmptyObject } from "./sanitize";
 
-// Convert nested object to FormData with proper nested keys (e.g., addresses[0].province)
 export const objectToFormData = (
   obj: unknown,
   formData: FormData = new FormData(),
@@ -44,6 +43,7 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
     permanentAddress,
     temporaryAddress,
     middleName,
+    academicEnrollment,
     citizenship,
     secondaryInfos,
     academicHistories = [],
@@ -106,6 +106,18 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
   }
   if (addresses.length > 0) {
     transformed.addresses = addresses;
+  }
+
+  // Academic enrollment
+  if (academicEnrollment && !isEmptyObject(academicEnrollment)) {
+    transformed.academicEnrollment = {
+      programName: academicEnrollment.programName ?? null,
+      enrollmentDate: academicEnrollment.enrollmentDate ?? null,
+      studentIdNumber: academicEnrollment.studentIdNumber ?? null,
+      // Back-end may accept either facultyId or facultyType depending on service logic
+      facultyId: academicEnrollment.facultyId ?? null,
+      facultyType: academicEnrollment.facultyType ?? null,
+    };
   }
 
   return transformed;

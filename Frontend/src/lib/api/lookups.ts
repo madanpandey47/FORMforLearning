@@ -1,3 +1,7 @@
+import {
+  FacultyType,
+  facultyTypeMap,
+} from "../types/student-types";
 export type Option = { value: number | string; label: string };
 
 const BASE = "http://localhost:5000/api/Lookups";
@@ -32,8 +36,17 @@ export async function getParentTypes() {
   return fetchOptions("parent-types");
 }
 
-export async function getFacultyTypes() {
-  return fetchOptions("faculty-types");
+export async function getFacultyTypes(): Promise<Option[]> {
+  const options = Object.keys(FacultyType)
+    .filter((key) => !isNaN(Number(key)))
+    .map((key) => {
+      const numericKey = Number(key);
+      return {
+        value: numericKey,
+        label: facultyTypeMap[numericKey],
+      };
+    });
+  return Promise.resolve(options);
 }
 
 export async function getProvinces(): Promise<Option[]> {

@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Image from "next/image";
 import {
   FiUser,
   FiPhone,
@@ -22,9 +23,11 @@ import Checkbox from "../../components/ui/checkbox";
 import Button from "../../components/ui/button";
 import { useSyncTemporaryAddress } from "../../hooks/useSyncTemporaryAddress";
 import { useForm, useFieldArray, useWatch, Controller } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formSchema } from "../../lib/validation/formvalidation";
+import {
+  formSchema,
+  FormData as SchemaFormData,
+} from "../../lib/validation/formvalidation";
 import {
   getBloodTypes,
   getAcademicLevels,
@@ -42,7 +45,7 @@ import {
 } from "../../lib/api/student-api";
 import { useSearchParams, useRouter } from "next/navigation";
 
-type FormData = z.infer<typeof formSchema>;
+type FormData = SchemaFormData;
 
 const FormPage: React.FC = () => {
   const searchParams = useSearchParams();
@@ -61,13 +64,13 @@ const FormPage: React.FC = () => {
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    mode: "onSubmit",
-    reValidateMode: "onSubmit",
+    mode: "onTouched",
+    reValidateMode: "onChange",
     defaultValues: {
       contactInfo: { primaryMobile: "", primaryEmail: "" },
       citizenship: {
         citizenshipNumber: "",
-        countryOfIssuance: "",
+        countryOfIssuance: "Nepal",
         dateOfIssuance: "",
         placeOfIssuance: "",
       },
@@ -75,7 +78,7 @@ const FormPage: React.FC = () => {
         province: "",
         municipality: "",
         ward: "",
-        country: "",
+        country: "Nepal",
         type: 0,
       },
       temporaryAddress: {
@@ -98,7 +101,7 @@ const FormPage: React.FC = () => {
       hobbies: [{ name: "" }],
       achievements: [{ title: "", description: "", dateOfAchievement: "" }],
       academicEnrollment: {
-        facultyId: 0,
+        faculty: 0,
         programName: "",
         enrollmentDate: "",
         studentIdNumber: "",
@@ -249,11 +252,15 @@ const FormPage: React.FC = () => {
                 `http://localhost:5000${studentFormData.profileImagePath}`
               );
             }
-            if (studentFormData.secondaryInfos?.academicCertificatePaths && typeof studentFormData.secondaryInfos.academicCertificatePaths === 'string') {
+            if (
+              studentFormData.secondaryInfos?.academicCertificatePaths &&
+              typeof studentFormData.secondaryInfos.academicCertificatePaths ===
+                "string"
+            ) {
               setAcademicCertificatesPreviewUrls(
-                studentFormData.secondaryInfos.academicCertificatePaths.split(',').map(
-                  (path: string) => `http://localhost:5000${path}`
-                )
+                studentFormData.secondaryInfos.academicCertificatePaths
+                  .split(",")
+                  .map((path: string) => `http://localhost:5000${path}`)
               );
             }
 
@@ -298,7 +305,8 @@ const FormPage: React.FC = () => {
               country: temp.country,
             };
             if (
-              perm.province && // only check if permanent address exists
+              perm.province &&
+              temp.province &&
               JSON.stringify(permWithoutType) ===
                 JSON.stringify(tempWithoutType)
             ) {
@@ -312,7 +320,6 @@ const FormPage: React.FC = () => {
     }
   }, [isEditMode, studentId, reset, getValues, setValue]);
 
-  // Sync temporary address
   useSyncTemporaryAddress(
     currentStep,
     sameAsPermanent,
@@ -371,7 +378,7 @@ const FormPage: React.FC = () => {
         "academicHistories.0.level",
       ],
     },
-    { name: "Enrollment", fields: ["academicEnrollment.facultyId"] },
+    { name: "Enrollment", fields: ["academicEnrollment.faculty"] },
     { name: "Scholarship", fields: [] },
     { name: "Other", fields: [] },
     { name: "Documents & Confirmation", fields: ["agree"] },
@@ -485,7 +492,7 @@ const FormPage: React.FC = () => {
         </div>
 
         <Form
-          onSubmit={handleSubmit(async (data) => {
+          onSubmit={handleSubmit(async (data: FormData) => {
             // Validate all fields before submission
             const isValid = await trigger();
             if (!isValid) {
@@ -527,13 +534,13 @@ const FormPage: React.FC = () => {
                 <Select
                   label="Gender"
                   options={genderOptions}
-                  {...register("gender", { valueAsNumber: true })}
+                  {...register("gender")}
                   error={errors.gender?.message}
                 />
                 <Select
                   label="Blood Group"
                   options={bloodTypeOptions}
-                  {...register("bloodGroup", { valueAsNumber: true })}
+                  {...register("bloodGroup")}
                   error={errors.bloodGroup?.message}
                 />
               </div>
@@ -843,10 +850,10 @@ const FormPage: React.FC = () => {
                 onClick={() =>
                   appendAcademic({
                     institutionName: "",
-                    level: null,
+                    level: 0,
                     board: "",
-                    percentageOrGPA: null,
-                    passedYear: null,
+                    percentageOrGPA: 0,
+                    passedYear: 2024,
                   })
                 }
                 className="flex items-center gap-2 text-sky-600"
@@ -866,10 +873,10 @@ const FormPage: React.FC = () => {
                 <Select
                   label="Faculty"
                   options={facultyTypeOptions}
-                  {...register("academicEnrollment.facultyId", {
+                  {...register("academicEnrollment.faculty", {
                     valueAsNumber: true,
                   })}
-                  error={errors.academicEnrollment?.facultyId?.message}
+                  error={errors.academicEnrollment?.faculty?.message}
                 />
                 <Input
                   label="Program"
@@ -1076,11 +1083,13 @@ const FormPage: React.FC = () => {
                       </label>
                     ) : (
                       <div className="mt-6">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <Image
                           src={profileImagePreviewUrl}
                           alt="Preview"
-                          className="mx-auto h-32 w-32 rounded-full object-cover shadow-md border-2 border-red-500"
+                          width={128}
+                          height={128}
+                          unoptimized
+                          className="mx-auto rounded-full object-cover shadow-md border-2 border-red-500"
                         />
                         <button
                           type="button"
@@ -1141,15 +1150,17 @@ const FormPage: React.FC = () => {
                     {academicCertificatesPreviewUrls.length > 0 && (
                       <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
                         {academicCertificatesPreviewUrls.map((url, i) => (
-                          <div key={i} className="relative">
+                          <div key={i} className="relative h-32">
                             {url.startsWith("blob:") ? ( // New file
                               getValues("academicCertificates")?.[
                                 i
                               ]?.type.startsWith("image/") ? (
-                                <img
+                                <Image
                                   src={url}
-                                  alt=""
-                                  className="h-32 w-full rounded object-cover shadow-md border-2 border-red-500"
+                                  alt="Preview"
+                                  fill
+                                  unoptimized
+                                  className="rounded object-cover shadow-md border-2 border-red-500"
                                 />
                               ) : (
                                 <div className="flex h-32 items-center justify-center rounded bg-gray-200 shadow-md border-2 border-red-500">
@@ -1158,10 +1169,12 @@ const FormPage: React.FC = () => {
                               )
                             ) : (
                               // Existing file
-                              <img
+                              <Image
                                 src={url}
-                                alt=""
-                                className="h-32 w-full rounded object-cover shadow-md border-2 border-red-500"
+                                alt="Existing file"
+                                fill
+                                unoptimized
+                                className="rounded object-cover shadow-md border-2 border-red-500"
                               />
                             )}
                             {url.startsWith("blob:") && (

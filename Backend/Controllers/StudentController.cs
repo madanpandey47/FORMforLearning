@@ -31,7 +31,7 @@ namespace FormBackend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateStudentDTO studentDto)
+        public async Task<IActionResult> Create([FromForm] CreateStudentDTO studentDto)
         {
             var student = await _service.CreateAsync(studentDto);
             return CreatedAtAction(nameof(GetById), new { pid = student.PID }, student);

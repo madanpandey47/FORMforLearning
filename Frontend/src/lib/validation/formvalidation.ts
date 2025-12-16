@@ -1,12 +1,5 @@
 import { z } from "zod";
-import {
-  Gender,
-  BloodType,
-  AddressType,
-  ParentType,
-  AcademicLevel,
-  FacultyType,
-} from "../types/student-types";
+import { Gender, BloodType, FacultyType } from "../types/student-types";
 
 const dateStringSchema = z
   .string()
@@ -16,27 +9,12 @@ const dateStringSchema = z
   )
   .optional();
 
-export const GenderEnum = z.number().min(0).max(2) as z.ZodType<Gender>;
-
-export const BloodGroupEnum = z.number().min(0).max(7) as z.ZodType<BloodType>;
-
-export const AddressTypeEnum = z
-  .number()
-  .min(0)
-  .max(1) as z.ZodType<AddressType>;
-
-export const ParentTypeEnum = z.number().min(0).max(3) as z.ZodType<ParentType>;
-
-export const FacultyEnum = z
-  .number()
-  .int()
-  .min(0)
-  .max(16) as z.ZodType<FacultyType>;
-
-export const AcademicLevelEnum = z
-  .number()
-  .min(0)
-  .max(3) as z.ZodType<AcademicLevel>;
+export const GenderEnum = z.nativeEnum(Gender);
+export const BloodGroupEnum = z.nativeEnum(BloodType);
+export const AddressTypeEnum = z.number().min(0).max(1);
+export const ParentTypeEnum = z.number().min(0).max(3);
+export const FacultyEnum = z.nativeEnum(FacultyType);
+export const AcademicLevelEnum = z.number().min(0).max(3);
 
 export const addressSchema = z.object({
   province: z.string().min(1, "Province is required"),
@@ -125,7 +103,7 @@ const scholarshipSchema = z.object({
 });
 
 const academicEnrollmentSchema = z.object({
-  facultyId: z.number().int().min(1, "Faculty is required").nullable(),
+  faculty: FacultyEnum,
   programName: z.string().min(1, "Program name is required"),
   enrollmentDate: dateStringSchema,
   studentIdNumber: z.string().nullable().optional(),

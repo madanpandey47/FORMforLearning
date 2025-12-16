@@ -11,6 +11,7 @@ namespace FormBackend.Core.Interfaces
         Task<IEnumerable<T>> GetAllAsync(Func<IQueryable<T>, IQueryable<T>>? include = null);
         Task<T?> GetByIdAsync(int id, Func<IQueryable<T>, IQueryable<T>>? include = null);
         Task<T?> GetByPIDAsync(Guid pid, Func<IQueryable<T>, IQueryable<T>>? include = null);
+        Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, Func<IQueryable<T>, IQueryable<T>>? include = null);
         Task AddAsync(T entity);
         void Update(T entity);
         void Remove(T entity);
