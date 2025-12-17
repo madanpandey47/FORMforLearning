@@ -170,6 +170,7 @@ namespace FormBackend.DTOs
         public Gender Gender { get; set; }
         public required string PrimaryMobile { get; set; }
         public required string PrimaryEmail { get; set; }
+        public BloodType BloodGroup { get; set; }
         public string? ProfileImagePath { get; set; }
         public string? ProgramName { get; set; }
         public string? Country { get; set; }

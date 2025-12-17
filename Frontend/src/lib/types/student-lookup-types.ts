@@ -9,6 +9,7 @@ export interface StudentLookupDTO {
   gender: Gender;
   primaryMobile: string;
   primaryEmail: string;
+  bloodGroup: number;
   profileImagePath?: string;
   programName?: string;
   country?: string;

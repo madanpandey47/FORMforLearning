@@ -39,6 +39,7 @@ namespace FormBackend.Services
                 Gender = s.Gender,
                 PrimaryMobile = s.PrimaryMobile,
                 PrimaryEmail = s.PrimaryEmail,
+                BloodGroup = s.BloodGroup,
                 ProfileImagePath = s.ProfileImagePath,
                 ProgramName = s.AcademicEnrollment?.ProgramName,
                 Country = s.Citizenship?.CountryOfIssuance

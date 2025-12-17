@@ -1,5 +1,9 @@
 import { useRouter } from "next/navigation";
 import React from "react";
+import {
+  getGenderDisplay,
+  getBloodTypeDisplay,
+} from "@/lib/types/student-types";
 import { StudentLookupDTO } from "@/lib/types/student-lookup-types";
 
 interface ApplicationCardProps {
@@ -68,6 +72,18 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
           <p className="text-xs text-gray-700">
             <span className="font-semibold">Email:</span>{" "}
             {student.primaryEmail || "N/A"}
+          </p>
+          <p className="text-xs text-gray-700">
+            <span className="font-semibold">Phone:</span>{" "}
+            {student.primaryMobile || "N/A"}
+          </p>
+          <p className="text-xs text-gray-700">
+            <span className="font-semibold">Gender:</span>{" "}
+            {getGenderDisplay(student.gender) || "N/A"}
+          </p>
+          <p className="text-xs text-gray-700">
+            <span className="font-semibold">Blood Group:</span>{" "}
+            {getBloodTypeDisplay(student.bloodGroup) || "N/A"}
           </p>
           <p className="text-xs text-gray-700">
             <span className="font-semibold">Country:</span>{" "}

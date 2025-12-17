@@ -66,7 +66,7 @@ const StudentViewPage = () => {
   const excludeFields = new Set([
     "pid",
     "profileImagePath",
-    "academicCertificatePaths",
+    "secondaryInfos",
   ]);
 
   // Fields to hide IDs for
@@ -212,6 +212,33 @@ const StudentViewPage = () => {
 
         {/* Divider */}
         <hr className="my-12" />
+
+        {/* Academic Certificates */}
+        {student.secondaryInfos?.academicCertificatePaths && (
+          <section className="mt-10">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Academic Certificates
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {student.secondaryInfos.academicCertificatePaths
+                .split(',')
+                .map((path: string, index: number) => (
+                  <a
+                    key={index}
+                    href={`http://localhost:5000${path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src={`http://localhost:5000${path}`}
+                      alt={`Certificate ${index + 1}`}
+                      className="w-full h-48 object-cover rounded-lg border-2 border-gray-300 hover:border-sky-500 transition-colors"
+                    />
+                  </a>
+                ))}
+            </div>
+          </section>
+        )}
 
         {/* Content */}
         {renderStudentData(student)}

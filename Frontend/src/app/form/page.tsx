@@ -1144,14 +1144,20 @@ const FormPage: React.FC = () => {
                         accept="image/*,application/pdf"
                         className="hidden"
                         onChange={(e) => {
-                          const files = e.target.files
+                          const newFiles = e.target.files
                             ? Array.from(e.target.files)
                             : [];
-                          field.onChange(files);
-                          // Clear existing previews and show new ones
-                          setAcademicCertificatesPreviewUrls(
-                            files.map((f) => URL.createObjectURL(f))
-                          );
+                          if (newFiles.length === 0) return;
+
+                          const currentFiles = field.value || [];
+                          const combinedFiles = [...currentFiles, ...newFiles];
+                          field.onChange(combinedFiles);
+
+                          const newPreviews = newFiles.map((f) => URL.createObjectURL(f));
+                          setAcademicCertificatesPreviewUrls((prev) => [
+                            ...prev,
+                            ...newPreviews,
+                          ]);
                         }}
                       />
                     </label>
