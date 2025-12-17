@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import ApplicationCard from "@/components/ApplicationCard";
-import { StudentDTO } from "@/lib/types/student-types";
+import { StudentLookupDTO } from "@/lib/types/student-lookup-types";
 import { deleteStudent, getAllStudents } from "@/lib/api/student-api";
 
 const Home = () => {
-  const [students, setStudents] = useState<StudentDTO[]>([]);
+  const [students, setStudents] = useState<StudentLookupDTO[]>([]);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -34,7 +34,7 @@ const Home = () => {
         Application Forms
       </h1>
       <div className="flex flex-wrap gap-8 justify-center">
-        {students.map((student: StudentDTO) => (
+        {students.map((student: StudentLookupDTO) => (
           <ApplicationCard
             key={student.pid}
             student={student}

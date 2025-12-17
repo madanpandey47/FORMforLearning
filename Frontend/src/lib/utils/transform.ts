@@ -48,11 +48,22 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
     secondaryInfos,
     academicHistories = [],
     scholarship,
+    gender,
+    bloodGroup,
     ...rest
   } = formData;
 
   const transformed: FieldValues = {
     ...rest,
+    // Convert gender and bloodGroup to numbers if they're strings
+    gender:
+      gender !== null && gender !== undefined && gender !== ""
+        ? Number(gender)
+        : null,
+    bloodGroup:
+      bloodGroup !== null && bloodGroup !== undefined && bloodGroup !== ""
+        ? Number(bloodGroup)
+        : null,
     primaryMobile: contactInfo?.primaryMobile ?? null,
     primaryEmail: contactInfo?.primaryEmail ?? null,
     citizenship: citizenship ?? null,
@@ -111,12 +122,15 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
   // Academic enrollment
   if (academicEnrollment && !isEmptyObject(academicEnrollment)) {
     transformed.academicEnrollment = {
-      programName: academicEnrollment.programName ?? null,
+      faculty:
+        academicEnrollment.faculty !== null &&
+        academicEnrollment.faculty !== undefined &&
+        academicEnrollment.faculty !== ""
+          ? Number(academicEnrollment.faculty)
+          : 0,
+      programName: academicEnrollment.programName ?? "",
       enrollmentDate: academicEnrollment.enrollmentDate ?? null,
       studentIdNumber: academicEnrollment.studentIdNumber ?? null,
-      // Back-end may accept either facultyId or facultyType depending on service logic
-      facultyId: academicEnrollment.facultyId ?? null,
-      facultyType: academicEnrollment.facultyType ?? null,
     };
   }
 
@@ -192,14 +206,21 @@ export const transformFromDTO = (dto: StudentDTO): FieldValues => {
       : {},
     academicEnrollment: academicEnrollment
       ? {
-          ...academicEnrollment,
+          faculty: academicEnrollment.facultyId ?? 0,
+          programName: academicEnrollment.programName ?? "",
           enrollmentDate: academicEnrollment.enrollmentDate
             ? new Date(academicEnrollment.enrollmentDate)
                 .toISOString()
                 .split("T")[0]
             : "",
+          studentIdNumber: academicEnrollment.studentIdNumber ?? "",
         }
-      : {},
+      : {
+          faculty: 0,
+          programName: "",
+          enrollmentDate: "",
+          studentIdNumber: "",
+        },
     scholarship: scholarship
       ? {
           ...scholarship,

@@ -66,9 +66,8 @@ namespace FormBackend.DTOs
     public class AcademicEnrollmentDTO
     {
         public int Id { get; set; }
-        public FacultyType FacultyType { get; set; }
+        public int FacultyId { get; set; }
         public virtual FacultyDTO? Faculty { get; set; }
-        public required string ProgramName { get; set; }
         public DateTime EnrollmentDate { get; set; }
         public string? StudentIdNumber { get; set; }
     }

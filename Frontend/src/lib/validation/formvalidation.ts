@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { Gender, BloodType, FacultyType } from "../types/student-types";
 
 const dateStringSchema = z
   .string()
@@ -9,12 +8,11 @@ const dateStringSchema = z
   )
   .optional();
 
-export const GenderEnum = z.nativeEnum(Gender);
-export const BloodGroupEnum = z.nativeEnum(BloodType);
-export const AddressTypeEnum = z.number().min(0).max(1);
-export const ParentTypeEnum = z.number().min(0).max(3);
-export const FacultyEnum = z.nativeEnum(FacultyType);
-export const AcademicLevelEnum = z.number().min(0).max(3);
+export const GenderEnum = z.coerce.number().int().min(0).max(2).nullable();
+export const BloodGroupEnum = z.coerce.number().int().min(0).max(7).nullable();
+export const AddressTypeEnum = z.coerce.number().int().min(0).max(1).nullable();
+export const ParentTypeEnum = z.coerce.number().int().min(0).max(3).nullable();
+export const AcademicLevelEnum = z.coerce.number().int().min(0).max(3).nullable();
 
 export const addressSchema = z.object({
   province: z.string().min(1, "Province is required"),
@@ -44,7 +42,7 @@ export const parentSchema = z.object({
 
 export const academicHistorySchema = z.object({
   institutionName: z.string().min(4, "Institution name is required"),
-  level: z.number().int().nullable(),
+  level: z.coerce.number().int().nullable(),
   board: z.string().nullable().optional(),
   percentageOrGPA: z.number().min(0).max(100).nullable(),
   passedYear: z
@@ -103,7 +101,7 @@ const scholarshipSchema = z.object({
 });
 
 const academicEnrollmentSchema = z.object({
-  faculty: FacultyEnum,
+  faculty: z.coerce.number().int().min(0).max(16),
   programName: z.string().min(1, "Program name is required"),
   enrollmentDate: dateStringSchema,
   studentIdNumber: z.string().nullable().optional(),
@@ -117,8 +115,8 @@ export const formSchema = z.object({
     (val) => val !== undefined,
     "Date of birth is required"
   ),
-  gender: GenderEnum.nullable(),
-  bloodGroup: BloodGroupEnum.nullable(),
+  gender: z.coerce.number().int().min(0).max(2).nullable(),
+  bloodGroup: z.coerce.number().int().min(0).max(7).nullable(),
   citizenship: citizenshipSchema,
   contactInfo: contactInfoSchema,
   permanentAddress: addressSchema,

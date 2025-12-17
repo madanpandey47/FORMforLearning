@@ -1,9 +1,6 @@
 import { useRouter } from "next/navigation";
 import React from "react";
 import { StudentLookupDTO } from "@/lib/types/student-lookup-types";
-import { getImageUrl } from "@/lib/api/student-api";
-import { getGenderDisplay } from "@/lib/types/student-types";
-
 
 interface ApplicationCardProps {
   student: StudentLookupDTO;
@@ -65,20 +62,12 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
       <div className="flex flex-col justify-between w-2/3 pl-4">
         <div className="space-y-1">
           <p className="text-xs text-gray-700">
-            <span className="font-semibold">DOB:</span>{" "}
-            {new Date(student.dateOfBirth).toLocaleDateString()}
-          </p>
-          <p className="text-xs text-gray-700">
-            <span className="font-semibold">Gender:</span>{" "}
-            {getGenderDisplay(student.gender)}
-          </p>
-          <p className="text-xs text-gray-700">
-            <span className="font-semibold">Phone:</span>{" "}
-            {student.primaryMobile}
-          </p>
-          <p className="text-xs text-gray-700">
             <span className="font-semibold">Program:</span>{" "}
             {student.programName || "N/A"}
+          </p>
+          <p className="text-xs text-gray-700">
+            <span className="font-semibold">Email:</span>{" "}
+            {student.primaryEmail || "N/A"}
           </p>
           <p className="text-xs text-gray-700">
             <span className="font-semibold">Country:</span>{" "}

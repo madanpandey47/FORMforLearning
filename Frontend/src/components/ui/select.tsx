@@ -5,7 +5,27 @@ interface SelectProps extends React.ComponentPropsWithoutRef<"select"> {
   error?: string;
 }
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, options, error, name, ...props }, ref) => {
+  ({ label, options, error, name, onChange, ...props }, ref) => {
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const hasNumericOptions = options.some(
+        (o) => typeof o.value === "number"
+      );
+      if (hasNumericOptions) {
+        const raw = e.target.value;
+        const converted = raw === "" ? ("" as unknown as number) : Number(raw);
+        if (raw === "" || !Number.isNaN(converted)) {
+          onChange?.({
+            ...e,
+            target: {
+              ...e.target,
+              value: converted,
+            } as unknown as EventTarget & HTMLSelectElement,
+          } as unknown as React.ChangeEvent<HTMLSelectElement>);
+          return;
+        }
+      }
+      onChange?.(e);
+    };
     return (
       <div className="flex flex-col gap-1">
         <label
@@ -18,6 +38,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           id={name}
           name={name}
           ref={ref}
+          onChange={handleChange}
           {...props}
           className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-xs outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
         >

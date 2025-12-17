@@ -24,7 +24,7 @@ namespace FormBackend.Services
         {
             var students = await _unitOfWork.Students.GetAllAsync(query => query
                 .AsNoTracking()
-                .Include(s => s.AcademicEnrollment)
+                .Include(s => s.AcademicEnrollment).ThenInclude(ae => ae!.Faculty)
                 .Include(s => s.SecondaryInfos)
                 .Include(s => s.Citizenship)
             );
@@ -40,7 +40,7 @@ namespace FormBackend.Services
                 PrimaryMobile = s.PrimaryMobile,
                 PrimaryEmail = s.PrimaryEmail,
                 ProfileImagePath = s.ProfileImagePath,
-                ProgramName = s.AcademicEnrollment?.ProgramName,
+                ProgramName = s.AcademicEnrollment?.Faculty?.ProgramName,
                 Country = s.Citizenship?.CountryOfIssuance
             });
         }
@@ -71,31 +71,31 @@ namespace FormBackend.Services
             var student = _mapper.Map<Student>(createStudentDto);
 
             // Handle Academic Enrollment and Faculty
-            if (createStudentDto.AcademicEnrollment != null)
-            {
-                var allFaculties = await _unitOfWork.Faculties.GetAllAsync();
-                var faculty = allFaculties.FirstOrDefault(f =>
-                    f.Type == createStudentDto.AcademicEnrollment.FacultyType &&
-                    f.ProgramName == createStudentDto.AcademicEnrollment.ProgramName);
+        if (createStudentDto.AcademicEnrollment?.Faculty != null)
+        {
+            var facultyDto = createStudentDto.AcademicEnrollment.Faculty;
+            var allFaculties = await _unitOfWork.Faculties.GetAllAsync();
+            var faculty = allFaculties.FirstOrDefault(f =>
+                f.Type == facultyDto.Type &&
+                f.ProgramName == facultyDto.ProgramName);
 
-                if (faculty == null)
+            if (faculty == null)
+            {
+                faculty = new Faculty
                 {
-                    faculty = new Faculty
-                    {
-                        Type = createStudentDto.AcademicEnrollment.FacultyType,
-                        ProgramName = createStudentDto.AcademicEnrollment.ProgramName
-                    };
-                }
-                
-                // This will be a new enrollment for a new student
-                student.AcademicEnrollment = new AcademicEnrollment
-                {
-                    Faculty = faculty,
-                    ProgramName = createStudentDto.AcademicEnrollment.ProgramName,
-                    EnrollmentDate = createStudentDto.AcademicEnrollment.EnrollmentDate,
-                    StudentIdNumber = createStudentDto.AcademicEnrollment.StudentIdNumber
+                    Type = facultyDto.Type,
+                    ProgramName = facultyDto.ProgramName
                 };
             }
+            
+            // This will be a new enrollment for a new student
+            student.AcademicEnrollment = new AcademicEnrollment
+            {
+                Faculty = faculty,
+                EnrollmentDate = createStudentDto.AcademicEnrollment.EnrollmentDate,
+                StudentIdNumber = createStudentDto.AcademicEnrollment.StudentIdNumber
+            };
+        }
 
             // Handle file uploads
             if (createStudentDto.ProfileImage != null)
@@ -132,41 +132,40 @@ namespace FormBackend.Services
             if (student == null) return false;
 
             // Handle Academic Enrollment and Faculty
-            if (updateStudentDto.AcademicEnrollment != null)
+        if (updateStudentDto.AcademicEnrollment?.Faculty != null)
+        {
+            var enrollmentDto = updateStudentDto.AcademicEnrollment;
+            var facultyDto = enrollmentDto.Faculty;
+            var allFaculties = await _unitOfWork.Faculties.GetAllAsync();
+            var faculty = allFaculties.FirstOrDefault(f =>
+                f.Type == facultyDto.Type && f.ProgramName == facultyDto.ProgramName);
+
+            if (faculty == null)
             {
-                var enrollmentDto = updateStudentDto.AcademicEnrollment;
-                var allFaculties = await _unitOfWork.Faculties.GetAllAsync();
-                var faculty = allFaculties.FirstOrDefault(f =>
-                    f.Type == enrollmentDto.FacultyType && f.ProgramName == enrollmentDto.ProgramName);
-
-                if (faculty == null)
+                faculty = new Faculty
                 {
-                    faculty = new Faculty
-                    {
-                        Type = enrollmentDto.FacultyType,
-                        ProgramName = enrollmentDto.ProgramName
-                    };
-                }
-
-                if (student.AcademicEnrollment != null)
-                {
-                    var existingEnrollment = student.AcademicEnrollment;
-                    existingEnrollment.Faculty = faculty;
-                    existingEnrollment.ProgramName = enrollmentDto.ProgramName;
-                    existingEnrollment.EnrollmentDate = enrollmentDto.EnrollmentDate;
-                    existingEnrollment.StudentIdNumber = enrollmentDto.StudentIdNumber;
-                }
-                else
-                {
-                    student.AcademicEnrollment = new AcademicEnrollment
-                    {
-                        Faculty = faculty,
-                        ProgramName = enrollmentDto.ProgramName,
-                        EnrollmentDate = enrollmentDto.EnrollmentDate,
-                        StudentIdNumber = enrollmentDto.StudentIdNumber
-                    };
-                }
+                    Type = facultyDto.Type,
+                    ProgramName = facultyDto.ProgramName
+                };
             }
+
+            if (student.AcademicEnrollment != null)
+            {
+                var existingEnrollment = student.AcademicEnrollment;
+                existingEnrollment.Faculty = faculty;
+                existingEnrollment.EnrollmentDate = enrollmentDto.EnrollmentDate;
+                existingEnrollment.StudentIdNumber = enrollmentDto.StudentIdNumber;
+            }
+            else
+            {
+                student.AcademicEnrollment = new AcademicEnrollment
+                {
+                    Faculty = faculty,
+                    EnrollmentDate = enrollmentDto.EnrollmentDate,
+                    StudentIdNumber = enrollmentDto.StudentIdNumber
+                };
+            }
+        }
             
             // Handle file upload for ProfileImage
             if (updateStudentDto.ProfileImage != null)

@@ -16,9 +16,6 @@ namespace FormBackend.Models
         public virtual Faculty? Faculty { get; set; }
 
         [Required]
-        public required string ProgramName { get; set; }
-
-        [Required]
         public DateTime EnrollmentDate { get; set; }
 
         public string? StudentIdNumber { get; set; }

@@ -22,7 +22,14 @@ import Select from "../../components/ui/select";
 import Checkbox from "../../components/ui/checkbox";
 import Button from "../../components/ui/button";
 import { useSyncTemporaryAddress } from "../../hooks/useSyncTemporaryAddress";
-import { useForm, useFieldArray, useWatch, Controller } from "react-hook-form";
+import {
+  useForm,
+  useFieldArray,
+  useWatch,
+  Controller,
+  FieldValues,
+  Resolver,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   formSchema,
@@ -63,7 +70,7 @@ const FormPage: React.FC = () => {
     reset,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as unknown as Resolver<FormData>,
     mode: "onTouched",
     reValidateMode: "onChange",
     defaultValues: {
@@ -378,7 +385,10 @@ const FormPage: React.FC = () => {
         "academicHistories.0.level",
       ],
     },
-    { name: "Enrollment", fields: ["academicEnrollment.faculty"] },
+    {
+      name: "Enrollment",
+      fields: ["academicEnrollment.faculty", "academicEnrollment.programName"],
+    },
     { name: "Scholarship", fields: [] },
     { name: "Other", fields: [] },
     { name: "Documents & Confirmation", fields: ["agree"] },
@@ -492,14 +502,13 @@ const FormPage: React.FC = () => {
         </div>
 
         <Form
-          onSubmit={handleSubmit(async (data: FormData) => {
-            // Validate all fields before submission
+          onSubmit={handleSubmit(async (data: FieldValues) => {
             const isValid = await trigger();
             if (!isValid) {
               onError(errors as Record<string, { message?: string }>);
               return;
             }
-            await onSubmit(data);
+            await onSubmit(data as FormData);
           }, onError)}
         >
           {/* STEP 1: Personal */}
@@ -534,13 +543,13 @@ const FormPage: React.FC = () => {
                 <Select
                   label="Gender"
                   options={genderOptions}
-                  {...register("gender")}
+                  {...register("gender", { valueAsNumber: true })}
                   error={errors.gender?.message}
                 />
                 <Select
                   label="Blood Group"
                   options={bloodTypeOptions}
-                  {...register("bloodGroup")}
+                  {...register("bloodGroup", { valueAsNumber: true })}
                   error={errors.bloodGroup?.message}
                 />
               </div>
