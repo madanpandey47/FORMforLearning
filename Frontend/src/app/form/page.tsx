@@ -1073,7 +1073,7 @@ const FormPage: React.FC = () => {
                       Profile Image {isEditMode ? "(Replace if needed)" : ""}
                     </p>
                     {!profileImagePreviewUrl ? (
-                      <label className="mt-4 inline-block cursor-pointer rounded bg-sky-600 px-4 py-2 text-white hover:bg-sky-700">
+                      <label className="mt-4 inline-block cursor-pointer rounded bg-sky-600 p-2 text-white hover:bg-sky-700">
                         Choose Image
                         <input
                           type="file"

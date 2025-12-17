@@ -13,7 +13,6 @@ namespace FormBackend.Core.Repositories
         private IGenericRepository<Parent>? _parentRepository;
         private IGenericRepository<AcademicHistory>? _academicHistoryRepository;
         private IGenericRepository<AcademicEnrollment>? _academicEnrollmentRepository;
-        private IGenericRepository<Faculty>? _facultyRepository;
 
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -40,10 +39,6 @@ namespace FormBackend.Core.Repositories
             get { return _academicEnrollmentRepository ??= new GenericRepository<AcademicEnrollment>(_context); }
         }
 
-        public IGenericRepository<Faculty> Faculties
-        {
-            get { return _facultyRepository ??= new GenericRepository<Faculty>(_context); }
-        }
 
         public async Task<int> SaveAsync()
         {

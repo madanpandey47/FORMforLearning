@@ -10,7 +10,6 @@ namespace FormBackend.Core.Interfaces
         IGenericRepository<Parent> Parents { get; }
         IGenericRepository<AcademicHistory> AcademicHistories { get; }
         IGenericRepository<AcademicEnrollment> AcademicEnrollments { get; }
-        IGenericRepository<Faculty> Faculties { get; }
         Task<int> SaveAsync();
     }
 }

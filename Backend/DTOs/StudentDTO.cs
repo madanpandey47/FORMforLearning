@@ -56,18 +56,12 @@ namespace FormBackend.DTOs
         public DateOnly PassedYear { get; set; }
     }
 
-    public class FacultyDTO
-    {
-        public int Id { get; set; }
-        public FacultyType Type { get; set; }
-        public required string ProgramName { get; set; }
-    }
 
     public class AcademicEnrollmentDTO
     {
         public int Id { get; set; }
-        public int FacultyId { get; set; }
-        public virtual FacultyDTO? Faculty { get; set; }
+        public FacultyType Faculty { get; set; }
+        public required string ProgramName { get; set; }
         public DateTime EnrollmentDate { get; set; }
         public string? StudentIdNumber { get; set; }
     }

@@ -14,7 +14,6 @@ namespace FormBackend.Mappings
             CreateMap<Citizenship, CitizenshipDTO>();
             CreateMap<SecondaryInfos, SecondaryInfosDTO>();
             CreateMap<AcademicHistory, AcademicHistoryDTO>();
-            CreateMap<Faculty, FacultyDTO>();
             CreateMap<AcademicEnrollment, AcademicEnrollmentDTO>();
             CreateMap<Achievement, AchievementDTO>();
             CreateMap<Hobby, HobbyDTO>();
@@ -32,7 +31,6 @@ namespace FormBackend.Mappings
             CreateMap<CitizenshipDTO, Citizenship>();
             CreateMap<SecondaryInfosDTO, SecondaryInfos>().ForMember(d => d.AcademicCertificatePaths, opt => opt.Ignore());
             CreateMap<AcademicHistoryDTO, AcademicHistory>().ForMember(d => d.Id, opt => opt.Ignore());
-            CreateMap<FacultyDTO, Faculty>().ForMember(d => d.Id, opt => opt.Ignore());
             CreateMap<AcademicEnrollmentDTO, AcademicEnrollment>().ForMember(d => d.Id, opt => opt.Ignore());
             CreateMap<AchievementDTO, Achievement>();
             CreateMap<HobbyDTO, Hobby>();

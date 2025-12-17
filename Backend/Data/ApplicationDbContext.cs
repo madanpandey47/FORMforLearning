@@ -17,7 +17,6 @@ namespace FormBackend.Data
         public DbSet<Parent> Parents { get; set; }
         public DbSet<AcademicHistory> AcademicHistories { get; set; }
         public DbSet<AcademicEnrollment> AcademicEnrollments { get; set; }
-        public DbSet<Faculty> Faculties { get; set; }
         
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -60,13 +59,6 @@ namespace FormBackend.Data
                       .HasForeignKey<AcademicEnrollment>(ae => ae.StudentPID)
                       .OnDelete(DeleteBehavior.Cascade);
             });
-
-            // Configure Faculty to AcademicEnrollment relationship
-            modelBuilder.Entity<AcademicEnrollment>()
-                .HasOne(ae => ae.Faculty)
-                .WithMany() // No navigation property on Faculty back to AcademicEnrollment
-                .HasForeignKey(ae => ae.FacultyId)
-                .OnDelete(DeleteBehavior.Restrict); // Don't delete a faculty if it's in use
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
