@@ -24,7 +24,9 @@ namespace FormBackend.Mappings
                 .ForMember(d => d.PID, opt => opt.Ignore())
                 .ForMember(d => d.CreatedAt, opt => opt.Ignore())
                 .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
-                .ForMember(d => d.ProfileImagePath, opt => opt.Ignore());
+                .ForMember(d => d.ProfileImagePath, opt => opt.Ignore())
+                .ForMember(d => d.PermanentAddress, opt => opt.Ignore())
+                .ForMember(d => d.TemporaryAddress, opt => opt.Ignore());
 
             CreateMap<AddressDTO, Address>();
             CreateMap<ParentDTO, Parent>().ForMember(d => d.Id, opt => opt.Ignore());
@@ -42,6 +44,8 @@ namespace FormBackend.Mappings
                 .ForMember(d => d.CreatedAt, opt => opt.Ignore())
                 .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
                 .ForMember(d => d.ProfileImagePath, opt => opt.Ignore())
+                .ForMember(d => d.PermanentAddress, opt => opt.Ignore())
+                .ForMember(d => d.TemporaryAddress, opt => opt.Ignore())
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
         }
     }

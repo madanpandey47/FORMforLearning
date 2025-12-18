@@ -16,6 +16,5 @@ namespace FormBackend.Models
         public string? Street { get; set; }
         [Required]
         public required string Country { get; set; }
-        public AddressType Type { get; set; }
     }
 }

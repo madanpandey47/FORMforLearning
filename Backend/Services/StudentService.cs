@@ -51,7 +51,8 @@ namespace FormBackend.Services
         {
             var student = await _unitOfWork.Students.GetByPIDAsync(pid, query => query
                 .Include(s => s.AcademicEnrollment)
-                .Include(s => s.Addresses)
+                .Include(s => s.PermanentAddress)
+                .Include(s => s.TemporaryAddress)
                 .Include(s => s.Parents)
                 .Include(s => s.AcademicHistories)
                 .Include(s => s.Achievements)
@@ -70,6 +71,18 @@ namespace FormBackend.Services
         public async Task<StudentReadDTO> CreateAsync(CreateStudentDTO createStudentDto)
         {
             var student = _mapper.Map<Student>(createStudentDto);
+
+            // Handle Address
+            if (createStudentDto.IsTemporaryAddressSameAsPermanent)
+            {
+                student.PermanentAddress = _mapper.Map<Address>(createStudentDto.TemporaryAddress);
+                student.TemporaryAddress = _mapper.Map<Address>(createStudentDto.TemporaryAddress);
+            }
+            else
+            {
+                student.PermanentAddress = _mapper.Map<Address>(createStudentDto.PermanentAddress);
+                student.TemporaryAddress = _mapper.Map<Address>(createStudentDto.TemporaryAddress);
+            }
 
             // Handle Academic Enrollment
             if (createStudentDto.AcademicEnrollment != null)
@@ -98,7 +111,8 @@ namespace FormBackend.Services
         {
             var student = await _unitOfWork.Students.GetByPIDAsync(pid, query => query
                 .Include(s => s.AcademicEnrollment)
-                .Include(s => s.Addresses)
+                .Include(s => s.PermanentAddress)
+                .Include(s => s.TemporaryAddress)
                 .Include(s => s.Parents)
                 .Include(s => s.AcademicHistories)
                 .Include(s => s.Achievements)
@@ -110,6 +124,18 @@ namespace FormBackend.Services
             );
 
             if (student == null) return false;
+
+            // Handle Address
+            if (updateStudentDto.IsTemporaryAddressSameAsPermanent)
+            {
+                student.PermanentAddress = _mapper.Map<Address>(updateStudentDto.TemporaryAddress);
+                student.TemporaryAddress = _mapper.Map<Address>(updateStudentDto.TemporaryAddress);
+            }
+            else
+            {
+                student.PermanentAddress = _mapper.Map<Address>(updateStudentDto.PermanentAddress);
+                student.TemporaryAddress = _mapper.Map<Address>(updateStudentDto.TemporaryAddress);
+            }
 
             // Handle Academic Enrollment
             if (updateStudentDto.AcademicEnrollment != null)
@@ -150,10 +176,6 @@ namespace FormBackend.Services
             if (updateStudentDto.AcademicHistories != null)
             {
                 UpdateChildCollection(student.AcademicHistories, updateStudentDto.AcademicHistories, student.PID);
-            }
-            if (updateStudentDto.Addresses != null)
-            {
-                UpdateOwnedCollection(student.Addresses, updateStudentDto.Addresses);
             }
             if (updateStudentDto.Hobbies != null)
             {

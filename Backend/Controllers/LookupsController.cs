@@ -32,8 +32,6 @@ namespace FormBackend.Controllers
         [HttpGet("academic-levels")]
         public IActionResult GetAcademicLevels() => GetEnumAsList<AcademicLevel>();
 
-        [HttpGet("address-types")]
-        public IActionResult GetAddressTypes() => GetEnumAsList<AddressType>();
 
         [HttpGet("genders")]
         public IActionResult GetGenders() => GetEnumAsList<Gender>();
@@ -51,11 +49,11 @@ namespace FormBackend.Controllers
             return Ok(provinces);
         }
 
-        [HttpGet("municipalities/{province}")]
-        public async Task<IActionResult> GetMunicipalities(string province)
+        [HttpGet("districts/{province}")]
+        public async Task<IActionResult> GetDistricts(string province)
         {
-            var municipalities = await _lookupService.GetMunicipalities(province);
-            return Ok(municipalities);
+            var districts = await _lookupService.GetDistricts(province);
+            return Ok(districts);
         }
     }
 }

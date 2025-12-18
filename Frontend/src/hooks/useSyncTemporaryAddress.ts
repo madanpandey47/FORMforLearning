@@ -7,49 +7,29 @@ type FormData = z.infer<typeof formSchema>;
 
 export function useSyncTemporaryAddress(
   currentStep: number,
-  sameAsPermanent: boolean,
+  isTemporaryAddressSameAsPermanent: boolean,
   permanentAddress: FormData["permanentAddress"] | undefined,
   temporaryAddress: FormData["temporaryAddress"] | undefined,
   setValue: UseFormSetValue<FormData>
 ) {
   React.useEffect(() => {
     if (
-      !sameAsPermanent ||
+      !isTemporaryAddressSameAsPermanent ||
       currentStep !== 3 ||
-      !permanentAddress ||
-      !temporaryAddress
+      !permanentAddress 
     ) {
       return;
     }
 
-    const expectedTemp = {
-      ...permanentAddress,
-      type: 1 as const,
-    };
-
-    const permWithoutType = JSON.stringify({
-      province: permanentAddress.province,
-      municipality: permanentAddress.municipality,
-      ward: permanentAddress.ward,
-      street: permanentAddress.street,
-      country: permanentAddress.country,
-    });
-    const tempWithoutType = JSON.stringify({
-      province: temporaryAddress.province,
-      municipality: temporaryAddress.municipality,
-      ward: temporaryAddress.ward,
-      street: temporaryAddress.street,
-      country: temporaryAddress.country,
-    });
-
-    if (permWithoutType !== tempWithoutType) {
-      setValue("temporaryAddress", expectedTemp, {
+    // Only set if temporary address is not already the same
+    if (JSON.stringify(permanentAddress) !== JSON.stringify(temporaryAddress)) {
+      setValue("temporaryAddress", permanentAddress, {
         shouldValidate: true,
         shouldDirty: true,
       });
     }
   }, [
-    sameAsPermanent,
+    isTemporaryAddressSameAsPermanent,
     currentStep,
     permanentAddress,
     temporaryAddress,

@@ -10,7 +10,6 @@ const dateStringSchema = z
 
 export const GenderEnum = z.coerce.number().int().min(0).max(2).nullable();
 export const BloodGroupEnum = z.coerce.number().int().min(0).max(7).nullable();
-export const AddressTypeEnum = z.coerce.number().int().min(0).max(1).nullable();
 export const ParentTypeEnum = z.coerce.number().int().min(0).max(3).nullable();
 export const AcademicLevelEnum = z.coerce.number().int().min(0).max(3).nullable();
 
@@ -20,7 +19,6 @@ export const addressSchema = z.object({
   ward: z.string().min(1, "Ward is required"),
   street: z.string().nullable().optional(),
   country: z.string().min(3, "Country is required"),
-  type: AddressTypeEnum,
 });
 
 export const parentSchema = z.object({
@@ -119,8 +117,9 @@ export const formSchema = z.object({
   bloodGroup: z.coerce.number().int().min(0).max(7).nullable(),
   citizenship: citizenshipSchema,
   contactInfo: contactInfoSchema,
+  isTemporaryAddressSameAsPermanent: z.boolean().optional(),
   permanentAddress: addressSchema,
-  temporaryAddress: addressSchema,
+  temporaryAddress: addressSchema.optional(),
   parents: z.array(parentSchema).min(1, "At least one parent is required"),
   academicHistories: z
     .array(academicHistorySchema)
@@ -135,6 +134,14 @@ export const formSchema = z.object({
   agree: z
     .boolean()
     .refine((v) => v === true, { message: "You must agree to continue" }),
+}).superRefine((data, ctx) => {
+    if (!data.isTemporaryAddressSameAsPermanent && !data.temporaryAddress) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["temporaryAddress"],
+            message: "Temporary address is required",
+          });
+    }
 });
 
 export type FormData = z.infer<typeof formSchema>;

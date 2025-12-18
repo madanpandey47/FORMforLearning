@@ -14,7 +14,6 @@ namespace FormBackend.DTOs
         public required string Ward { get; set; }
         public string? Street { get; set; }
         public required string Country { get; set; }
-        public AddressType Type { get; set; }
     }
 
     public class ParentDTO
@@ -108,7 +107,8 @@ namespace FormBackend.DTOs
         public string? ProfileImagePath { get; set; }
         public CitizenshipDTO? Citizenship { get; set; }
         public SecondaryInfosDTO? SecondaryInfos { get; set; }
-        public ICollection<AddressDTO> Addresses { get; set; } = new List<AddressDTO>();
+        public AddressDTO? PermanentAddress { get; set; }
+        public AddressDTO? TemporaryAddress { get; set; }
         public ICollection<ParentDTO> Parents { get; set; } = new List<ParentDTO>();
         public ICollection<AcademicHistoryDTO> AcademicHistories { get; set; } = new List<AcademicHistoryDTO>();
         public AcademicEnrollmentDTO? AcademicEnrollment { get; set; }
@@ -145,8 +145,11 @@ namespace FormBackend.DTOs
     // NESTED DATA
     public CitizenshipDTO? Citizenship { get; set; }
     public SecondaryInfosDTO? SecondaryInfos { get; set; }
+    
+    public bool IsTemporaryAddressSameAsPermanent { get; set; }
+    public AddressDTO? PermanentAddress { get; set; }
+    public AddressDTO? TemporaryAddress { get; set; }
 
-    public ICollection<AddressDTO> Addresses { get; set; } = new List<AddressDTO>();
     public ICollection<ParentDTO> Parents { get; set; } = new List<ParentDTO>();
     public ICollection<AcademicHistoryDTO> AcademicHistories { get; set; } = new List<AcademicHistoryDTO>();
 
@@ -199,8 +202,11 @@ namespace FormBackend.DTOs
 
     public CitizenshipDTO? Citizenship { get; set; }
     public SecondaryInfosDTO? SecondaryInfos { get; set; }
-
-    public ICollection<AddressDTO>? Addresses { get; set; }
+    
+    public bool IsTemporaryAddressSameAsPermanent { get; set; }
+    public AddressDTO? PermanentAddress { get; set; }
+    public AddressDTO? TemporaryAddress { get; set; }
+    
     public ICollection<ParentDTO>? Parents { get; set; }
     public ICollection<AcademicHistoryDTO>? AcademicHistories { get; set; }
 

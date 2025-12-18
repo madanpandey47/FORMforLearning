@@ -40,7 +40,8 @@ namespace FormBackend.Data
                     sch.Property(s => s.Amount).HasPrecision(18, 2);
                 });
 
-                entity.OwnsMany(s => s.Addresses, a => { a.ToTable("Addresses"); });
+                entity.OwnsOne(s => s.PermanentAddress, a => { a.ToTable("PermanentAddresses"); });
+                entity.OwnsOne(s => s.TemporaryAddress, a => { a.ToTable("TemporaryAddresses"); });
                 entity.OwnsMany(s => s.Hobbies, h => { h.ToTable("Hobbies"); });
                 entity.OwnsMany(s => s.Achievements, a => { a.ToTable("Achievements"); });
 

@@ -27,11 +27,11 @@ namespace FormBackend.Services
             return Task.FromResult(NepalProvinces.Keys.AsEnumerable());
         }
 
-        public Task<IEnumerable<string>> GetMunicipalities(string province)
+        public Task<IEnumerable<string>> GetDistricts(string province)
         {
-            if (NepalProvinces.TryGetValue(province, out var municipalities))
+            if (NepalProvinces.TryGetValue(province, out var districts))
             {
-                return Task.FromResult(municipalities.AsEnumerable());
+                return Task.FromResult(districts.AsEnumerable());
             }
             return Task.FromResult(Enumerable.Empty<string>());
         }

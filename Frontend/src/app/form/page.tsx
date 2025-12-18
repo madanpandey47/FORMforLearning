@@ -81,19 +81,18 @@ const FormPage: React.FC = () => {
         dateOfIssuance: "",
         placeOfIssuance: "",
       },
+      isTemporaryAddressSameAsPermanent: false,
       permanentAddress: {
         province: "",
         municipality: "",
         ward: "",
         country: "Nepal",
-        type: 0,
       },
       temporaryAddress: {
         province: "",
         municipality: "",
         ward: "",
         country: "",
-        type: 1,
       },
       parents: [{ firstName: "", lastName: "", relation: 0 }],
       academicHistories: [
@@ -153,7 +152,6 @@ const FormPage: React.FC = () => {
   } = useFieldArray({ control, name: "achievements" });
 
   const [currentStep, setCurrentStep] = React.useState(1);
-  const [sameAsPermanent, setSameAsPermanent] = React.useState(false);
 
   // Previews
   const [profileImagePreviewUrl, setProfileImagePreviewUrl] = React.useState<
@@ -215,6 +213,21 @@ const FormPage: React.FC = () => {
       }
     })();
   }, []);
+
+  React.useEffect(() => {
+    return () => {
+      if (profileImagePreviewUrl) URL.revokeObjectURL(profileImagePreviewUrl);
+      academicCertificatesPreviewUrls.forEach((url) =>
+        URL.revokeObjectURL(url)
+      );
+    };
+  }, [profileImagePreviewUrl, academicCertificatesPreviewUrls]);
+
+  const countryOptions = [
+    { label: "Nepal", value: "Nepal" },
+    { label: "India", value: "India" },
+    { label: "Other", value: "Other" },
+  ];
 
   // Load municipalities
   React.useEffect(() => {
@@ -293,32 +306,10 @@ const FormPage: React.FC = () => {
                 }
               );
             }
-
-            // Check if temporary same as permanent
-            const perm = getValues("permanentAddress");
-            const temp = getValues("temporaryAddress");
-            const permWithoutType = {
-              province: perm.province,
-              municipality: perm.municipality,
-              ward: perm.ward,
-              street: perm.street || "",
-              country: perm.country,
-            };
-            const tempWithoutType = {
-              province: temp.province,
-              municipality: temp.municipality,
-              ward: temp.ward,
-              street: temp.street || "",
-              country: temp.country,
-            };
-            if (
-              perm.province &&
-              temp.province &&
-              JSON.stringify(permWithoutType) ===
-                JSON.stringify(tempWithoutType)
-            ) {
-              setSameAsPermanent(true);
-            }
+            setValue(
+              "isTemporaryAddressSameAsPermanent",
+              studentFormData.isTemporaryAddressSameAsPermanent ?? false
+            );
           }
         } catch {
           alert("Failed to load student data");
@@ -327,28 +318,19 @@ const FormPage: React.FC = () => {
     }
   }, [isEditMode, studentId, reset, getValues, setValue]);
 
+  const isTemporaryAddressSameAsPermanent = useWatch({
+    control,
+    name: "isTemporaryAddressSameAsPermanent",
+    defaultValue: false,
+  });
+
   useSyncTemporaryAddress(
     currentStep,
-    sameAsPermanent,
+    !!isTemporaryAddressSameAsPermanent,
     permanentAddress,
     temporaryAddress,
     setValue
   );
-
-  React.useEffect(() => {
-    return () => {
-      if (profileImagePreviewUrl) URL.revokeObjectURL(profileImagePreviewUrl);
-      academicCertificatesPreviewUrls.forEach((url) =>
-        URL.revokeObjectURL(url)
-      );
-    };
-  }, [profileImagePreviewUrl, academicCertificatesPreviewUrls]);
-
-  const countryOptions = [
-    { label: "Nepal", value: "Nepal" },
-    { label: "India", value: "India" },
-    { label: "Other", value: "Other" },
-  ];
 
   const steps = [
     {
@@ -656,15 +638,29 @@ const FormPage: React.FC = () => {
                   <FiMapPin className="text-emerald-600" /> Temporary Address
                 </h2>
                 <div className="my-4 flex items-center">
-                  <input
-                    type="checkbox"
-                    id="sameAsPermanent"
-                    checked={sameAsPermanent}
-                    onChange={(e) => setSameAsPermanent(e.target.checked)}
-                    className="h-4 w-4 rounded accent-sky-600"
+                  <Controller
+                    name="isTemporaryAddressSameAsPermanent"
+                    control={control}
+                    render={({ field }) => (
+                      <input
+                        type="checkbox"
+                        id="isTemporaryAddressSameAsPermanent"
+                        checked={field.value}
+                        onChange={(e) => {
+                          field.onChange(e.target.checked);
+                          if (e.target.checked) {
+                            setValue(
+                              "temporaryAddress",
+                              getValues("permanentAddress")
+                            );
+                          }
+                        }}
+                        className="h-4 w-4 rounded accent-sky-600"
+                      />
+                    )}
                   />
                   <label
-                    htmlFor="sameAsPermanent"
+                    htmlFor="isTemporaryAddressSameAsPermanent"
                     className="ml-2 text-sm font-medium"
                   >
                     Same as Permanent Address
@@ -675,32 +671,34 @@ const FormPage: React.FC = () => {
                     label="Province"
                     options={provinceOptions}
                     {...register("temporaryAddress.province")}
-                    disabled={sameAsPermanent}
+                    disabled={isTemporaryAddressSameAsPermanent}
                     error={errors.temporaryAddress?.province?.message}
                   />
                   <Select
                     label="Municipality"
                     options={temporaryMunicipalities}
                     {...register("temporaryAddress.municipality")}
-                    disabled={sameAsPermanent || !temporaryProvince}
+                    disabled={
+                      isTemporaryAddressSameAsPermanent || !temporaryProvince
+                    }
                     error={errors.temporaryAddress?.municipality?.message}
                   />
                   <Input
                     label="Ward"
                     {...register("temporaryAddress.ward")}
-                    disabled={sameAsPermanent}
+                    disabled={isTemporaryAddressSameAsPermanent}
                     error={errors.temporaryAddress?.ward?.message}
                   />
                   <Input
                     label="Street (optional)"
                     {...register("temporaryAddress.street")}
-                    disabled={sameAsPermanent}
+                    disabled={isTemporaryAddressSameAsPermanent}
                   />
                   <Select
                     label="Country"
                     options={countryOptions}
                     {...register("temporaryAddress.country")}
-                    disabled={sameAsPermanent}
+                    disabled={isTemporaryAddressSameAsPermanent}
                     error={errors.temporaryAddress?.country?.message}
                   />
                 </div>
@@ -1153,7 +1151,9 @@ const FormPage: React.FC = () => {
                           const combinedFiles = [...currentFiles, ...newFiles];
                           field.onChange(combinedFiles);
 
-                          const newPreviews = newFiles.map((f) => URL.createObjectURL(f));
+                          const newPreviews = newFiles.map((f) =>
+                            URL.createObjectURL(f)
+                          );
                           setAcademicCertificatesPreviewUrls((prev) => [
                             ...prev,
                             ...newPreviews,
