@@ -15,11 +15,6 @@ export enum BloodType {
   ONegative = 7,
 }
 
-export enum AddressType {
-  Permanent = 0,
-  Temporary = 1,
-}
-
 export enum ParentType {
   Father = 0,
   Mother = 1,
@@ -70,11 +65,6 @@ export const bloodTypeMap: Record<BloodType | number | string, string> = {
   [BloodType.ABNegative]: "AB-",
   [BloodType.OPositive]: "O+",
   [BloodType.ONegative]: "O-",
-};
-
-export const addressTypeMap: Record<AddressType | number | string, string> = {
-  [AddressType.Permanent]: "Permanent Address",
-  [AddressType.Temporary]: "Temporary Address",
 };
 
 export const parentTypeMap: Record<ParentType | number | string, string> = {
@@ -129,10 +119,6 @@ export const getBloodTypeDisplay = (
   value: BloodType | number | string | undefined
 ): string => getEnumDisplay(value, bloodTypeMap);
 
-export const getAddressTypeDisplay = (
-  value: AddressType | number | string | undefined
-): string => getEnumDisplay(value, addressTypeMap);
-
 export const getParentTypeDisplay = (
   value: ParentType | number | string | undefined
 ): string => getEnumDisplay(value, parentTypeMap);
@@ -168,7 +154,6 @@ export interface AddressDTO {
   ward?: string;
   street?: string;
   country?: string;
-  type?: AddressType;
 }
 
 export interface ParentDTO {
@@ -250,7 +235,9 @@ export interface StudentDTO {
 
   secondaryInfos?: SecondaryInfosDTO;
 
-  addresses: AddressDTO[];
+  permanentAddress?: AddressDTO;
+  temporaryAddress?: AddressDTO;
+  isTemporaryAddressSameAsPermanent?: boolean;
 
   parents: ParentDTO[];
 

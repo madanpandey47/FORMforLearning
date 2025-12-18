@@ -2,14 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { getStudent, getImageUrl } from "@/lib/api/student-api";
+import Image from "next/image"; // Import Image component
+import { getStudent } from "@/lib/api/student-api";
 import { FieldValues } from "react-hook-form";
 import {
   getGenderDisplay,
   getBloodTypeDisplay,
   getParentTypeDisplay,
   getAcademicLevelDisplay,
-  getAddressTypeDisplay,
 } from "@/lib/types/student-types";
 
 const StudentViewPage = () => {
@@ -50,7 +50,10 @@ const StudentViewPage = () => {
   }
 
   const toTitleCase = (str: string) =>
-    str.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
+    str
+      .replace(/([A-Z])/g, " $1")
+      .trim()
+      .replace(/^./, (s) => s.toUpperCase());
 
   // Map field names to display names and handle special enum conversions
   const fieldDisplayMap: Record<string, string> = {
@@ -58,8 +61,7 @@ const StudentViewPage = () => {
     bloodGroup: "Blood Group",
     relation: "Relation",
     level: "Academic Level",
-    type: "Address Type",
-    facultyId: "Faculty",
+    faculty: "Faculty",
   };
 
   // Fields to exclude from display
@@ -67,10 +69,11 @@ const StudentViewPage = () => {
     "pid",
     "profileImagePath",
     "secondaryInfos",
+    "academicCertificates", // Academic certificates will be rendered separately
   ]);
 
   // Fields to hide IDs for
-  const hideIdFields = new Set(["parents", "addresses", "academicHistories"]);
+  const hideIdFields = new Set(["parents", "academicHistories"]);
 
   const formatFieldValue = (key: string, value: unknown): string => {
     if (value === null || value === undefined) return "Not provided";
@@ -86,8 +89,9 @@ const StudentViewPage = () => {
         return getParentTypeDisplay(value as number);
       case "level":
         return getAcademicLevelDisplay(value as number);
-      case "type":
-        return getAddressTypeDisplay(value as number);
+      case "faculty":
+        // Assuming faculty values are numbers, and you have a mapping
+        return String(value); // Needs actual mapping if not direct
       default:
         return String(value);
     }
@@ -175,12 +179,14 @@ const StudentViewPage = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
           {student.profileImagePath && !imageError ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={`http://localhost:5000${student.profileImagePath}`}
               alt="Profile"
+              width={144} // Set appropriate width
+              height={144} // Set appropriate height
               className="w-36 h-36 rounded-full object-cover border-2 border-gray-300"
               onError={() => setImageError(true)}
+              unoptimized // Use unoptimized for local or non-optimized images
             />
           ) : (
             <div className="w-36 h-36 rounded-full bg-gray-300 flex items-center justify-center border-2 border-gray-300">
@@ -221,7 +227,7 @@ const StudentViewPage = () => {
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {student.secondaryInfos.academicCertificatePaths
-                .split(',')
+                .split(",")
                 .map((path: string, index: number) => (
                   <a
                     key={index}
@@ -229,10 +235,13 @@ const StudentViewPage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <img
+                    <Image
                       src={`http://localhost:5000${path}`}
                       alt={`Certificate ${index + 1}`}
+                      width={192} // 48 * 4, assuming w-full h-48
+                      height={192} //
                       className="w-full h-48 object-cover rounded-lg border-2 border-gray-300 hover:border-sky-500 transition-colors"
+                      unoptimized
                     />
                   </a>
                 ))}

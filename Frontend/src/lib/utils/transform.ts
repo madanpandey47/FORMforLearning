@@ -42,6 +42,7 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
     contactInfo,
     permanentAddress,
     temporaryAddress,
+    isTemporaryAddressSameAsPermanent,
     middleName,
     academicEnrollment,
     citizenship,
@@ -108,16 +109,15 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
   }
 
   // Addresses
-  const addresses: FieldValues[] = [];
-  if (permanentAddress && !isEmptyObject(permanentAddress)) {
-    addresses.push({ ...permanentAddress, type: 0 });
+  if (isTemporaryAddressSameAsPermanent) {
+    transformed.permanentAddress = permanentAddress;
+    transformed.temporaryAddress = permanentAddress;
+  } else {
+    transformed.permanentAddress = permanentAddress;
+    transformed.temporaryAddress = temporaryAddress;
   }
-  if (temporaryAddress && !isEmptyObject(temporaryAddress)) {
-    addresses.push({ ...temporaryAddress, type: 1 });
-  }
-  if (addresses.length > 0) {
-    transformed.addresses = addresses;
-  }
+  transformed.isTemporaryAddressSameAsPermanent =
+    !!isTemporaryAddressSameAsPermanent;
 
   // Academic enrollment
   if (academicEnrollment && !isEmptyObject(academicEnrollment)) {
@@ -143,7 +143,9 @@ export const transformFromDTO = (dto: StudentDTO): FieldValues => {
     primaryMobile = "",
     primaryEmail = "",
     secondaryInfos,
-    addresses = [],
+    permanentAddress,
+    temporaryAddress,
+    isTemporaryAddressSameAsPermanent,
     parents = [],
     academicHistories = [],
     hobbies = [],
@@ -155,9 +157,6 @@ export const transformFromDTO = (dto: StudentDTO): FieldValues => {
     profileImagePath,
     ...rest
   } = dto;
-
-  const permanentAddress = addresses.find((a) => a.type === 0) ?? {};
-  const temporaryAddress = addresses.find((a) => a.type === 1) ?? {};
 
   return {
     ...rest,
@@ -173,8 +172,10 @@ export const transformFromDTO = (dto: StudentDTO): FieldValues => {
       alternateMobile: secondaryInfos?.alternateMobile ?? "",
       alternateEmail: secondaryInfos?.alternateEmail ?? "",
     },
-    permanentAddress,
-    temporaryAddress,
+    permanentAddress: permanentAddress ?? {},
+    temporaryAddress: temporaryAddress ?? {},
+    isTemporaryAddressSameAsPermanent:
+      isTemporaryAddressSameAsPermanent ?? false,
     parents: parents.length > 0 ? parents : [{}],
     academicHistories:
       academicHistories.length > 0
@@ -191,7 +192,7 @@ export const transformFromDTO = (dto: StudentDTO): FieldValues => {
     hobbies: hobbies.length > 0 ? hobbies : [{}],
     achievements:
       achievements.length > 0
-        ? achievements.map((a) => ({
+        ? achievements.map((a: FieldValues) => ({
             ...a,
             dateOfAchievement: a.dateOfAchievement?.split("T")[0] ?? "",
           }))

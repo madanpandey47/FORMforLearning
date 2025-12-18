@@ -267,6 +267,34 @@ const FormPage: React.FC = () => {
             reset(studentFormData as FormData);
             setValue("agree", true);
 
+            // Set dropdown values explicitly
+            setValue("gender", studentFormData.gender);
+            setValue("bloodGroup", studentFormData.bloodGroup);
+            if (studentFormData.parents) {
+              studentFormData.parents.forEach(
+                (parent: FormData["parents"][number], index: number) => {
+                  setValue(`parents.${index}.relation`, parent.relation);
+                }
+              );
+            }
+            if (studentFormData.academicHistories) {
+              studentFormData.academicHistories.forEach(
+                (
+                  history: FormData["academicHistories"][number],
+                  index: number
+                ) => {
+                  setValue(`academicHistories.${index}.level`, history.level);
+                }
+              );
+            }
+
+            if (studentFormData.academicEnrollment) {
+              setValue(
+                "academicEnrollment.faculty",
+                studentFormData.academicEnrollment.faculty
+              );
+            }
+
             if (studentFormData.profileImagePath) {
               setProfileImagePreviewUrl(
                 `http://localhost:5000${studentFormData.profileImagePath}`

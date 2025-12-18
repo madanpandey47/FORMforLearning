@@ -30,6 +30,7 @@ namespace FormBackend.Models
         public virtual SecondaryInfos? SecondaryInfos { get; set; }
         public virtual Address? PermanentAddress { get; set; }
         public virtual Address? TemporaryAddress { get; set; }
+        public bool IsTemporaryAddressSameAsPermanent { get; set; }
         public virtual ICollection<Parent> Parents { get; set; } = new List<Parent>();
         public virtual ICollection<AcademicHistory> AcademicHistories { get; set; } = new List<AcademicHistory>();
         public virtual AcademicEnrollment? AcademicEnrollment { get; set; }
