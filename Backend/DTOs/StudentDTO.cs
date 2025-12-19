@@ -42,6 +42,9 @@ namespace FormBackend.DTOs
         public string? MiddleName { get; set; }
         public string? AlternateMobile { get; set; }
         public string? AlternateEmail { get; set; }
+        public string? CitizenshipImagePath { get; set; }
+        public string? BoardCertificateImagePath { get; set; }
+        public string? StudentIdCardPath { get; set; }
     }
 
     public class AcademicHistoryDTO
@@ -135,10 +138,11 @@ namespace FormBackend.DTOs
     [Required]
     public required string PrimaryEmail { get; set; }
 
-    public BloodType BloodGroup { get; set; }
-
     // FILES
     public IFormFile? ProfileImage { get; set; }
+    public IFormFile? CitizenshipImage { get; set; }
+    public IFormFile? BoardCertificateImage { get; set; }
+    public IFormFile? StudentIdCardImage { get; set; }
 
     // NESTED DATA
     public CitizenshipDTO? Citizenship { get; set; }
@@ -193,9 +197,15 @@ namespace FormBackend.DTOs
 
     // FILES
     public IFormFile? ProfileImage { get; set; }
+    public IFormFile? CitizenshipImage { get; set; }
+    public IFormFile? BoardCertificateImage { get; set; }
+    public IFormFile? StudentIdCardImage { get; set; }
 
     // Keep existing if null
     public string? ProfileImagePath { get; set; }
+    public string? CitizenshipImagePath { get; set; }
+    public string? BoardCertificateImagePath { get; set; }
+    public string? StudentIdCardPath { get; set; }
 
     public CitizenshipDTO? Citizenship { get; set; }
     public SecondaryInfosDTO? SecondaryInfos { get; set; }

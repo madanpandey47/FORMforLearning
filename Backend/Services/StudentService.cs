@@ -96,6 +96,22 @@ namespace FormBackend.Services
                 student.ProfileImagePath = await HandleFileUploadAsync(createStudentDto.ProfileImage, null);
             }
 
+            if (student.SecondaryInfos != null)
+            {
+                if (createStudentDto.CitizenshipImage != null)
+                {
+                    student.SecondaryInfos.CitizenshipImagePath = await HandleFileUploadAsync(createStudentDto.CitizenshipImage, null);
+                }
+                if (createStudentDto.BoardCertificateImage != null)
+                {
+                    student.SecondaryInfos.BoardCertificateImagePath = await HandleFileUploadAsync(createStudentDto.BoardCertificateImage, null);
+                }
+                if (createStudentDto.StudentIdCardImage != null)
+                {
+                    student.SecondaryInfos.StudentIdCardPath = await HandleFileUploadAsync(createStudentDto.StudentIdCardImage, null);
+                }
+            }
+
 
             await _unitOfWork.Students.AddAsync(student);
             await _unitOfWork.SaveAsync();
@@ -180,6 +196,22 @@ namespace FormBackend.Services
             if (updateStudentDto.Achievements != null)
             {
                 UpdateOwnedCollection(student.Achievements, updateStudentDto.Achievements);
+            }
+
+            if (student.SecondaryInfos != null)
+            {
+                if (updateStudentDto.CitizenshipImage != null)
+                {
+                    student.SecondaryInfos.CitizenshipImagePath = await HandleFileUploadAsync(updateStudentDto.CitizenshipImage, student.SecondaryInfos.CitizenshipImagePath);
+                }
+                if (updateStudentDto.BoardCertificateImage != null)
+                {
+                    student.SecondaryInfos.BoardCertificateImagePath = await HandleFileUploadAsync(updateStudentDto.BoardCertificateImage, student.SecondaryInfos.BoardCertificateImagePath);
+                }
+                if (updateStudentDto.StudentIdCardImage != null)
+                {
+                    student.SecondaryInfos.StudentIdCardPath = await HandleFileUploadAsync(updateStudentDto.StudentIdCardImage, student.SecondaryInfos.StudentIdCardPath);
+                }
             }
 
             _unitOfWork.Students.Update(student);
