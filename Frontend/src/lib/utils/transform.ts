@@ -161,7 +161,6 @@ export const transformFromDTO = (dto: StudentDTO): FieldValues => {
   return {
     ...rest,
     profileImagePath,
-    academicCertificatePaths: secondaryInfos?.academicCertificatePaths ?? [],
     dateOfBirth: dateOfBirth
       ? new Date(dateOfBirth).toISOString().split("T")[0]
       : "",

@@ -31,7 +31,7 @@ namespace FormBackend.Mappings
             CreateMap<AddressDTO, Address>();
             CreateMap<ParentDTO, Parent>().ForMember(d => d.Id, opt => opt.Ignore());
             CreateMap<CitizenshipDTO, Citizenship>();
-            CreateMap<SecondaryInfosDTO, SecondaryInfos>().ForMember(d => d.AcademicCertificatePaths, opt => opt.Ignore());
+            CreateMap<SecondaryInfosDTO, SecondaryInfos>();
             CreateMap<AcademicHistoryDTO, AcademicHistory>().ForMember(d => d.Id, opt => opt.Ignore());
             CreateMap<AcademicEnrollmentDTO, AcademicEnrollment>().ForMember(d => d.Id, opt => opt.Ignore());
             CreateMap<AchievementDTO, Achievement>();

@@ -13,6 +13,5 @@ namespace FormBackend.Models
         public string? CitizenshipImagePath { get; set; }
         public string? BoardCertificateImagePath { get; set; }
         public string? StudentIdCardPath { get; set; }
-        public string? AcademicCertificatePaths { get; set; }
     }
 }

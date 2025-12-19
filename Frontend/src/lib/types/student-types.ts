@@ -144,7 +144,6 @@ export interface SecondaryInfosDTO {
   middleName?: string;
   alternateMobile?: string;
   alternateEmail?: string;
-  academicCertificatePaths?: string;
 }
 
 export interface AddressDTO {

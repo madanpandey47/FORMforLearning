@@ -41,7 +41,6 @@ export const OPTIONAL_SECTIONS = new Set<string>([
 export const ALWAYS_INCLUDE_FIELDS = new Set<string>([
   "pid",
   "profileImagePath",
-  "academicCertificatePaths",
 ]);
 
 export const sanitizeData = <T>(obj: T): T | null => {

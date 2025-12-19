@@ -122,7 +122,6 @@ const FormPage: React.FC = () => {
         endDate: "",
       },
       profileImage: undefined,
-      academicCertificates: [],
       agree: true,
     },
   });
@@ -155,8 +154,6 @@ const FormPage: React.FC = () => {
   const [profileImagePreviewUrl, setProfileImagePreviewUrl] = React.useState<
     string | null
   >(null);
-  const [academicCertificatesPreviewUrls, setAcademicCertificatesPreviewUrls] =
-    React.useState<string[]>([]);
 
   // Lookups
   const [bloodTypeOptions, setBloodTypeOptions] = React.useState<Option[]>([]);
@@ -217,9 +214,6 @@ const FormPage: React.FC = () => {
   React.useEffect(() => {
     return () => {
       if (profileImagePreviewUrl) URL.revokeObjectURL(profileImagePreviewUrl);
-      academicCertificatesPreviewUrls.forEach((url) =>
-        URL.revokeObjectURL(url)
-      );
     };
   }, [profileImagePreviewUrl, academicCertificatesPreviewUrls]);
 
@@ -272,17 +266,7 @@ const FormPage: React.FC = () => {
                 `http://localhost:5000${studentFormData.profileImagePath}`
               );
             }
-            if (
-              studentFormData.secondaryInfos?.academicCertificatePaths &&
-              typeof studentFormData.secondaryInfos.academicCertificatePaths ===
-                "string"
-            ) {
-              setAcademicCertificatesPreviewUrls(
-                studentFormData.secondaryInfos.academicCertificatePaths
-                  .split(",")
-                  .map((path: string) => `http://localhost:5000${path}`)
-              );
-            }
+
 
             if (studentFormData.permanentAddress?.province) {
               getMunicipalities(studentFormData.permanentAddress.province).then(
@@ -1124,100 +1108,6 @@ const FormPage: React.FC = () => {
                 )}
               />
 
-              {/* Certificates */}
-              <Controller
-                control={control}
-                name="academicCertificates"
-                render={({ field }) => (
-                  <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
-                    <FiFileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-                    <p className="font-medium">
-                      Academic Certificates {isEditMode ? "(Add/Replace)" : ""}
-                    </p>
-                    <label className="mt-4 inline-block cursor-pointer rounded bg-sky-600 px-4 py-2 text-white hover:bg-sky-700">
-                      Add Files
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/*,application/pdf"
-                        className="hidden"
-                        onChange={(e) => {
-                          const newFiles = e.target.files
-                            ? Array.from(e.target.files)
-                            : [];
-                          if (newFiles.length === 0) return;
-
-                          const currentFiles = field.value || [];
-                          const combinedFiles = [...currentFiles, ...newFiles];
-                          field.onChange(combinedFiles);
-
-                          const newPreviews = newFiles.map((f) =>
-                            URL.createObjectURL(f)
-                          );
-                          setAcademicCertificatesPreviewUrls((prev) => [
-                            ...prev,
-                            ...newPreviews,
-                          ]);
-                        }}
-                      />
-                    </label>
-
-                    {academicCertificatesPreviewUrls.length > 0 && (
-                      <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-                        {academicCertificatesPreviewUrls.map((url, i) => (
-                          <div key={i} className="relative h-32">
-                            {url.startsWith("blob:") ? ( // New file
-                              getValues("academicCertificates")?.[
-                                i
-                              ]?.type.startsWith("image/") ? (
-                                <Image
-                                  src={url}
-                                  alt="Preview"
-                                  fill
-                                  unoptimized
-                                  className="rounded object-cover shadow-md border-2 border-red-500"
-                                />
-                              ) : (
-                                <div className="flex h-32 items-center justify-center rounded bg-gray-200 shadow-md border-2 border-red-500">
-                                  <FiFileText className="h-12 w-12 text-gray-500" />
-                                </div>
-                              )
-                            ) : (
-                              // Existing file
-                              <Image
-                                src={url}
-                                alt="Existing file"
-                                fill
-                                unoptimized
-                                className="rounded object-cover shadow-md border-2 border-red-500"
-                              />
-                            )}
-                            {url.startsWith("blob:") && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const newFiles =
-                                    field.value?.filter(
-                                      (_file: File, idx: number) => idx !== i
-                                    ) || [];
-                                  field.onChange(newFiles);
-                                  URL.revokeObjectURL(url);
-                                  setAcademicCertificatesPreviewUrls((prev) =>
-                                    prev.filter((_, idx) => idx !== i)
-                                  );
-                                }}
-                                className="absolute right-1 top-1 rounded-full bg-red-500 p-1 text-white shadow"
-                              >
-                                <FiTrash2 className="h-4 w-4" />
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              />
 
               <Controller
                 name="agree"

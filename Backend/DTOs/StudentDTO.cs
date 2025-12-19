@@ -42,7 +42,6 @@ namespace FormBackend.DTOs
         public string? MiddleName { get; set; }
         public string? AlternateMobile { get; set; }
         public string? AlternateEmail { get; set; }
-        public string? AcademicCertificatePaths { get; set; }
     }
 
     public class AcademicHistoryDTO
@@ -140,7 +139,6 @@ namespace FormBackend.DTOs
 
     // FILES
     public IFormFile? ProfileImage { get; set; }
-    public List<IFormFile>? AcademicCertificates { get; set; }
 
     // NESTED DATA
     public CitizenshipDTO? Citizenship { get; set; }
@@ -195,7 +193,6 @@ namespace FormBackend.DTOs
 
     // FILES
     public IFormFile? ProfileImage { get; set; }
-    public List<IFormFile>? AcademicCertificates { get; set; }
 
     // Keep existing if null
     public string? ProfileImagePath { get; set; }

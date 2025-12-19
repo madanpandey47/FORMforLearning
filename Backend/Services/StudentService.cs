@@ -96,10 +96,6 @@ namespace FormBackend.Services
                 student.ProfileImagePath = await HandleFileUploadAsync(createStudentDto.ProfileImage, null);
             }
 
-            if (student.SecondaryInfos != null && createStudentDto.AcademicCertificates != null && createStudentDto.AcademicCertificates.Any())
-            {
-                student.SecondaryInfos.AcademicCertificatePaths = await HandleMultipleFileUploadsAsync(createStudentDto.AcademicCertificates, null);
-            }
 
             await _unitOfWork.Students.AddAsync(student);
             await _unitOfWork.SaveAsync();
