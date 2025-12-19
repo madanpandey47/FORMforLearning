@@ -318,8 +318,8 @@ const FormPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-100 to-slate-50 py-8">
-      <div className="mx-auto max-w-4xl rounded-lg bg-white p-8 shadow-lg">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 py-12">
+      <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow-xl border border-gray-200">
         <FormProgress
           currentStep={currentStep}
           totalSteps={FORM_STEPS.length}
