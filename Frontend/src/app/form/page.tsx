@@ -94,38 +94,36 @@ const FormPage: React.FC = () => {
         ward: "",
         country: "",
       },
-      parents: [{ firstName: "", lastName: "", relation: 0 }],
+      parents: [{ firstName: "", lastName: "" }],
       academicHistories: [
         {
           institutionName: "",
-          level: 0,
           board: "",
           percentageOrGPA: 0,
-          passedYear: 2024,
+          passedYear: 2020,
         },
       ],
       hobbies: [{ name: "" }],
       achievements: [{ title: "", description: "", dateOfAchievement: "" }],
       academicEnrollment: {
-        faculty: 0,
         programName: "",
         enrollmentDate: "",
         studentIdNumber: "",
       },
       disability: {
-        disabilityType: "",
+        disabilityType: "None",
         description: "",
         disabilityPercentage: 0,
       },
       scholarship: {
-        scholarshipName: "",
+        scholarshipName: "None",
         amount: 0,
         startDate: "",
         endDate: "",
       },
       profileImage: undefined,
       academicCertificates: [],
-      agree: false,
+      agree: true,
     },
   });
 
@@ -179,6 +177,7 @@ const FormPage: React.FC = () => {
   const [temporaryMunicipalities, setTemporaryMunicipalities] = React.useState<
     Option[]
   >([]);
+  const [lookupsLoaded, setLookupsLoaded] = React.useState(false);
 
   const permanentAddress = useWatch({ control, name: "permanentAddress" });
   const temporaryAddress = useWatch({ control, name: "temporaryAddress" });
@@ -208,6 +207,7 @@ const FormPage: React.FC = () => {
         setParentTypeOptions(pt);
         setFacultyTypeOptions(ft);
         setProvinceOptions(prov);
+        setLookupsLoaded(true);
       } catch (e) {
         console.error("Failed to load lookups", e);
       }
@@ -243,7 +243,7 @@ const FormPage: React.FC = () => {
   }, [temporaryProvince]);
 
   React.useEffect(() => {
-    if (isEditMode && studentId) {
+    if (isEditMode && studentId && lookupsLoaded) {
       (async () => {
         try {
           const studentFormData = await getStudent(studentId);
@@ -266,34 +266,6 @@ const FormPage: React.FC = () => {
 
             reset(studentFormData as FormData);
             setValue("agree", true);
-
-            // Set dropdown values explicitly
-            setValue("gender", studentFormData.gender);
-            setValue("bloodGroup", studentFormData.bloodGroup);
-            if (studentFormData.parents) {
-              studentFormData.parents.forEach(
-                (parent: FormData["parents"][number], index: number) => {
-                  setValue(`parents.${index}.relation`, parent.relation);
-                }
-              );
-            }
-            if (studentFormData.academicHistories) {
-              studentFormData.academicHistories.forEach(
-                (
-                  history: FormData["academicHistories"][number],
-                  index: number
-                ) => {
-                  setValue(`academicHistories.${index}.level`, history.level);
-                }
-              );
-            }
-
-            if (studentFormData.academicEnrollment) {
-              setValue(
-                "academicEnrollment.faculty",
-                studentFormData.academicEnrollment.faculty
-              );
-            }
 
             if (studentFormData.profileImagePath) {
               setProfileImagePreviewUrl(
@@ -344,7 +316,7 @@ const FormPage: React.FC = () => {
         }
       })();
     }
-  }, [isEditMode, studentId, reset, getValues, setValue]);
+  }, [isEditMode, studentId, reset, getValues, setValue, lookupsLoaded]);
 
   const isTemporaryAddressSameAsPermanent = useWatch({
     control,

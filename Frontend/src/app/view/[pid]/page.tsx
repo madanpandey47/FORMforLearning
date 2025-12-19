@@ -70,6 +70,7 @@ const StudentViewPage = () => {
     "profileImagePath",
     "secondaryInfos",
     "academicCertificates", // Academic certificates will be rendered separately
+    "isTemporaryAddressSameAsPermanent",
   ]);
 
   // Fields to hide IDs for
@@ -104,6 +105,11 @@ const StudentViewPage = () => {
     return Object.entries(data).map(([key, value]) => {
       // Skip excluded fields
       if (excludeFields.has(key)) return null;
+
+      // Conditionally skip temporaryAddress
+      if (key === "temporaryAddress" && student.isTemporaryAddressSameAsPermanent) {
+        return null;
+      }
 
       // Handle nested objects (not arrays)
       if (

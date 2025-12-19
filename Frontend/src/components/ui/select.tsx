@@ -42,14 +42,23 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           {...props}
           className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-xs outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
         >
-          <option value="">--Please choose an option--</option>
-          {options.length === 0 && <option value="">Loading...</option>}
+          <option value="" disabled hidden>
+            Please choose an option
+          </option>
+
+          {options.length === 0 && (
+            <option value="" disabled>
+              Loading...
+            </option>
+          )}
+
           {options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
           ))}
         </select>
+
         {error && <p className="text-xs text-red-500">{error}</p>}
       </div>
     );
