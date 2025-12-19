@@ -45,7 +45,9 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={fullImageUrl}
-            alt={`${student.firstName} ${student.lastName}`}
+            alt={`${student.firstName} ${student.middleName || ""} ${
+              student.lastName
+            }`}
             className="w-20 h-20 rounded-full object-cover mb-2 border-2 border-red-500"
             onError={() => setImageError(true)}
           />
@@ -58,7 +60,9 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
           </div>
         )}
         <h2 className="text-base font-semibold text-center">
-          {student.firstName} {student.lastName}
+          {student.firstName}{" "}
+          {student.middleName ? student.middleName + " " : ""}
+          {student.lastName}
         </h2>
       </div>
 
