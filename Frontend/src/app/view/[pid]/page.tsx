@@ -75,7 +75,7 @@ const StudentViewPage = () => {
     "isTemporaryAddressSameAsPermanent",
     "citizenshipImagePath",
     "boardCertificateImagePath",
-    "studentIdCardPath",
+    "studentIdCardImagePath",
   ]);
 
   // Fields to hide IDs for
@@ -220,7 +220,7 @@ const StudentViewPage = () => {
               <span className="font-semibold">Blood Group:</span>{" "}
               {getBloodTypeDisplay(student.bloodGroup)}
             </p>
-            {student.gender && (
+            {student.gender !== null && student.gender !== undefined && (
               <p className="text-gray-500">
                 <span className="font-semibold">Gender:</span>{" "}
                 {getGenderDisplay(student.gender)}
@@ -228,7 +228,7 @@ const StudentViewPage = () => {
             )}
             {student.citizenship?.citizenshipNumber && (
               <p className="text-gray-500 mt-2">
-                <span className="font-semibold">Citizenship #:</span>{" "}
+                <span className="font-semibold">Citizenship No:</span>{" "}
                 {student.citizenship.citizenshipNumber}
               </p>
             )}
