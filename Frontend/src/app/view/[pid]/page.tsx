@@ -70,6 +70,9 @@ const StudentViewPage = () => {
     "profileImagePath",
     "secondaryInfos",
     "isTemporaryAddressSameAsPermanent",
+    "citizenshipImagePath",
+    "boardCertificateImagePath",
+    "studentIdCardPath",
   ]);
 
   // Fields to hide IDs for
@@ -106,7 +109,10 @@ const StudentViewPage = () => {
       if (excludeFields.has(key)) return null;
 
       // Conditionally skip temporaryAddress
-      if (key === "temporaryAddress" && student.isTemporaryAddressSameAsPermanent) {
+      if (
+        key === "temporaryAddress" &&
+        student.isTemporaryAddressSameAsPermanent
+      ) {
         return null;
       }
 
@@ -224,7 +230,61 @@ const StudentViewPage = () => {
         {/* Divider */}
         <hr className="my-12" />
 
-
+        {/* Documents Section */}
+        {(student.secondaryInfos?.citizenshipImagePath ||
+          student.secondaryInfos?.boardCertificateImagePath ||
+          student.secondaryInfos?.studentIdCardPath) && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Documents</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {student.secondaryInfos?.citizenshipImagePath && (
+                <div className="border rounded-lg p-4">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                    Citizenship Document
+                  </h3>
+                  <Image
+                    src={`http://localhost:5000${student.secondaryInfos.citizenshipImagePath}`}
+                    alt="Citizenship"
+                    width={300}
+                    height={200}
+                    className="w-full h-48 object-cover rounded"
+                    unoptimized
+                  />
+                </div>
+              )}
+              {student.secondaryInfos?.boardCertificateImagePath && (
+                <div className="border rounded-lg p-4">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                    Board Certificate
+                  </h3>
+                  <Image
+                    src={`http://localhost:5000${student.secondaryInfos.boardCertificateImagePath}`}
+                    alt="Board Certificate"
+                    width={300}
+                    height={200}
+                    className="w-full h-48 object-cover rounded"
+                    unoptimized
+                  />
+                </div>
+              )}
+              {student.secondaryInfos?.studentIdCardPath && (
+                <div className="border rounded-lg p-4">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                    Student ID Card
+                  </h3>
+                  <Image
+                    src={`http://localhost:5000${student.secondaryInfos.studentIdCardPath}`}
+                    alt="Student ID Card"
+                    width={300}
+                    height={200}
+                    className="w-full h-48 object-cover rounded"
+                    unoptimized
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Content */}
         {renderStudentData(student)}

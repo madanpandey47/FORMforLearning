@@ -144,6 +144,9 @@ export interface SecondaryInfosDTO {
   middleName?: string;
   alternateMobile?: string;
   alternateEmail?: string;
+  citizenshipImagePath?: string;
+  boardCertificateImagePath?: string;
+  studentIdCardPath?: string;
 }
 
 export interface AddressDTO {

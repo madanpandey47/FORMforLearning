@@ -22,7 +22,14 @@ export const getImageUrl = (imagePath?: string | null): string | undefined => {
 // CREATE
 export const submitStudent = async (data: FieldValues): Promise<StudentDTO> => {
   const formData = new FormData();
-  const { profileImage, academicCertificates, ...rest } = data;
+  const {
+    profileImage,
+    citizenshipImage,
+    boardCertificateImage,
+    studentIdCardImage,
+    academicCertificates,
+    ...rest
+  } = data;
 
   const transformed = transformToDTO(rest);
   const sanitized = sanitizeData(transformed) as FieldValues;
@@ -31,6 +38,18 @@ export const submitStudent = async (data: FieldValues): Promise<StudentDTO> => {
 
   if (profileImage instanceof File) {
     formData.append("ProfileImage", profileImage);
+  }
+
+  if (citizenshipImage instanceof File) {
+    formData.append("CitizenshipImage", citizenshipImage);
+  }
+
+  if (boardCertificateImage instanceof File) {
+    formData.append("BoardCertificateImage", boardCertificateImage);
+  }
+
+  if (studentIdCardImage instanceof File) {
+    formData.append("StudentIdCardImage", studentIdCardImage);
   }
 
   if (Array.isArray(academicCertificates)) {
@@ -115,7 +134,14 @@ export const updateStudent = async (
   data: FieldValues
 ): Promise<StudentDTO> => {
   const formData = new FormData();
-  const { profileImage, academicCertificates, ...rest } = data;
+  const {
+    profileImage,
+    citizenshipImage,
+    boardCertificateImage,
+    studentIdCardImage,
+    academicCertificates,
+    ...rest
+  } = data;
 
   const transformed = transformToDTO(rest);
   const sanitized = sanitizeData(transformed) as FieldValues;
@@ -126,6 +152,18 @@ export const updateStudent = async (
 
   if (profileImage instanceof File) {
     formData.append("ProfileImage", profileImage);
+  }
+
+  if (citizenshipImage instanceof File) {
+    formData.append("CitizenshipImage", citizenshipImage);
+  }
+
+  if (boardCertificateImage instanceof File) {
+    formData.append("BoardCertificateImage", boardCertificateImage);
+  }
+
+  if (studentIdCardImage instanceof File) {
+    formData.append("StudentIdCardImage", studentIdCardImage);
   }
   if (Array.isArray(academicCertificates)) {
     academicCertificates.forEach((file: unknown) => {

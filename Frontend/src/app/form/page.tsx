@@ -122,6 +122,9 @@ const FormPage: React.FC = () => {
         endDate: "",
       },
       profileImage: undefined,
+      citizenshipImage: undefined,
+      boardCertificateImage: undefined,
+      studentIdCardImage: undefined,
       agree: true,
     },
   });
@@ -154,6 +157,12 @@ const FormPage: React.FC = () => {
   const [profileImagePreviewUrl, setProfileImagePreviewUrl] = React.useState<
     string | null
   >(null);
+  const [citizenshipImagePreviewUrl, setCitizenshipImagePreviewUrl] =
+    React.useState<string | null>(null);
+  const [boardCertificateImagePreviewUrl, setBoardCertificateImagePreviewUrl] =
+    React.useState<string | null>(null);
+  const [studentIdCardImagePreviewUrl, setStudentIdCardImagePreviewUrl] =
+    React.useState<string | null>(null);
 
   // Lookups
   const [bloodTypeOptions, setBloodTypeOptions] = React.useState<Option[]>([]);
@@ -214,8 +223,19 @@ const FormPage: React.FC = () => {
   React.useEffect(() => {
     return () => {
       if (profileImagePreviewUrl) URL.revokeObjectURL(profileImagePreviewUrl);
+      if (citizenshipImagePreviewUrl)
+        URL.revokeObjectURL(citizenshipImagePreviewUrl);
+      if (boardCertificateImagePreviewUrl)
+        URL.revokeObjectURL(boardCertificateImagePreviewUrl);
+      if (studentIdCardImagePreviewUrl)
+        URL.revokeObjectURL(studentIdCardImagePreviewUrl);
     };
-  }, [profileImagePreviewUrl, academicCertificatesPreviewUrls]);
+  }, [
+    profileImagePreviewUrl,
+    citizenshipImagePreviewUrl,
+    boardCertificateImagePreviewUrl,
+    studentIdCardImagePreviewUrl,
+  ]);
 
   const countryOptions = [
     { label: "Nepal", value: "Nepal" },
@@ -267,6 +287,22 @@ const FormPage: React.FC = () => {
               );
             }
 
+            // Load secondary info images
+            if (studentFormData.secondaryInfos?.citizenshipImagePath) {
+              setCitizenshipImagePreviewUrl(
+                `http://localhost:5000${studentFormData.secondaryInfos.citizenshipImagePath}`
+              );
+            }
+            if (studentFormData.secondaryInfos?.boardCertificateImagePath) {
+              setBoardCertificateImagePreviewUrl(
+                `http://localhost:5000${studentFormData.secondaryInfos.boardCertificateImagePath}`
+              );
+            }
+            if (studentFormData.secondaryInfos?.studentIdCardPath) {
+              setStudentIdCardImagePreviewUrl(
+                `http://localhost:5000${studentFormData.secondaryInfos.studentIdCardPath}`
+              );
+            }
 
             if (studentFormData.permanentAddress?.province) {
               getMunicipalities(studentFormData.permanentAddress.province).then(
@@ -1108,6 +1144,204 @@ const FormPage: React.FC = () => {
                 )}
               />
 
+              {/* Citizenship Image */}
+              <Controller
+                control={control}
+                name="citizenshipImage"
+                render={({ field }) => (
+                  <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
+                    <FiFileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                    <p className="font-medium">
+                      Citizenship Document{" "}
+                      {isEditMode ? "(Replace if needed)" : "(Optional)"}
+                    </p>
+                    {!citizenshipImagePreviewUrl ? (
+                      <label className="mt-4 inline-block cursor-pointer rounded bg-sky-600 p-2 text-white hover:bg-sky-700">
+                        Choose Image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              field.onChange(file);
+                              setCitizenshipImagePreviewUrl(
+                                URL.createObjectURL(file)
+                              );
+                            }
+                          }}
+                        />
+                      </label>
+                    ) : (
+                      <div className="mt-6">
+                        <Image
+                          src={citizenshipImagePreviewUrl}
+                          alt="Citizenship Preview"
+                          width={200}
+                          height={150}
+                          unoptimized
+                          className="mx-auto rounded object-cover shadow-md border-2 border-sky-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            field.onChange(undefined);
+                            if (
+                              citizenshipImagePreviewUrl &&
+                              !citizenshipImagePreviewUrl.startsWith("http")
+                            )
+                              URL.revokeObjectURL(citizenshipImagePreviewUrl);
+                            setCitizenshipImagePreviewUrl(null);
+                          }}
+                          className="mt-2 text-red-600"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                    {errors.citizenshipImage?.message && (
+                      <p className="text-red-600 mt-2">
+                        {errors.citizenshipImage.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+
+              {/* Board Certificate Image */}
+              <Controller
+                control={control}
+                name="boardCertificateImage"
+                render={({ field }) => (
+                  <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
+                    <FiFileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                    <p className="font-medium">
+                      Board Certificate{" "}
+                      {isEditMode ? "(Replace if needed)" : "(Optional)"}
+                    </p>
+                    {!boardCertificateImagePreviewUrl ? (
+                      <label className="mt-4 inline-block cursor-pointer rounded bg-sky-600 p-2 text-white hover:bg-sky-700">
+                        Choose Image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              field.onChange(file);
+                              setBoardCertificateImagePreviewUrl(
+                                URL.createObjectURL(file)
+                              );
+                            }
+                          }}
+                        />
+                      </label>
+                    ) : (
+                      <div className="mt-6">
+                        <Image
+                          src={boardCertificateImagePreviewUrl}
+                          alt="Board Certificate Preview"
+                          width={200}
+                          height={150}
+                          unoptimized
+                          className="mx-auto rounded object-cover shadow-md border-2 border-sky-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            field.onChange(undefined);
+                            if (
+                              boardCertificateImagePreviewUrl &&
+                              !boardCertificateImagePreviewUrl.startsWith(
+                                "http"
+                              )
+                            )
+                              URL.revokeObjectURL(
+                                boardCertificateImagePreviewUrl
+                              );
+                            setBoardCertificateImagePreviewUrl(null);
+                          }}
+                          className="mt-2 text-red-600"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                    {errors.boardCertificateImage?.message && (
+                      <p className="text-red-600 mt-2">
+                        {errors.boardCertificateImage.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+
+              {/* Student ID Card Image */}
+              <Controller
+                control={control}
+                name="studentIdCardImage"
+                render={({ field }) => (
+                  <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
+                    <FiFileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                    <p className="font-medium">
+                      Student ID Card{" "}
+                      {isEditMode ? "(Replace if needed)" : "(Optional)"}
+                    </p>
+                    {!studentIdCardImagePreviewUrl ? (
+                      <label className="mt-4 inline-block cursor-pointer rounded bg-sky-600 p-2 text-white hover:bg-sky-700">
+                        Choose Image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              field.onChange(file);
+                              setStudentIdCardImagePreviewUrl(
+                                URL.createObjectURL(file)
+                              );
+                            }
+                          }}
+                        />
+                      </label>
+                    ) : (
+                      <div className="mt-6">
+                        <Image
+                          src={studentIdCardImagePreviewUrl}
+                          alt="Student ID Card Preview"
+                          width={200}
+                          height={150}
+                          unoptimized
+                          className="mx-auto rounded object-cover shadow-md border-2 border-sky-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            field.onChange(undefined);
+                            if (
+                              studentIdCardImagePreviewUrl &&
+                              !studentIdCardImagePreviewUrl.startsWith("http")
+                            )
+                              URL.revokeObjectURL(studentIdCardImagePreviewUrl);
+                            setStudentIdCardImagePreviewUrl(null);
+                          }}
+                          className="mt-2 text-red-600"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                    {errors.studentIdCardImage?.message && (
+                      <p className="text-red-600 mt-2">
+                        {errors.studentIdCardImage.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
 
               <Controller
                 name="agree"

@@ -135,7 +135,7 @@ export const formSchema = z
     hobbies: z.array(hobbiesSchema).optional(),
     disability: disabilitySchema.optional(),
     scholarship: scholarshipSchema.optional(),
-    profileImage: z.instanceof(File),
+    profileImage: z.instanceof(File).optional(),
     citizenshipImage: z.instanceof(File).optional(),
     boardCertificateImage: z.instanceof(File).optional(),
     studentIdCardImage: z.instanceof(File).optional(),
