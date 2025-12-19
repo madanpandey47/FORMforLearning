@@ -42,8 +42,34 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
             {label}{" "}
             {isEditMode ? "(Replace if needed)" : isProfile ? "" : "(Optional)"}
           </p>
-          {!previewUrl ? (
-            <label className="mt-4 inline-block cursor-pointer rounded bg-sky-600 p-2 text-white hover:bg-sky-700">
+          {previewUrl ? (
+            <div className="mt-6 flex flex-col items-center gap-3">
+              <div className="relative h-48 w-72 rounded-lg border-2 border-dashed border-gray-400 bg-gray-50 overflow-hidden">
+                <Image
+                  src={previewUrl}
+                  alt={`${label} Preview`}
+                  fill
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  field.onChange(undefined);
+                  if (previewUrl && !previewUrl.startsWith("http")) {
+                    URL.revokeObjectURL(previewUrl);
+                  }
+                  setPreviewUrl(null);
+                }}
+                className="text-sm text-red-600 hover:underline"
+              >
+                Remove image
+              </button>
+            </div>
+          ) : (
+            <label className="mt-4 inline-block cursor-pointer rounded bg-sky-600 px-4 py-2 text-white hover:bg-sky-700">
               Choose Image
               <input
                 type="file"
@@ -58,34 +84,8 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
                 }}
               />
             </label>
-          ) : (
-            <div className="mt-6">
-              <Image
-                src={previewUrl}
-                alt={`${label} Preview`}
-                width={isProfile ? 128 : 200}
-                height={isProfile ? 128 : 150}
-                unoptimized
-                className={`mx-auto object-cover shadow-md ${
-                  isProfile
-                    ? "rounded-full border-2 border-red-500"
-                    : "rounded border-2 border-sky-500"
-                }`}
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  field.onChange(undefined);
-                  if (previewUrl && !previewUrl.startsWith("http"))
-                    URL.revokeObjectURL(previewUrl);
-                  setPreviewUrl(null);
-                }}
-                className="mt-2 text-red-600"
-              >
-                Remove
-              </button>
-            </div>
           )}
+
           {errors[name]?.message && (
             <p className="text-red-600 mt-2">
               {errors[name]?.message as string}

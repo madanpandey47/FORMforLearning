@@ -161,6 +161,15 @@ export const transformFromDTO = (dto: StudentDTO): FieldValues => {
   return {
     ...rest,
     profileImagePath,
+    citizenship: citizenship
+      ? {
+          ...citizenship,
+          dateOfIssuance: citizenship.dateOfIssuance
+            ? new Date(citizenship.dateOfIssuance).toISOString().split("T")[0]
+            : "",
+        }
+      : {},
+    secondaryInfos: secondaryInfos ?? {},
     dateOfBirth: dateOfBirth
       ? new Date(dateOfBirth).toISOString().split("T")[0]
       : "",
@@ -196,14 +205,6 @@ export const transformFromDTO = (dto: StudentDTO): FieldValues => {
             dateOfAchievement: a.dateOfAchievement?.split("T")[0] ?? "",
           }))
         : [{}],
-    citizenship: citizenship
-      ? {
-          ...citizenship,
-          dateOfIssuance: citizenship.dateOfIssuance
-            ? new Date(citizenship.dateOfIssuance).toISOString().split("T")[0]
-            : "",
-        }
-      : {},
     academicEnrollment: academicEnrollment
       ? {
           faculty: academicEnrollment.facultyId ?? 0,

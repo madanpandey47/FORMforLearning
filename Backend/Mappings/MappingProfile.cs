@@ -37,6 +37,7 @@ namespace FormBackend.Mappings
                 .ForMember(d => d.PermanentAddress, opt => opt.Ignore())
                 .ForMember(d => d.TemporaryAddress, opt => opt.Ignore())
                 .ForMember(d => d.SecondaryInfos, opt => opt.Ignore())
+                .ForMember(d => d.AcademicEnrollment, opt => opt.Ignore())
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
         }
     }

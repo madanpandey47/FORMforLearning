@@ -62,13 +62,14 @@ const StudentViewPage = () => {
     relation: "Relation",
     level: "Academic Level",
     faculty: "Faculty",
+    citizenship: "Citizenship",
+    secondaryInfos: "Secondary Information",
   };
 
   // Fields to exclude from display
   const excludeFields = new Set([
     "pid",
     "profileImagePath",
-    "secondaryInfos",
     "isTemporaryAddressSameAsPermanent",
     "citizenshipImagePath",
     "boardCertificateImagePath",
@@ -222,6 +223,12 @@ const StudentViewPage = () => {
               <p className="text-gray-500">
                 <span className="font-semibold">Gender:</span>{" "}
                 {getGenderDisplay(student.gender)}
+              </p>
+            )}
+            {student.citizenship?.citizenshipNumber && (
+              <p className="text-gray-500 mt-2">
+                <span className="font-semibold">Citizenship #:</span>{" "}
+                {student.citizenship.citizenshipNumber}
               </p>
             )}
           </div>

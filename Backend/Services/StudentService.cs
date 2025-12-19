@@ -95,6 +95,14 @@ namespace FormBackend.Services
                 student.SecondaryInfos = new SecondaryInfos();
             }
 
+            // Copy secondary info metadata (name/alternate contacts)
+            if (createStudentDto.SecondaryInfos != null)
+            {
+                student.SecondaryInfos.MiddleName = createStudentDto.SecondaryInfos.MiddleName;
+                student.SecondaryInfos.AlternateMobile = createStudentDto.SecondaryInfos.AlternateMobile;
+                student.SecondaryInfos.AlternateEmail = createStudentDto.SecondaryInfos.AlternateEmail;
+            }
+
             // Handle file uploads
             if (createStudentDto.ProfileImage != null)
             {
@@ -156,7 +164,10 @@ namespace FormBackend.Services
             {
                 if (student.AcademicEnrollment != null)
                 {
-                    _mapper.Map(updateStudentDto.AcademicEnrollment, student.AcademicEnrollment);
+                    student.AcademicEnrollment.Faculty = updateStudentDto.AcademicEnrollment.Faculty;
+                    student.AcademicEnrollment.ProgramName = updateStudentDto.AcademicEnrollment.ProgramName;
+                    student.AcademicEnrollment.EnrollmentDate = updateStudentDto.AcademicEnrollment.EnrollmentDate;
+                    student.AcademicEnrollment.StudentIdNumber = updateStudentDto.AcademicEnrollment.StudentIdNumber;
                 }
                 else
                 {
@@ -188,25 +199,10 @@ namespace FormBackend.Services
             
             if (updateStudentDto.SecondaryInfos != null)
             {
-                var existingCitizenshipImagePath = student.SecondaryInfos.CitizenshipImagePath;
-                var existingBoardCertificateImagePath = student.SecondaryInfos.BoardCertificateImagePath;
-                var existingStudentIdCardPath = student.SecondaryInfos.StudentIdCardPath;
-                
-                student.SecondaryInfos = _mapper.Map<SecondaryInfos>(updateStudentDto.SecondaryInfos);
-                
-                // Restore image paths if not being updated
-                if (updateStudentDto.CitizenshipImage == null && string.IsNullOrEmpty(student.SecondaryInfos.CitizenshipImagePath))
-                {
-                    student.SecondaryInfos.CitizenshipImagePath = existingCitizenshipImagePath;
-                }
-                if (updateStudentDto.BoardCertificateImage == null && string.IsNullOrEmpty(student.SecondaryInfos.BoardCertificateImagePath))
-                {
-                    student.SecondaryInfos.BoardCertificateImagePath = existingBoardCertificateImagePath;
-                }
-                if (updateStudentDto.StudentIdCardImage == null && string.IsNullOrEmpty(student.SecondaryInfos.StudentIdCardPath))
-                {
-                    student.SecondaryInfos.StudentIdCardPath = existingStudentIdCardPath;
-                }
+                // Update metadata without replacing the owned instance
+                student.SecondaryInfos.MiddleName = updateStudentDto.SecondaryInfos.MiddleName;
+                student.SecondaryInfos.AlternateMobile = updateStudentDto.SecondaryInfos.AlternateMobile;
+                student.SecondaryInfos.AlternateEmail = updateStudentDto.SecondaryInfos.AlternateEmail;
             }
             
             if (updateStudentDto.Disability != null) student.Disability = _mapper.Map<Disability>(updateStudentDto.Disability);
@@ -244,8 +240,6 @@ namespace FormBackend.Services
                     student.SecondaryInfos.StudentIdCardPath = await HandleFileUploadAsync(updateStudentDto.StudentIdCardImage, student.SecondaryInfos.StudentIdCardPath);
                 }
             }
-
-            _unitOfWork.Students.Update(student);
             await _unitOfWork.SaveAsync();
 
             return true;
@@ -260,6 +254,22 @@ namespace FormBackend.Services
             if (!string.IsNullOrEmpty(student.ProfileImagePath))
             {
                 DeleteFile(student.ProfileImagePath);
+            }
+
+            if (student.SecondaryInfos != null)
+            {
+                if (!string.IsNullOrEmpty(student.SecondaryInfos.CitizenshipImagePath))
+                {
+                    DeleteFile(student.SecondaryInfos.CitizenshipImagePath);
+                }
+                if (!string.IsNullOrEmpty(student.SecondaryInfos.BoardCertificateImagePath))
+                {
+                    DeleteFile(student.SecondaryInfos.BoardCertificateImagePath);
+                }
+                if (!string.IsNullOrEmpty(student.SecondaryInfos.StudentIdCardPath))
+                {
+                    DeleteFile(student.SecondaryInfos.StudentIdCardPath);
+                }
             }
 
             _unitOfWork.Students.Remove(student);
