@@ -90,26 +90,28 @@ namespace FormBackend.Services
                 student.AcademicEnrollment = _mapper.Map<AcademicEnrollment>(createStudentDto.AcademicEnrollment);
             }
 
+            if (student.SecondaryInfos == null)
+            {
+                student.SecondaryInfos = new SecondaryInfos();
+            }
+
             // Handle file uploads
             if (createStudentDto.ProfileImage != null)
             {
                 student.ProfileImagePath = await HandleFileUploadAsync(createStudentDto.ProfileImage, null);
             }
 
-            if (student.SecondaryInfos != null)
+            if (createStudentDto.CitizenshipImage != null)
             {
-                if (createStudentDto.CitizenshipImage != null)
-                {
-                    student.SecondaryInfos.CitizenshipImagePath = await HandleFileUploadAsync(createStudentDto.CitizenshipImage, null);
-                }
-                if (createStudentDto.BoardCertificateImage != null)
-                {
-                    student.SecondaryInfos.BoardCertificateImagePath = await HandleFileUploadAsync(createStudentDto.BoardCertificateImage, null);
-                }
-                if (createStudentDto.StudentIdCardImage != null)
-                {
-                    student.SecondaryInfos.StudentIdCardPath = await HandleFileUploadAsync(createStudentDto.StudentIdCardImage, null);
-                }
+                student.SecondaryInfos.CitizenshipImagePath = await HandleFileUploadAsync(createStudentDto.CitizenshipImage, null);
+            }
+            if (createStudentDto.BoardCertificateImage != null)
+            {
+                student.SecondaryInfos.BoardCertificateImagePath = await HandleFileUploadAsync(createStudentDto.BoardCertificateImage, null);
+            }
+            if (createStudentDto.StudentIdCardImage != null)
+            {
+                student.SecondaryInfos.StudentIdCardPath = await HandleFileUploadAsync(createStudentDto.StudentIdCardImage, null);
             }
 
 
@@ -177,7 +179,36 @@ namespace FormBackend.Services
             if (updateStudentDto.BloodGroup.HasValue) student.BloodGroup = updateStudentDto.BloodGroup.Value;
 
             if (updateStudentDto.Citizenship != null) student.Citizenship = _mapper.Map<Citizenship>(updateStudentDto.Citizenship);
-            if (updateStudentDto.SecondaryInfos != null) student.SecondaryInfos = _mapper.Map<SecondaryInfos>(updateStudentDto.SecondaryInfos);
+            
+            // Initialize SecondaryInfos if null (required for document images)
+            if (student.SecondaryInfos == null)
+            {
+                student.SecondaryInfos = new SecondaryInfos();
+            }
+            
+            if (updateStudentDto.SecondaryInfos != null)
+            {
+                var existingCitizenshipImagePath = student.SecondaryInfos.CitizenshipImagePath;
+                var existingBoardCertificateImagePath = student.SecondaryInfos.BoardCertificateImagePath;
+                var existingStudentIdCardPath = student.SecondaryInfos.StudentIdCardPath;
+                
+                student.SecondaryInfos = _mapper.Map<SecondaryInfos>(updateStudentDto.SecondaryInfos);
+                
+                // Restore image paths if not being updated
+                if (updateStudentDto.CitizenshipImage == null && string.IsNullOrEmpty(student.SecondaryInfos.CitizenshipImagePath))
+                {
+                    student.SecondaryInfos.CitizenshipImagePath = existingCitizenshipImagePath;
+                }
+                if (updateStudentDto.BoardCertificateImage == null && string.IsNullOrEmpty(student.SecondaryInfos.BoardCertificateImagePath))
+                {
+                    student.SecondaryInfos.BoardCertificateImagePath = existingBoardCertificateImagePath;
+                }
+                if (updateStudentDto.StudentIdCardImage == null && string.IsNullOrEmpty(student.SecondaryInfos.StudentIdCardPath))
+                {
+                    student.SecondaryInfos.StudentIdCardPath = existingStudentIdCardPath;
+                }
+            }
+            
             if (updateStudentDto.Disability != null) student.Disability = _mapper.Map<Disability>(updateStudentDto.Disability);
             if (updateStudentDto.Scholarship != null) student.Scholarship = _mapper.Map<Scholarship>(updateStudentDto.Scholarship);
             

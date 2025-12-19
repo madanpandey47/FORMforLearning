@@ -9,16 +9,16 @@ namespace FormBackend.Mappings
         public MappingProfile()
         {
             CreateMap<Student, StudentReadDTO>();
-            CreateMap<Address, AddressDTO>();
-            CreateMap<Parent, ParentDTO>();
-            CreateMap<Citizenship, CitizenshipDTO>();
-            CreateMap<SecondaryInfos, SecondaryInfosDTO>();
-            CreateMap<AcademicHistory, AcademicHistoryDTO>();
-            CreateMap<AcademicEnrollment, AcademicEnrollmentDTO>();
-            CreateMap<Achievement, AchievementDTO>();
-            CreateMap<Hobby, HobbyDTO>();
-            CreateMap<Disability, DisabilityDTO>();
-            CreateMap<Scholarship, ScholarshipDTO>();
+            CreateMap<Address, AddressDTO>().ReverseMap();
+            CreateMap<Parent, ParentDTO>().ReverseMap();
+            CreateMap<Citizenship, CitizenshipDTO>().ReverseMap();
+            CreateMap<SecondaryInfos, SecondaryInfosDTO>().ReverseMap();
+            CreateMap<AcademicHistory, AcademicHistoryDTO>().ReverseMap();
+            CreateMap<AcademicEnrollment, AcademicEnrollmentDTO>().ReverseMap();
+            CreateMap<Achievement, AchievementDTO>().ReverseMap();
+            CreateMap<Hobby, HobbyDTO>().ReverseMap();
+            CreateMap<Disability, DisabilityDTO>().ReverseMap();
+            CreateMap<Scholarship, ScholarshipDTO>().ReverseMap();
 
             CreateMap<CreateStudentDTO, Student>()
                 .ForMember(d => d.PID, opt => opt.Ignore())
@@ -26,18 +26,8 @@ namespace FormBackend.Mappings
                 .ForMember(d => d.UpdatedAt, opt => opt.Ignore())
                 .ForMember(d => d.ProfileImagePath, opt => opt.Ignore())
                 .ForMember(d => d.PermanentAddress, opt => opt.Ignore())
-                .ForMember(d => d.TemporaryAddress, opt => opt.Ignore());
-
-            CreateMap<AddressDTO, Address>();
-            CreateMap<ParentDTO, Parent>().ForMember(d => d.Id, opt => opt.Ignore());
-            CreateMap<CitizenshipDTO, Citizenship>();
-            CreateMap<SecondaryInfosDTO, SecondaryInfos>();
-            CreateMap<AcademicHistoryDTO, AcademicHistory>().ForMember(d => d.Id, opt => opt.Ignore());
-            CreateMap<AcademicEnrollmentDTO, AcademicEnrollment>().ForMember(d => d.Id, opt => opt.Ignore());
-            CreateMap<AchievementDTO, Achievement>();
-            CreateMap<HobbyDTO, Hobby>();
-            CreateMap<DisabilityDTO, Disability>();
-            CreateMap<ScholarshipDTO, Scholarship>();
+                .ForMember(d => d.TemporaryAddress, opt => opt.Ignore())
+                .ForMember(d => d.SecondaryInfos, opt => opt.Ignore());
 
             CreateMap<UpdateStudentDTO, Student>()
                 .ForMember(d => d.PID, opt => opt.Ignore())
@@ -46,6 +36,7 @@ namespace FormBackend.Mappings
                 .ForMember(d => d.ProfileImagePath, opt => opt.Ignore())
                 .ForMember(d => d.PermanentAddress, opt => opt.Ignore())
                 .ForMember(d => d.TemporaryAddress, opt => opt.Ignore())
+                .ForMember(d => d.SecondaryInfos, opt => opt.Ignore())
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
