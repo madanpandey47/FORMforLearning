@@ -10,6 +10,7 @@ import {
   getBloodTypeDisplay,
   getParentTypeDisplay,
   getAcademicLevelDisplay,
+  getFacultyTypeDisplay,
 } from "@/lib/types/student-types";
 
 const StudentViewPage = () => {
@@ -69,6 +70,7 @@ const StudentViewPage = () => {
   // Fields to exclude from display
   const excludeFields = new Set([
     "pid",
+    "id",
     "profileImagePath",
     "isTemporaryAddressSameAsPermanent",
     "citizenshipImagePath",
@@ -94,8 +96,7 @@ const StudentViewPage = () => {
       case "level":
         return getAcademicLevelDisplay(value as number);
       case "faculty":
-        // Assuming faculty values are numbers, and you have a mapping
-        return String(value); // Needs actual mapping if not direct
+        return getFacultyTypeDisplay(value as number);
       default:
         return String(value);
     }

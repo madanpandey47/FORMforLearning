@@ -75,8 +75,8 @@ namespace FormBackend.Services
             // Handle Address
             if (createStudentDto.IsTemporaryAddressSameAsPermanent)
             {
-                student.PermanentAddress = _mapper.Map<Address>(createStudentDto.TemporaryAddress);
-                student.TemporaryAddress = _mapper.Map<Address>(createStudentDto.TemporaryAddress);
+                student.PermanentAddress = _mapper.Map<Address>(createStudentDto.PermanentAddress);
+                student.TemporaryAddress = _mapper.Map<Address>(createStudentDto.PermanentAddress);
             }
             else
             {
@@ -150,8 +150,8 @@ namespace FormBackend.Services
             // Handle Address
             if (updateStudentDto.IsTemporaryAddressSameAsPermanent)
             {
-                student.PermanentAddress = _mapper.Map<Address>(updateStudentDto.TemporaryAddress);
-                student.TemporaryAddress = _mapper.Map<Address>(updateStudentDto.TemporaryAddress);
+                student.PermanentAddress = _mapper.Map<Address>(updateStudentDto.PermanentAddress);
+                student.TemporaryAddress = _mapper.Map<Address>(updateStudentDto.PermanentAddress);
             }
             else
             {

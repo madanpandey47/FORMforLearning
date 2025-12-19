@@ -3,7 +3,7 @@ import { Control, Controller, FieldErrors } from "react-hook-form";
 import { FiFileText } from "react-icons/fi";
 import Checkbox from "@/components/ui/checkbox";
 import { FormData } from "@/lib/validation/formvalidation";
-import { ImageUploadField } from "../ImageUploadField";
+import { ImageUploadField } from "../../../../components/ui/ImageUploadField";
 import { ImagePreviewState } from "../../hooks/useImagePreviews";
 
 interface DocumentsStepProps {

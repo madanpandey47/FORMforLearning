@@ -68,15 +68,43 @@ export const useLookups = (
 
   // Load municipalities when province changes
   useEffect(() => {
-    if (permanentProvince)
-      getMunicipalities(permanentProvince).then(setPermanentMunicipalities);
-    else setPermanentMunicipalities([]);
+    let cancelled = false;
+    const load = async () => {
+      if (!permanentProvince) {
+        queueMicrotask(() => {
+          if (!cancelled) setPermanentMunicipalities([]);
+        });
+        return;
+      }
+
+      const data = await getMunicipalities(permanentProvince);
+      if (!cancelled) setPermanentMunicipalities(data);
+    };
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
   }, [permanentProvince]);
 
   useEffect(() => {
-    if (temporaryProvince)
-      getMunicipalities(temporaryProvince).then(setTemporaryMunicipalities);
-    else setTemporaryMunicipalities([]);
+    let cancelled = false;
+    const load = async () => {
+      if (!temporaryProvince) {
+        queueMicrotask(() => {
+          if (!cancelled) setTemporaryMunicipalities([]);
+        });
+        return;
+      }
+
+      const data = await getMunicipalities(temporaryProvince);
+      if (!cancelled) setTemporaryMunicipalities(data);
+    };
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
   }, [temporaryProvince]);
 
   return {

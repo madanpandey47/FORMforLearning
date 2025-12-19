@@ -38,10 +38,7 @@ export const OPTIONAL_SECTIONS = new Set<string>([
   "board",
 ]);
 
-export const ALWAYS_INCLUDE_FIELDS = new Set<string>([
-  "pid",
-  "profileImagePath",
-]);
+export const ALWAYS_INCLUDE_FIELDS = new Set<string>(["pid"]);
 
 export const sanitizeData = <T>(obj: T): T | null => {
   if (obj === null || obj === undefined) return null;

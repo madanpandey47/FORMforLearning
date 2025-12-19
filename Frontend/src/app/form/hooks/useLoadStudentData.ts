@@ -21,6 +21,11 @@ export const useLoadStudentData = (
     options: { label: string; value: string | number }[]
   ) => void
 ) => {
+  const resolveImageUrl = (path?: string | null) => {
+    if (!path) return null;
+    return path.startsWith("http") ? path : `http://localhost:5000${path}`;
+  };
+
   useEffect(() => {
     if (isEditMode && studentId && lookupsLoaded) {
       (async () => {
@@ -28,7 +33,7 @@ export const useLoadStudentData = (
           const studentFormData = await getStudent(studentId);
           if (studentFormData) {
             interface AcademicHistoryApiData {
-              passedYear?: string;
+              passedYear?: string | number | null;
               [key: string]: unknown;
             }
             if (studentFormData.academicHistories) {
@@ -36,9 +41,10 @@ export const useLoadStudentData = (
                 studentFormData.academicHistories.map(
                   (history: AcademicHistoryApiData) => ({
                     ...history,
-                    passedYear: history.passedYear
-                      ? new Date(history.passedYear).getFullYear()
-                      : null,
+                    passedYear:
+                      typeof history.passedYear === "string"
+                        ? new Date(history.passedYear).getFullYear()
+                        : history.passedYear ?? null,
                   })
                 );
             }
@@ -48,24 +54,30 @@ export const useLoadStudentData = (
 
             if (studentFormData.profileImagePath) {
               setProfileImagePreviewUrl(
-                `http://localhost:5000${studentFormData.profileImagePath}`
+                resolveImageUrl(studentFormData.profileImagePath)
               );
             }
 
             // Load secondary info images
             if (studentFormData.secondaryInfos?.citizenshipImagePath) {
               setCitizenshipImagePreviewUrl(
-                `http://localhost:5000${studentFormData.secondaryInfos.citizenshipImagePath}`
+                resolveImageUrl(
+                  studentFormData.secondaryInfos.citizenshipImagePath
+                )
               );
             }
             if (studentFormData.secondaryInfos?.boardCertificateImagePath) {
               setBoardCertificateImagePreviewUrl(
-                `http://localhost:5000${studentFormData.secondaryInfos.boardCertificateImagePath}`
+                resolveImageUrl(
+                  studentFormData.secondaryInfos.boardCertificateImagePath
+                )
               );
             }
             if (studentFormData.secondaryInfos?.studentIdCardPath) {
               setStudentIdCardImagePreviewUrl(
-                `http://localhost:5000${studentFormData.secondaryInfos.studentIdCardPath}`
+                resolveImageUrl(
+                  studentFormData.secondaryInfos.studentIdCardPath
+                )
               );
             }
 

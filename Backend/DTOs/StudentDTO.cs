@@ -111,6 +111,7 @@ namespace FormBackend.DTOs
         public SecondaryInfosDTO? SecondaryInfos { get; set; }
         public AddressDTO? PermanentAddress { get; set; }
         public AddressDTO? TemporaryAddress { get; set; }
+        public bool IsTemporaryAddressSameAsPermanent { get; set; }
         public ICollection<ParentDTO> Parents { get; set; } = new List<ParentDTO>();
         public ICollection<AcademicHistoryDTO> AcademicHistories { get; set; } = new List<AcademicHistoryDTO>();
         public AcademicEnrollmentDTO? AcademicEnrollment { get; set; }

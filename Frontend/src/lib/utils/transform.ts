@@ -1,6 +1,32 @@
 import { FieldValues } from "react-hook-form";
-import { StudentDTO } from "@lib/types/student-types";
+import {
+  AcademicLevel,
+  BloodType,
+  FacultyType,
+  Gender,
+  ParentType,
+  StudentDTO,
+} from "@lib/types/student-types";
 import { isEmptyObject } from "./sanitize";
+
+const toEnumNumber = <T extends Record<string, string | number>>(
+  enumType: T,
+  value: unknown
+): number | undefined => {
+  if (value === null || value === undefined) return undefined;
+  if (typeof value === "number" && !Number.isNaN(value)) return value;
+
+  if (typeof value === "string") {
+    const numeric = Number(value);
+    if (!Number.isNaN(numeric)) return numeric;
+
+    const trimmed = value.replace(/\s+/g, "");
+    const mapped = (enumType as Record<string, number>)[trimmed];
+    if (typeof mapped === "number") return mapped;
+  }
+
+  return undefined;
+};
 
 export const objectToFormData = (
   obj: unknown,
@@ -95,7 +121,6 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
     };
   }
 
-  // Secondary infos
   const hasSecondaryInfo =
     middleName || contactInfo?.alternateMobile || contactInfo?.alternateEmail;
 
@@ -121,12 +146,16 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
 
   // Academic enrollment
   if (academicEnrollment && !isEmptyObject(academicEnrollment)) {
+    const facultyValue = academicEnrollment.faculty;
+    const facultyNumber =
+      facultyValue !== null && facultyValue !== undefined && facultyValue !== ""
+        ? Number(facultyValue)
+        : null;
+
     transformed.academicEnrollment = {
       faculty:
-        academicEnrollment.faculty !== null &&
-        academicEnrollment.faculty !== undefined &&
-        academicEnrollment.faculty !== ""
-          ? Number(academicEnrollment.faculty)
+        facultyNumber !== null && !Number.isNaN(facultyNumber)
+          ? facultyNumber
           : 0,
       programName: academicEnrollment.programName ?? "",
       enrollmentDate: academicEnrollment.enrollmentDate ?? null,
@@ -158,8 +187,13 @@ export const transformFromDTO = (dto: StudentDTO): FieldValues => {
     ...rest
   } = dto;
 
+  const genderValue = toEnumNumber(Gender, dto.gender);
+  const bloodGroupValue = toEnumNumber(BloodType, dto.bloodGroup);
+
   return {
     ...rest,
+    gender: genderValue ?? null,
+    bloodGroup: bloodGroupValue ?? null,
     profileImagePath,
     citizenship: citizenship
       ? {
@@ -169,7 +203,17 @@ export const transformFromDTO = (dto: StudentDTO): FieldValues => {
             : "",
         }
       : {},
-    secondaryInfos: secondaryInfos ?? {},
+    secondaryInfos: {
+      ...secondaryInfos,
+      middleName: secondaryInfos?.middleName ?? "",
+      alternateMobile: secondaryInfos?.alternateMobile ?? "",
+      alternateEmail: secondaryInfos?.alternateEmail ?? "",
+      // Include image paths for preview display
+      citizenshipImagePath: secondaryInfos?.citizenshipImagePath ?? null,
+      boardCertificateImagePath:
+        secondaryInfos?.boardCertificateImagePath ?? null,
+      studentIdCardPath: secondaryInfos?.studentIdCardPath ?? null,
+    },
     dateOfBirth: dateOfBirth
       ? new Date(dateOfBirth).toISOString().split("T")[0]
       : "",
@@ -184,11 +228,18 @@ export const transformFromDTO = (dto: StudentDTO): FieldValues => {
     temporaryAddress: temporaryAddress ?? {},
     isTemporaryAddressSameAsPermanent:
       isTemporaryAddressSameAsPermanent ?? false,
-    parents: parents.length > 0 ? parents : [{}],
+    parents:
+      parents.length > 0
+        ? parents.map((parent) => ({
+            ...parent,
+            relation: toEnumNumber(ParentType, parent.relation) ?? null,
+          }))
+        : [{}],
     academicHistories:
       academicHistories.length > 0
         ? academicHistories.map((ah) => ({
             ...ah,
+            level: toEnumNumber(AcademicLevel, ah.level) ?? null,
             passedYear:
               typeof ah.passedYear === "string"
                 ? parseInt(ah.passedYear.split("-")[0], 10)
@@ -207,7 +258,11 @@ export const transformFromDTO = (dto: StudentDTO): FieldValues => {
         : [{}],
     academicEnrollment: academicEnrollment
       ? {
-          faculty: academicEnrollment.facultyId ?? 0,
+          faculty:
+            toEnumNumber(
+              FacultyType,
+              academicEnrollment.faculty ?? academicEnrollment.facultyId
+            ) ?? 0,
           programName: academicEnrollment.programName ?? "",
           enrollmentDate: academicEnrollment.enrollmentDate
             ? new Date(academicEnrollment.enrollmentDate)
