@@ -172,17 +172,20 @@ const StudentViewPage = () => {
       if (activeExcludeFields.has(key)) return null;
 
       if (
-        key === "temporaryAddress" &&
-        student.isTemporaryAddressSameAsPermanent
-      ) {
-        return null;
-      }
-
-      if (
         typeof value === "object" &&
         value !== null &&
         !Array.isArray(value)
       ) {
+        // If temporary address is same as permanent, show permanent data for temporary address
+        let displayValue = value;
+        if (
+          key === "temporaryAddress" &&
+          student.isTemporaryAddressSameAsPermanent &&
+          student.permanentAddress
+        ) {
+          displayValue = student.permanentAddress;
+        }
+
         return (
           <section key={key} className="mb-8">
             <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2 bg-linear-to-r from-gray-50 to-white px-4 py-3 rounded-lg border-l-4 border-blue-500">
@@ -201,7 +204,7 @@ const StudentViewPage = () => {
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pl-4">
-              {renderStudentData(value, key)}
+              {renderStudentData(displayValue, key)}
             </div>
           </section>
         );

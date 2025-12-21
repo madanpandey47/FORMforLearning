@@ -8,11 +8,7 @@ namespace FormBackend.Mappings
     {
         public MappingProfile()
         {
-            CreateMap<Student, StudentReadDTO>()
-                .ForMember(d => d.TemporaryAddress, opt => opt.MapFrom((src, dest) =>
-                    src.IsTemporaryAddressSameAsPermanent && src.PermanentAddress != null
-                        ? src.PermanentAddress
-                        : src.TemporaryAddress));
+            CreateMap<Student, StudentReadDTO>();
             CreateMap<Address, AddressDTO>().ReverseMap();
             CreateMap<Parent, ParentDTO>().ReverseMap();
             CreateMap<Citizenship, CitizenshipDTO>().ReverseMap();
