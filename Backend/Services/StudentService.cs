@@ -117,10 +117,8 @@ namespace FormBackend.Services
                 student.SecondaryInfos.StudentIdCardPath = await HandleFileUploadAsync(createStudentDto.StudentIdCardImage, null);
             }
 
-
             await _context.Students.AddAsync(student);
             await _context.SaveChangesAsync();
-
             return true;
         }
 

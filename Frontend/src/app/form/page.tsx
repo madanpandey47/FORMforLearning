@@ -14,7 +14,6 @@ import {
   FormData as SchemaFormData,
 } from "@/lib/validation/formvalidation";
 import Form from "@/components/ui/form";
-import { useSyncTemporaryAddress } from "@/hooks/useSyncTemporaryAddress";
 
 // Hooks
 import { useLookups } from "./hooks/useLookups";
@@ -145,8 +144,6 @@ const FormPage: React.FC = () => {
   } = useFieldArray({ control, name: "hobbies" });
 
   // Watch values
-  const permanentAddress = useWatch({ control, name: "permanentAddress" });
-  const temporaryAddress = useWatch({ control, name: "temporaryAddress" });
   const permanentProvince = useWatch({
     control,
     name: "permanentAddress.province",
@@ -194,15 +191,6 @@ const FormPage: React.FC = () => {
     imagePreviews.setStudentIdCardImagePreviewUrl,
     setPermanentMunicipalities,
     setTemporaryMunicipalities
-  );
-
-  // Sync temporary address
-  useSyncTemporaryAddress(
-    currentStep,
-    !!isTemporaryAddressSameAsPermanent,
-    permanentAddress,
-    temporaryAddress,
-    setValue
   );
 
   // Cleanup image previews
