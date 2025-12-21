@@ -8,8 +8,8 @@ namespace FormBackend.Core.Interfaces
 {
     public interface IGenericRepository<T> where T : class
     {
-        Task<IEnumerable<T>> GetAllAsync(Func<IQueryable<T>, IQueryable<T>>? include = null);
-        Task<T?> GetByPIDAsync(Guid pid, Func<IQueryable<T>, IQueryable<T>>? include = null);
+        Task<IEnumerable<T>> GetAllAsync();
+        Task<T?> GetByPIDAsync(Guid pid);
         Task AddAsync(T entity);
         void Update(T entity);
         void Remove(T entity);

@@ -45,10 +45,10 @@ namespace FormBackend.Data
                 entity.OwnsMany(s => s.Hobbies, h => { h.ToTable("Hobbies"); });
                 entity.OwnsMany(s => s.Achievements, a => { a.ToTable("Achievements"); });
 
-                entity.HasMany(s => s.Parents)
-                      .WithOne(p => p.Student)
-                      .HasForeignKey(p => p.StudentPID)
-                      .OnDelete(DeleteBehavior.Cascade);
+                    entity.HasMany(s => s.Parents)
+                        .WithOne(p => p.Student)
+                        .HasForeignKey(p => p.StudentPID)
+                        .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasMany(s => s.AcademicHistories)
                       .WithOne(ah => ah.Student)
@@ -60,6 +60,18 @@ namespace FormBackend.Data
                       .HasForeignKey<AcademicEnrollment>(ae => ae.StudentPID)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+        }
+
+        public async Task<Student?> GetStudentWithParentsByPidAsync(Guid pid, bool asNoTracking = true)
+        {
+            IQueryable<Student> query = Students.Include(s => s.Parents);
+
+            if (asNoTracking)
+            {
+                query = query.AsNoTracking();
+            }
+
+            return await query.FirstOrDefaultAsync(s => s.PID == pid);
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

@@ -21,24 +21,14 @@ namespace FormBackend.Core.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(Func<IQueryable<T>, IQueryable<T>>? include = null)
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
-            IQueryable<T> query = _dbSet;
-            if (include != null)
-            {
-                query = include(query);
-            }
-            return await query.ToListAsync();
+            return await _dbSet.AsNoTracking().ToListAsync();
         }
 
-        public async Task<T?> GetByPIDAsync(Guid pid, Func<IQueryable<T>, IQueryable<T>>? include = null)
+        public async Task<T?> GetByPIDAsync(Guid pid)
         {
-            IQueryable<T> query = _dbSet;
-            if (include != null)
-            {
-                query = include(query);
-            }
-            return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "PID") == pid);
+            return await _dbSet.AsNoTracking().FirstOrDefaultAsync(e => EF.Property<Guid>(e, "PID") == pid);
         }
 
         public async Task AddAsync(T entity)
