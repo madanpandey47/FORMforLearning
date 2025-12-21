@@ -10,17 +10,6 @@ import {
   Option,
 } from "@/lib/api/lookups";
 
-export interface LookupOptions {
-  bloodTypeOptions: Option[];
-  academicLevelOptions: Option[];
-  genderOptions: Option[];
-  parentTypeOptions: Option[];
-  facultyTypeOptions: Option[];
-  provinceOptions: Option[];
-  permanentMunicipalities: Option[];
-  temporaryMunicipalities: Option[];
-}
-
 export const useLookups = (
   permanentProvince?: string,
   temporaryProvince?: string
