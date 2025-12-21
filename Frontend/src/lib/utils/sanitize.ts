@@ -29,7 +29,6 @@ export const OPTIONAL_SECTIONS = new Set<string>([
   "achievements",
   "scholarship",
   "disability",
-  "middleName",
   "alternateMobile",
   "alternateEmail",
   "street",

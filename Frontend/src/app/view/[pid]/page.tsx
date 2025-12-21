@@ -103,6 +103,7 @@ const StudentViewPage = () => {
   // For parents, exclude individual name parts since we show full name
   const excludeParentFields = new Set([
     "pid",
+    "id",
     "profileImagePath",
     "primaryEmail",
     "alternatePrimaryEmail",
@@ -247,8 +248,6 @@ const StudentViewPage = () => {
           </section>
         );
       }
-
-      if (hideIdFields.has(parentKey) && key === "pid") return null;
 
       return (
         <div
