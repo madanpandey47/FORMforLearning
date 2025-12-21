@@ -81,17 +81,11 @@ namespace FormBackend.Services
         {
             var student = _mapper.Map<Student>(createStudentDto);
 
-            // Handle Address
-            if (createStudentDto.IsTemporaryAddressSameAsPermanent)
-            {
-                student.PermanentAddress = _mapper.Map<Address>(createStudentDto.PermanentAddress);
-                student.TemporaryAddress = _mapper.Map<Address>(createStudentDto.PermanentAddress);
-            }
-            else
-            {
-                student.PermanentAddress = _mapper.Map<Address>(createStudentDto.PermanentAddress);
-                student.TemporaryAddress = _mapper.Map<Address>(createStudentDto.TemporaryAddress);
-            }
+            // Only store PermanentAddress; TemporaryAddress is only stored if different
+            student.PermanentAddress = _mapper.Map<Address>(createStudentDto.PermanentAddress);
+            student.TemporaryAddress = !createStudentDto.IsTemporaryAddressSameAsPermanent
+                ? _mapper.Map<Address>(createStudentDto.TemporaryAddress)
+                : null;
 
             // Handle Academic Enrollment
             if (createStudentDto.AcademicEnrollment != null)
@@ -150,17 +144,15 @@ namespace FormBackend.Services
 
             _mapper.Map(updateStudentDto, student);
 
-            // Handle Address
-            if (updateStudentDto.IsTemporaryAddressSameAsPermanent)
+            // Only store PermanentAddress; TemporaryAddress is only stored if different
+            if (updateStudentDto.PermanentAddress != null)
             {
                 student.PermanentAddress = _mapper.Map<Address>(updateStudentDto.PermanentAddress);
-                student.TemporaryAddress = _mapper.Map<Address>(updateStudentDto.PermanentAddress);
             }
-            else
-            {
-                student.PermanentAddress = _mapper.Map<Address>(updateStudentDto.PermanentAddress);
-                student.TemporaryAddress = _mapper.Map<Address>(updateStudentDto.TemporaryAddress);
-            }
+            
+            student.TemporaryAddress = !updateStudentDto.IsTemporaryAddressSameAsPermanent && updateStudentDto.TemporaryAddress != null
+                ? _mapper.Map<Address>(updateStudentDto.TemporaryAddress)
+                : null;
 
             // Handle Academic Enrollment
             if (updateStudentDto.AcademicEnrollment != null)
