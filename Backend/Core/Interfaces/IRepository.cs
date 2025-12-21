@@ -10,6 +10,9 @@ namespace FormBackend.Core.Interfaces
     {
         Task<IEnumerable<T>> GetAllAsync();
         Task<T?> GetByPIDAsync(Guid pid);
+        Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object?>>[] includes);
+        Task<T?> GetByPIDAsync(Guid pid, params Expression<Func<T, object?>>[] includes);
+
         Task AddAsync(T entity);
         void Update(T entity);
         void Remove(T entity);

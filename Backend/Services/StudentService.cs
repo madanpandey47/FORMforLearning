@@ -18,24 +18,23 @@ namespace FormBackend.Services
     {
         private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public StudentService(IMapper mapper, IWebHostEnvironment webHostEnvironment, ApplicationDbContext context)
+        public StudentService(IMapper mapper, IWebHostEnvironment webHostEnvironment, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _webHostEnvironment = webHostEnvironment;
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
     // Get lookup data for all students
         public async Task<IEnumerable<StudentLookupDTO>> GetAllLookupAsync()
         {
-            var students = await _context.Students
-                .AsNoTracking()
-                .Include(s => s.AcademicEnrollment)
-                .Include(s => s.SecondaryInfos)
-                .Include(s => s.Citizenship)
-                .ToListAsync();
+            var students = await _unitOfWork.Students.GetAllAsync(
+                s => s.AcademicEnrollment,
+                s => s.SecondaryInfos,
+                s => s.Citizenship
+            );
 
             return students.Select(s => new StudentLookupDTO
             {
@@ -57,20 +56,20 @@ namespace FormBackend.Services
         // Get student by PID with related data
         public async Task<StudentReadDTO?> GetByIdAsync(Guid pid)
         {
-            var student = await _context.Students
-                .AsNoTracking()
-                .Include(s => s.AcademicEnrollment)
-                .Include(s => s.PermanentAddress)
-                .Include(s => s.TemporaryAddress)
-                .Include(s => s.Parents)
-                .Include(s => s.AcademicHistories)
-                .Include(s => s.Achievements)
-                .Include(s => s.Hobbies)
-                .Include(s => s.Disability)
-                .Include(s => s.Scholarship)
-                .Include(s => s.Citizenship)
-                .Include(s => s.SecondaryInfos)
-                .FirstOrDefaultAsync(s => s.PID == pid);
+            var student = await _unitOfWork.Students.GetByPIDAsync(
+                pid,
+                s => s.AcademicEnrollment,
+                s => s.PermanentAddress,
+                s => s.TemporaryAddress,
+                s => s.Parents,
+                s => s.AcademicHistories,
+                s => s.Achievements,
+                s => s.Hobbies,
+                s => s.Disability,
+                s => s.Scholarship,
+                s => s.Citizenship,
+                s => s.SecondaryInfos
+            );
 
             if (student == null) return null;
             return _mapper.Map<StudentReadDTO>(student);
@@ -86,12 +85,6 @@ namespace FormBackend.Services
             student.TemporaryAddress = !createStudentDto.IsTemporaryAddressSameAsPermanent
                 ? _mapper.Map<Address>(createStudentDto.TemporaryAddress)
                 : null;
-
-            // Handle Academic Enrollment
-            if (createStudentDto.AcademicEnrollment != null)
-            {
-                student.AcademicEnrollment = _mapper.Map<AcademicEnrollment>(createStudentDto.AcademicEnrollment);
-            }
 
             if (student.SecondaryInfos == null)
             {
@@ -117,26 +110,27 @@ namespace FormBackend.Services
                 student.SecondaryInfos.StudentIdCardPath = await HandleFileUploadAsync(createStudentDto.StudentIdCardImage, null);
             }
 
-            await _context.Students.AddAsync(student);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.Students.AddAsync(student);
+            await _unitOfWork.SaveAsync();
             return true;
         }
 
         public async Task<bool> UpdateAsync(Guid pid, UpdateStudentDTO updateStudentDto)
         {
-            var student = await _context.Students
-                .Include(s => s.AcademicEnrollment)
-                .Include(s => s.PermanentAddress)
-                .Include(s => s.TemporaryAddress)
-                .Include(s => s.Parents)
-                .Include(s => s.AcademicHistories)
-                .Include(s => s.Achievements)
-                .Include(s => s.Hobbies)
-                .Include(s => s.Disability)
-                .Include(s => s.Scholarship)
-                .Include(s => s.Citizenship)
-                .Include(s => s.SecondaryInfos)
-                .FirstOrDefaultAsync(s => s.PID == pid);
+            var student = await _unitOfWork.Students.GetByPIDAsync(
+                pid,
+                s => s.AcademicEnrollment,
+                s => s.PermanentAddress,
+                s => s.TemporaryAddress,
+                s => s.Parents,
+                s => s.AcademicHistories,
+                s => s.Achievements,
+                s => s.Hobbies,
+                s => s.Disability,
+                s => s.Scholarship,
+                s => s.Citizenship,
+                s => s.SecondaryInfos
+            );
 
             if (student == null) return false;
 
@@ -186,6 +180,21 @@ namespace FormBackend.Services
                 student.SecondaryInfos.AlternateMobile = updateStudentDto.SecondaryInfos.AlternateMobile;
                 student.SecondaryInfos.AlternateEmail = updateStudentDto.SecondaryInfos.AlternateEmail;
             }
+            if (student.SecondaryInfos != null)
+            {
+                if (updateStudentDto.CitizenshipImage != null)
+                {
+                    student.SecondaryInfos.CitizenshipImagePath = await HandleFileUploadAsync(updateStudentDto.CitizenshipImage, student.SecondaryInfos.CitizenshipImagePath);
+                }
+                if (updateStudentDto.BoardCertificateImage != null)
+                {
+                    student.SecondaryInfos.BoardCertificateImagePath = await HandleFileUploadAsync(updateStudentDto.BoardCertificateImage, student.SecondaryInfos.BoardCertificateImagePath);
+                }
+                if (updateStudentDto.StudentIdCardImage != null)
+                {
+                    student.SecondaryInfos.StudentIdCardPath = await HandleFileUploadAsync(updateStudentDto.StudentIdCardImage, student.SecondaryInfos.StudentIdCardPath);
+                }
+            }
             
             if (updateStudentDto.Disability != null) student.Disability = _mapper.Map<Disability>(updateStudentDto.Disability);
             if (updateStudentDto.Scholarship != null) student.Scholarship = _mapper.Map<Scholarship>(updateStudentDto.Scholarship);
@@ -207,22 +216,8 @@ namespace FormBackend.Services
                 UpdateOwnedCollection(student.Achievements, updateStudentDto.Achievements);
             }
 
-            if (student.SecondaryInfos != null)
-            {
-                if (updateStudentDto.CitizenshipImage != null)
-                {
-                    student.SecondaryInfos.CitizenshipImagePath = await HandleFileUploadAsync(updateStudentDto.CitizenshipImage, student.SecondaryInfos.CitizenshipImagePath);
-                }
-                if (updateStudentDto.BoardCertificateImage != null)
-                {
-                    student.SecondaryInfos.BoardCertificateImagePath = await HandleFileUploadAsync(updateStudentDto.BoardCertificateImage, student.SecondaryInfos.BoardCertificateImagePath);
-                }
-                if (updateStudentDto.StudentIdCardImage != null)
-                {
-                    student.SecondaryInfos.StudentIdCardPath = await HandleFileUploadAsync(updateStudentDto.StudentIdCardImage, student.SecondaryInfos.StudentIdCardPath);
-                }
-            }
-            await _context.SaveChangesAsync();
+            _unitOfWork.Students.Update(student);
+            await _unitOfWork.SaveAsync();
 
             return true;
         }
@@ -230,9 +225,10 @@ namespace FormBackend.Services
         // Delete a student by PID
         public async Task<bool> DeleteAsync(Guid pid)
         {
-            var student = await _context.Students
-                .Include(s => s.SecondaryInfos)
-                .FirstOrDefaultAsync(s => s.PID == pid);
+            var student = await _unitOfWork.Students.GetByPIDAsync(
+                pid,
+                s => s.SecondaryInfos
+            );
             if (student == null) return false;
 
             if (!string.IsNullOrEmpty(student.ProfileImagePath))
@@ -256,8 +252,8 @@ namespace FormBackend.Services
                 }
             }
 
-            _context.Students.Remove(student);
-            await _context.SaveChangesAsync();
+            _unitOfWork.Students.Remove(student);
+            await _unitOfWork.SaveAsync();
             return true;
         }
 
@@ -275,7 +271,9 @@ namespace FormBackend.Services
             // Add or Update entities
             foreach (var dtoItem in dtoCollection)
             {
+                // Get PID of this DTO item and if it doesnt have one, treat it as new with PID = Guid.Empty
                 var pid = (Guid)(dtoItem.GetType().GetProperty("PID")?.GetValue(dtoItem) ?? Guid.Empty);
+                // Checks if it exists in the current collection, if so, update it AND set StudentPID foreign key
                 var existingItem = pid != Guid.Empty ? existingCollection.FirstOrDefault(e => e.PID == pid) : null;
 
                 if (existingItem != null)
@@ -295,7 +293,7 @@ namespace FormBackend.Services
         private void UpdateOwnedCollection<TEntity, TDto>(ICollection<TEntity> existingCollection, ICollection<TDto> dtoCollection)
             where TEntity : class where TDto : class
         {
-            if (dtoCollection == null || !dtoCollection.Any())
+            if (dtoCollection == null )
             {
                 existingCollection.Clear();
                 return;

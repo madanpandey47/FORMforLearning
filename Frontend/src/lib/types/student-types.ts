@@ -160,7 +160,6 @@ export interface AddressDTO {
 
 export interface ParentDTO {
   pid?: string;
-  id?: number;
   firstName?: string;
   middleName?: string;
   lastName?: string;
@@ -173,7 +172,6 @@ export interface ParentDTO {
 
 export interface AcademicHistoryDTO {
   pid?: string;
-  id?: number;
   institutionName?: string;
   level?: AcademicLevel;
   board?: string;
@@ -183,7 +181,6 @@ export interface AcademicHistoryDTO {
 
 export interface AcademicEnrollmentDTO {
   pid?: string;
-  id?: number;
   faculty?: FacultyType;
   facultyId?: number;
   programName?: string;

@@ -18,7 +18,7 @@ namespace FormBackend.DTOs
 
     public class ParentDTO
     {
-        public int Id { get; set; }
+        public Guid PID { get; set; }
         public required string FirstName { get; set; }
         public string? MiddleName { get; set; }
         public required string LastName { get; set; }
@@ -49,7 +49,7 @@ namespace FormBackend.DTOs
 
     public class AcademicHistoryDTO
     {
-        public int Id { get; set; }
+        public Guid PID { get; set; }
         public required string InstitutionName { get; set; }
         public required AcademicLevel Level { get; set; }
         public string? Board { get; set; }
@@ -60,7 +60,7 @@ namespace FormBackend.DTOs
 
     public class AcademicEnrollmentDTO
     {
-        public int Id { get; set; }
+        public Guid PID { get; set; }
         public FacultyType Faculty { get; set; }
         public required string ProgramName { get; set; }
         public DateTime EnrollmentDate { get; set; }

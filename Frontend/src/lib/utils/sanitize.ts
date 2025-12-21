@@ -11,30 +11,11 @@ const isEmptyValue = (value: unknown): boolean => {
   return false;
 };
 
-export const isEmptyObject = isEmptyValue;
-
 export const NULLABLE_EMPTY_STRING_FIELDS = new Set<string>([
-  "dateOfBirth",
-  "enrollmentDate",
-  "dateOfIssuance",
-  "passedYear",
   "startDate",
   "endDate",
   "dateOfAchievement",
   "studentIdNumber",
-]);
-
-export const OPTIONAL_SECTIONS = new Set<string>([
-  "hobbies",
-  "achievements",
-  "scholarship",
-  "disability",
-  "alternateMobile",
-  "alternateEmail",
-  "street",
-  "occupation",
-  "annualIncome",
-  "board",
 ]);
 
 export const ALWAYS_INCLUDE_FIELDS = new Set<string>(["pid"]);
@@ -49,7 +30,7 @@ export const sanitizeData = <T>(obj: T): T | null => {
       .map(sanitizeData)
       .filter(
         (item): item is NonNullable<typeof item> =>
-          item !== null && !isEmptyObject(item)
+          item !== null && !isEmptyValue(item)
       );
 
     return (sanitized.length > 0 ? sanitized : null) as T | null;
@@ -77,10 +58,7 @@ export const sanitizeData = <T>(obj: T): T | null => {
         sanitizedValue = sanitizeData(value);
       }
 
-      if (isEmptyObject(sanitizedValue)) {
-        if (!OPTIONAL_SECTIONS.has(key)) {
-        }
-      } else {
+      if (!isEmptyValue(sanitizedValue)) {
         result[key] = sanitizedValue;
       }
     }
