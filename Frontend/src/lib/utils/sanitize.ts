@@ -1,6 +1,6 @@
 // sanitize.ts
 
-const isEmptyValue = (value: unknown): boolean => {
+export const isEmptyValue = (value: unknown): boolean => {
   if (value === null || value === undefined || value === "") return true;
   if (typeof value === "number" && Number.isNaN(value)) return true;
   if (Array.isArray(value)) return value.length === 0;

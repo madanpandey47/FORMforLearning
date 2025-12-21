@@ -7,7 +7,7 @@ import {
   ParentType,
   StudentDTO,
 } from "@lib/types/student-types";
-import { isEmptyObject } from "./sanitize";
+import { isEmptyValue } from "./sanitize";
 
 const toEnumNumber = <T extends Record<string, string | number>>(
   enumType: T,
@@ -110,7 +110,7 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
   }
 
   // Transform scholarship
-  if (scholarship && !isEmptyObject(scholarship)) {
+  if (scholarship && !isEmptyValue(scholarship)) {
     transformed.scholarship = {
       ...scholarship,
       amount:
@@ -145,7 +145,7 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
     !!isTemporaryAddressSameAsPermanent;
 
   // Academic enrollment
-  if (academicEnrollment && !isEmptyObject(academicEnrollment)) {
+  if (academicEnrollment && !isEmptyValue(academicEnrollment)) {
     const facultyValue = academicEnrollment.faculty;
     const facultyNumber =
       facultyValue !== null && facultyValue !== undefined && facultyValue !== ""
