@@ -9,7 +9,7 @@ namespace FormBackend.Core.Repositories
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _context;
-        private IStudentRepository? _studentRepository;
+        private IGenericRepository<Student>? _studentRepository;
         private IGenericRepository<Parent>? _parentRepository;
         private IGenericRepository<AcademicHistory>? _academicHistoryRepository;
         private IGenericRepository<AcademicEnrollment>? _academicEnrollmentRepository;
@@ -19,9 +19,9 @@ namespace FormBackend.Core.Repositories
             _context = context;
         }
 
-        public IStudentRepository Students
+        public IGenericRepository<Student> Students
         {
-            get { return _studentRepository ??= new StudentRepository(_context); }
+            get { return _studentRepository ??= new GenericRepository<Student>(_context); }
         }
 
         public IGenericRepository<Parent> Parents

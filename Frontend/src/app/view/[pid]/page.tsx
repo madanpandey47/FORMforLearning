@@ -81,6 +81,7 @@ const StudentViewPage = () => {
 
   const excludeFields = new Set([
     "pid",
+    "id",
     "profileImagePath",
     "isTemporaryAddressSameAsPermanent",
     "citizenshipImagePath",
