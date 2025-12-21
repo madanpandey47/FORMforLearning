@@ -5,7 +5,7 @@ using FormBackend.Models.Enum;
 
 namespace FormBackend.Models
 {
-    public class Student : BaseStudentEntity
+    public class Student : BaseEntity
     {
         [Required]
         public required string FirstName { get; set; }

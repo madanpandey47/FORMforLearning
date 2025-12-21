@@ -5,7 +5,7 @@ using FormBackend.Models.Enum;
 
 namespace FormBackend.Models
 {
-    public class AcademicHistory : BaseIdEntity
+    public class AcademicHistory : BaseEntity
     {
         [Required]
         public required string InstitutionName { get; set; }

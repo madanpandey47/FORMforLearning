@@ -5,6 +5,8 @@ import {
   getBloodTypeDisplay,
 } from "@/lib/types/student-types";
 import { StudentLookupDTO } from "@/lib/types/student-lookup-types";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
 interface ApplicationCardProps {
   student: StudentLookupDTO;
@@ -33,9 +35,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
   };
 
   const imageUrl = student.profileImagePath;
-  const fullImageUrl = imageUrl
-    ? `http://localhost:5000${imageUrl}`
-    : undefined;
+  const fullImageUrl = imageUrl ? `${API_BASE_URL}${imageUrl}` : undefined;
 
   return (
     <div className="w-[400px] h-[200px] rounded-[30px] bg-[#ffffff] shadow-[15px_15px_30px_#bebebe,-15px_-15px_30px_#ffffff] flex p-4">

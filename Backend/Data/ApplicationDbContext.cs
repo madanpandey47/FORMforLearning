@@ -64,35 +64,19 @@ namespace FormBackend.Data
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var studentEntries = ChangeTracker
+            var baseEntityEntries = ChangeTracker
                 .Entries()
-                .Where(e => e.Entity is BaseStudentEntity && (
+                .Where(e => e.Entity is BaseEntity && (
                         e.State == EntityState.Added
                         || e.State == EntityState.Modified));
 
-            foreach (var entityEntry in studentEntries)
+            foreach (var entityEntry in baseEntityEntries)
             {
-                ((BaseStudentEntity)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
+                ((BaseEntity)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
 
                 if (entityEntry.State == EntityState.Added)
                 {
-                    ((BaseStudentEntity)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
-                }
-            }
-
-            var idEntries = ChangeTracker
-                .Entries()
-                .Where(e => e.Entity is BaseIdEntity && (
-                        e.State == EntityState.Added
-                        || e.State == EntityState.Modified));
-
-            foreach (var entityEntry in idEntries)
-            {
-                ((BaseIdEntity)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
-
-                if (entityEntry.State == EntityState.Added)
-                {
-                    ((BaseIdEntity)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
+                    ((BaseEntity)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
                 }
             }
 

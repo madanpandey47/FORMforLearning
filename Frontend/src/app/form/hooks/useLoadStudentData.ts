@@ -3,6 +3,8 @@ import { UseFormSetValue } from "react-hook-form";
 import { FormData } from "@/lib/validation/formvalidation";
 import { getStudent } from "@/lib/api/student-api";
 import { getMunicipalities } from "@/lib/api/lookups";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
 export const useLoadStudentData = (
   isEditMode: boolean,
@@ -23,7 +25,7 @@ export const useLoadStudentData = (
 ) => {
   const resolveImageUrl = (path?: string | null) => {
     if (!path) return null;
-    return path.startsWith("http") ? path : `http://localhost:5000${path}`;
+    return path.startsWith("http") ? path : `${API_BASE_URL}${path}`;
   };
 
   useEffect(() => {

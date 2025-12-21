@@ -12,6 +12,8 @@ import {
   getAcademicLevelDisplay,
   getFacultyTypeDisplay,
 } from "@/lib/types/student-types";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
 const StudentViewPage = () => {
   const { pid } = useParams();
@@ -64,11 +66,21 @@ const StudentViewPage = () => {
     faculty: "Faculty",
     citizenship: "Citizenship",
     secondaryInfos: "Secondary Information",
+    mobileNumber: "Mobile Number",
+    email: "Email",
+    occupation: "Occupation",
+    annualIncome: "Annual Income",
+    institutionName: "Institution Name",
+    board: "Board",
+    percentageOrGPA: "Percentage/GPA",
+    passingYear: "Passing Year",
+    permanentAddress: "Permanent Address",
+    temporaryAddress: "Temporary Address",
+    academicEnrollment: "Academic Enrollment",
   };
 
   const excludeFields = new Set([
     "pid",
-    "id",
     "profileImagePath",
     "isTemporaryAddressSameAsPermanent",
     "citizenshipImagePath",
@@ -82,13 +94,32 @@ const StudentViewPage = () => {
     "alternatePrimaryEmail",
     "primaryMobile",
     "alternatePrimaryMobile",
-    "bloodGroup",
-    "gender",
     "dateOfBirth",
     "contactInfo",
   ]);
 
   const hideIdFields = new Set(["parents", "academicHistories"]);
+
+  // For parents, exclude individual name parts since we show full name
+  const excludeParentFields = new Set([
+    "pid",
+    "profileImagePath",
+    "primaryEmail",
+    "alternatePrimaryEmail",
+    "primaryMobile",
+    "alternatePrimaryMobile",
+    "firstName",
+    "middleName",
+    "lastName",
+  ]);
+
+  const getParentFullName = (parent: FieldValues): string => {
+    const parts = [];
+    if (parent.firstName) parts.push(parent.firstName);
+    if (parent.middleName) parts.push(parent.middleName);
+    if (parent.lastName) parts.push(parent.lastName);
+    return parts.length > 0 ? parts.join(" ") : "Not provided";
+  };
 
   const formatFieldValue = (key: string, value: unknown): string => {
     if (value === null || value === undefined) return "Not provided";
@@ -114,8 +145,29 @@ const StudentViewPage = () => {
     data: FieldValues,
     parentKey: string = ""
   ): React.ReactNode => {
+    // Determine which exclude set to use
+    const activeExcludeFields =
+      parentKey === "parents" ? excludeParentFields : excludeFields;
+
     return Object.entries(data).map(([key, value]) => {
-      if (excludeFields.has(key)) return null;
+      // Special handling for parent full name
+      if (parentKey === "parents" && key === "firstName") {
+        return (
+          <div
+            key="fullName"
+            className="bg-white rounded-lg p-4 border border-gray-200 hover:border-blue-300 transition-colors"
+          >
+            <p className="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-2">
+              Full Name
+            </p>
+            <p className="text-gray-900 font-medium">
+              {getParentFullName(data)}
+            </p>
+          </div>
+        );
+      }
+
+      if (activeExcludeFields.has(key)) return null;
 
       if (
         key === "temporaryAddress" &&
@@ -229,7 +281,7 @@ const StudentViewPage = () => {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               {student.profileImagePath && !imageError ? (
                 <Image
-                  src={`http://localhost:5000${student.profileImagePath}`}
+                  src={`${API_BASE_URL}${student.profileImagePath}`}
                   alt="Profile"
                   width={128}
                   height={128}
@@ -288,32 +340,14 @@ const StudentViewPage = () => {
                 </div>
                 {student.dateOfBirth && (
                   <div>
-                    <p className="text-xs text-blue-600 font-medium mb-1">
+                    <p className="text-xs text-blue-600 font-semibold mb-1">
                       Date of Birth
                     </p>
-                    <p className="text-sm text-gray-900">
+                    <p className="text-sm font-medium text-gray-900">
                       {new Date(student.dateOfBirth).toLocaleDateString()}
                     </p>
                   </div>
                 )}
-                {student.gender !== null && student.gender !== undefined && (
-                  <div>
-                    <p className="text-xs text-blue-600 font-medium mb-1">
-                      Gender
-                    </p>
-                    <p className="text-sm text-gray-900">
-                      {getGenderDisplay(student.gender)}
-                    </p>
-                  </div>
-                )}
-                <div>
-                  <p className="text-xs text-blue-600 font-medium mb-1">
-                    Blood Group
-                  </p>
-                  <p className="text-sm text-gray-900 font-semibold">
-                    {getBloodTypeDisplay(student.bloodGroup)}
-                  </p>
-                </div>
               </div>
             </div>
 
@@ -335,20 +369,10 @@ const StudentViewPage = () => {
                   <p className="text-xs text-green-600 font-medium mb-1">
                     Primary Email
                   </p>
-                  <p className="text-sm text-gray-900 break-all">
+                  <p className="text-sm font-semibold text-gray-900 break-all">
                     {student.contactInfo?.primaryEmail || "Not provided"}
                   </p>
                 </div>
-                {student.contactInfo?.alternateEmail && (
-                  <div>
-                    <p className="text-xs text-green-600 font-medium mb-1">
-                      Alternate Email
-                    </p>
-                    <p className="text-sm text-gray-900 break-all">
-                      {student.contactInfo.alternateEmail}
-                    </p>
-                  </div>
-                )}
                 <div>
                   <p className="text-xs text-green-600 font-medium mb-1">
                     Primary Mobile
@@ -357,16 +381,6 @@ const StudentViewPage = () => {
                     {student.contactInfo?.primaryMobile || "Not provided"}
                   </p>
                 </div>
-                {student.contactInfo?.alternateMobile && (
-                  <div>
-                    <p className="text-xs text-green-600 font-medium mb-1">
-                      Alternate Mobile
-                    </p>
-                    <p className="text-sm text-gray-900 font-semibold">
-                      {student.contactInfo.alternateMobile}
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -396,10 +410,10 @@ const StudentViewPage = () => {
                 {student.academicEnrollment?.faculty !== null &&
                   student.academicEnrollment?.faculty !== undefined && (
                     <div>
-                      <p className="text-xs text-purple-600 font-medium mb-1">
+                      <p className="text-xs text-purple-600 font-semibold mb-1">
                         Faculty
                       </p>
-                      <p className="text-sm text-gray-900">
+                      <p className="text-sm font-semibold text-gray-900">
                         {getFacultyTypeDisplay(
                           student.academicEnrollment.faculty
                         )}
@@ -488,7 +502,7 @@ const StudentViewPage = () => {
                   </div>
                   <div className="relative h-56 bg-gray-50">
                     <Image
-                      src={`http://localhost:5000${student.secondaryInfos.citizenshipImagePath}`}
+                      src={`${API_BASE_URL}${student.secondaryInfos.citizenshipImagePath}`}
                       alt="Citizenship"
                       fill
                       className="object-contain p-2"
@@ -519,7 +533,7 @@ const StudentViewPage = () => {
                   </div>
                   <div className="relative h-56 bg-gray-50">
                     <Image
-                      src={`http://localhost:5000${student.secondaryInfos.boardCertificateImagePath}`}
+                      src={`${API_BASE_URL}${student.secondaryInfos.boardCertificateImagePath}`}
                       alt="Board Certificate"
                       fill
                       className="object-contain p-2"
@@ -549,7 +563,7 @@ const StudentViewPage = () => {
                   </div>
                   <div className="relative h-56 bg-gray-50">
                     <Image
-                      src={`http://localhost:5000${student.secondaryInfos.studentIdCardPath}`}
+                      src={`${API_BASE_URL}${student.secondaryInfos.studentIdCardPath}`}
                       alt="Student ID Card"
                       fill
                       className="object-contain p-2"

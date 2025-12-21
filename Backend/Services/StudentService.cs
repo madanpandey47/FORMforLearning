@@ -278,11 +278,11 @@ namespace FormBackend.Services
         }
 
         private void UpdateChildCollection<TEntity, TDto>(ICollection<TEntity> existingCollection, ICollection<TDto> dtoCollection, Guid studentPid)
-            where TEntity : BaseIdEntity where TDto : class
+            where TEntity : BaseEntity where TDto : class
         {
             if (dtoCollection == null) dtoCollection = new List<TDto>();
             // Remove items that are no longer in the DTO collection
-            var itemsToRemove = existingCollection.Where(e => !dtoCollection.Any(d => (int)(d.GetType().GetProperty("Id")?.GetValue(d) ?? 0) == e.Id)).ToList();
+            var itemsToRemove = existingCollection.Where(e => !dtoCollection.Any(d => (Guid)(d.GetType().GetProperty("PID")?.GetValue(d) ?? Guid.Empty) == e.PID)).ToList();
             foreach (var item in itemsToRemove)
             {
                 existingCollection.Remove(item);
@@ -291,8 +291,8 @@ namespace FormBackend.Services
             // Add or Update entities
             foreach (var dtoItem in dtoCollection)
             {
-                var id = (int)(dtoItem.GetType().GetProperty("Id")?.GetValue(dtoItem) ?? 0);
-                var existingItem = id != 0 ? existingCollection.FirstOrDefault(e => e.Id == id) : null;
+                var pid = (Guid)(dtoItem.GetType().GetProperty("PID")?.GetValue(dtoItem) ?? Guid.Empty);
+                var existingItem = pid != Guid.Empty ? existingCollection.FirstOrDefault(e => e.PID == pid) : null;
 
                 if (existingItem != null)
                 {
@@ -354,38 +354,6 @@ namespace FormBackend.Services
                 await file.CopyToAsync(fileStream);
             }
             return "/uploads/" + fileName;
-        }
-
-        private async Task<string?> HandleMultipleFileUploadsAsync(List<IFormFile>? files, string? existingPaths)
-        {
-            if (files == null || !files.Any()) return existingPaths;
-
-            string wwwRootPath = _webHostEnvironment.WebRootPath;
-            string uploadPath = Path.Combine(wwwRootPath, "uploads");
-            if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
-
-            // Delete old files
-            if (!string.IsNullOrEmpty(existingPaths))
-            {
-                foreach (var oldPath in existingPaths.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    DeleteFile(oldPath);
-                }
-            }
-
-            // Save new files
-            var newPaths = new List<string>();
-            foreach (var file in files)
-            {
-                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                string newFilePath = Path.Combine(uploadPath, fileName);
-                using (var fileStream = new FileStream(newFilePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(fileStream);
-                }
-                newPaths.Add("/uploads/" + fileName);
-            }
-            return string.Join(",", newPaths);
         }
 
         private void DeleteFile(string filePath)

@@ -4,7 +4,9 @@ import {
 } from "../types/student-types";
 export type Option = { value: number | string; label: string };
 
-const BASE = "http://localhost:5000/api/Lookups";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+const BASE = `${API_BASE_URL}/api/Lookups`;
 
 type RawOption = { value: number; name: string };
 const prettify = (s: string) => s.replace(/([A-Z])/g, " $1").trim();
