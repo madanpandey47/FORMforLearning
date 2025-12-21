@@ -46,7 +46,7 @@ export const parentSchema = z.object({
 export const academicHistorySchema = z.object({
   institutionName: z.string().min(4, "Institution name is required"),
   level: z.coerce.number().int().nullable(),
-  board: z.string().nullable().optional(),
+  board: z.string().optional(),
   percentageOrGPA: z.number().min(0).max(100).nullable(),
   passedYear: z
     .number()
@@ -77,31 +77,39 @@ const contactInfoSchema = z.object({
     .nullable(),
 });
 
-const achievementSchema = z.object({
-  title: z.string().nullable().optional(),
-  description: z.string().nullable().optional(),
-  dateOfAchievement: z.string().nullable().optional(),
-});
+const achievementSchema = z
+  .object({
+    title: z.string().nullable().optional(),
+    description: z.string().nullable().optional(),
+    dateOfAchievement: z.string().nullable().optional(),
+  })
+  .optional();
 
-const hobbiesSchema = z.object({
-  name: z.string().nullable().optional(),
-});
+const hobbiesSchema = z
+  .object({
+    name: z.string().nullable().optional(),
+  })
+  .optional();
 
-const disabilitySchema = z.object({
-  disabilityType: z.string().nullable().optional(),
-  description: z.string().nullable().optional(),
-  disabilityPercentage: z
-    .union([z.number().min(0).max(100), z.nan()])
-    .optional()
-    .nullable(),
-});
+const disabilitySchema = z
+  .object({
+    disabilityType: z.string().nullable().optional(),
+    description: z.string().nullable().optional(),
+    disabilityPercentage: z
+      .union([z.number().min(0).max(100), z.nan()])
+      .optional()
+      .nullable(),
+  })
+  .optional();
 
-const scholarshipSchema = z.object({
-  scholarshipName: z.string().nullable().optional(),
-  amount: z.union([z.number().nonnegative(), z.nan()]).optional().nullable(),
-  startDate: z.string().nullable().optional(),
-  endDate: z.string().nullable().optional(),
-});
+const scholarshipSchema = z
+  .object({
+    scholarshipName: z.string().nullable().optional(),
+    amount: z.union([z.number().nonnegative(), z.nan()]).optional().nullable(),
+    startDate: z.string().nullable().optional(),
+    endDate: z.string().nullable().optional(),
+  })
+  .optional();
 
 const academicEnrollmentSchema = z.object({
   faculty: z.coerce.number().int().min(0).max(16),

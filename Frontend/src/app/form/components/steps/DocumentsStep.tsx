@@ -4,7 +4,7 @@ import { FiFileText } from "react-icons/fi";
 import Checkbox from "@/components/ui/checkbox";
 import { FormData } from "@/lib/validation/formvalidation";
 import { ImageUploadField } from "../../../../components/ui/ImageUploadField";
-import { ImagePreviewState } from "../../hooks/useImagePreviews";
+import { ImagePreviewState } from "../../../../components/ui/useImagePreviews";
 
 interface DocumentsStepProps {
   control: Control<FormData>;

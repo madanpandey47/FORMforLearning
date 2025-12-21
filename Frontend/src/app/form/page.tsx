@@ -19,7 +19,7 @@ import Form from "@/components/ui/form";
 import { useLookups } from "./hooks/useLookups";
 import { useFormSubmit } from "./hooks/useFormSubmit";
 import { useFormNavigation } from "./hooks/useFormNavigation";
-import { useImagePreviews } from "./hooks/useImagePreviews";
+import { useImagePreviews } from "../../components/ui/useImagePreviews";
 import { useLoadStudentData } from "./hooks/useLoadStudentData";
 
 // Components

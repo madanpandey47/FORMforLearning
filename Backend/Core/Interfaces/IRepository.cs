@@ -9,7 +9,6 @@ namespace FormBackend.Core.Interfaces
     public interface IGenericRepository<T> where T : class
     {
         Task<IEnumerable<T>> GetAllAsync();
-        Task<T?> GetByPIDAsync(Guid pid);
         Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object?>>[] includes);
         Task<T?> GetByPIDAsync(Guid pid, params Expression<Func<T, object?>>[] includes);
 
