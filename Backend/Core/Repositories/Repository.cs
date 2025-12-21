@@ -41,15 +41,6 @@ namespace FormBackend.Core.Repositories
             return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "PID") == pid);
         }
 
-        public async Task<T?> FirstOrDefaultAsync(
-            Expression<Func<T, bool>> predicate,
-            Func<IQueryable<T>, IQueryable<T>>? include = null)
-        {
-            IQueryable<T> query = _dbSet;
-            if (include != null) query = include(query);
-            return await query.FirstOrDefaultAsync(predicate);
-        }
-
         public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
