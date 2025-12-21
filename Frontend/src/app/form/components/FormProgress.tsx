@@ -26,9 +26,6 @@ export const FormProgress: React.FC<FormProgressProps> = ({
           <span className="text-sm font-semibold text-blue-900">
             {stepName}
           </span>
-          <span className="text-sm font-bold text-blue-600">
-            {Math.round((currentStep / totalSteps) * 100)}%
-          </span>
         </div>
         <div className="h-3 bg-white rounded-full shadow-inner overflow-hidden">
           <div

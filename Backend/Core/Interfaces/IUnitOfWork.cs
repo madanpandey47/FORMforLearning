@@ -6,7 +6,7 @@ namespace FormBackend.Core.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
-        IGenericRepository<Student> Students { get; }
+        IStudentRepository Students { get; }
         IGenericRepository<Parent> Parents { get; }
         IGenericRepository<AcademicHistory> AcademicHistories { get; }
         IGenericRepository<AcademicEnrollment> AcademicEnrollments { get; }

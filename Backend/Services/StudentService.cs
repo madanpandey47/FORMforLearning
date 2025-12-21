@@ -68,7 +68,7 @@ namespace FormBackend.Services
         }
 
         // Create a new student
-        public async Task<StudentReadDTO> CreateAsync(CreateStudentDTO createStudentDto)
+        public async Task<bool> CreateAsync(CreateStudentDTO createStudentDto)
         {
             var student = _mapper.Map<Student>(createStudentDto);
 
@@ -126,7 +126,7 @@ namespace FormBackend.Services
             await _unitOfWork.Students.AddAsync(student);
             await _unitOfWork.SaveAsync();
 
-            return _mapper.Map<StudentReadDTO>(student);
+            return true;
         }
 
         public async Task<bool> UpdateAsync(Guid pid, UpdateStudentDTO updateStudentDto)
@@ -307,8 +307,7 @@ namespace FormBackend.Services
             }
         }
 
-        // Update owned collection (no Id)
-        // e.g., Addresses, Hobbies, Achievements
+
         private void UpdateOwnedCollection<TEntity, TDto>(ICollection<TEntity> existingCollection, ICollection<TDto> dtoCollection)
             where TEntity : class where TDto : class
         {
@@ -399,7 +398,6 @@ namespace FormBackend.Services
             }
             catch
             {
-                // Log error if needed
             }
         }
     }
