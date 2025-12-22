@@ -26,30 +26,9 @@ namespace FormBackend.Core.Repositories
             return await _dbSet.AsNoTracking().ToListAsync();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object?>>[] includes)
+        public async Task<T?> GetByPIDAsync(Guid pid)
         {
-            IQueryable<T> query = _dbSet.AsNoTracking();
-            if (includes != null)
-            {
-                foreach (var include in includes)
-                {
-                    query = query.Include(include);
-                }
-            }
-            return await query.ToListAsync();
-        }
-
-        public async Task<T?> GetByPIDAsync(Guid pid, params Expression<Func<T, object?>>[] includes)
-        {
-            IQueryable<T> query = _dbSet.AsNoTracking();
-            if (includes != null)
-            {
-                foreach (var include in includes)
-                {
-                    query = query.Include(include);
-                }
-            }
-            return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "PID") == pid);
+            return await _dbSet.AsNoTracking().FirstOrDefaultAsync(e => EF.Property<Guid>(e, "PID") == pid);
         }
 
         public async Task AddAsync(T entity)

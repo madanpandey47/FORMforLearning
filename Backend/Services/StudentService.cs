@@ -19,22 +19,25 @@ namespace FormBackend.Services
         private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ApplicationDbContext _context;
 
-        public StudentService(IMapper mapper, IWebHostEnvironment webHostEnvironment, IUnitOfWork unitOfWork)
+        public StudentService(IMapper mapper, IWebHostEnvironment webHostEnvironment, IUnitOfWork unitOfWork, ApplicationDbContext context)
         {
             _mapper = mapper;
             _webHostEnvironment = webHostEnvironment;
             _unitOfWork = unitOfWork;
+            _context = context;
         }
 
     // Get lookup data for all students
         public async Task<IEnumerable<StudentLookupDTO>> GetAllLookupAsync()
         {
-            var students = await _unitOfWork.Students.GetAllAsync(
-                s => s.AcademicEnrollment,
-                s => s.SecondaryInfos,
-                s => s.Citizenship
-            );
+            var students = await _context.Students
+                .Include(s => s.AcademicEnrollment)
+                .Include(s => s.SecondaryInfos)
+                .Include(s => s.Citizenship)
+                .AsNoTracking()
+                .ToListAsync();
 
             return students.Select(s => new StudentLookupDTO
             {
@@ -56,20 +59,20 @@ namespace FormBackend.Services
         // Get student by PID with related data
         public async Task<StudentReadDTO?> GetByIdAsync(Guid pid)
         {
-            var student = await _unitOfWork.Students.GetByPIDAsync(
-                pid,
-                s => s.AcademicEnrollment,
-                s => s.PermanentAddress,
-                s => s.TemporaryAddress,
-                s => s.Parents,
-                s => s.AcademicHistories,
-                s => s.Achievements,
-                s => s.Hobbies,
-                s => s.Disability,
-                s => s.Scholarship,
-                s => s.Citizenship,
-                s => s.SecondaryInfos
-            );
+            var student = await _context.Students
+                .Include(s => s.AcademicEnrollment)
+                .Include(s => s.PermanentAddress)
+                .Include(s => s.TemporaryAddress)
+                .Include(s => s.Parents)
+                .Include(s => s.AcademicHistories)
+                .Include(s => s.Achievements)
+                .Include(s => s.Hobbies)
+                .Include(s => s.Disability)
+                .Include(s => s.Scholarship)
+                .Include(s => s.Citizenship)
+                .Include(s => s.SecondaryInfos)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.PID == pid);
 
             if (student == null) return null;
             return _mapper.Map<StudentReadDTO>(student);
@@ -117,20 +120,19 @@ namespace FormBackend.Services
 
         public async Task<bool> UpdateAsync(Guid pid, UpdateStudentDTO updateStudentDto)
         {
-            var student = await _unitOfWork.Students.GetByPIDAsync(
-                pid,
-                s => s.AcademicEnrollment,
-                s => s.PermanentAddress,
-                s => s.TemporaryAddress,
-                s => s.Parents,
-                s => s.AcademicHistories,
-                s => s.Achievements,
-                s => s.Hobbies,
-                s => s.Disability,
-                s => s.Scholarship,
-                s => s.Citizenship,
-                s => s.SecondaryInfos
-            );
+            var student = await _context.Students
+                .Include(s => s.AcademicEnrollment)
+                .Include(s => s.PermanentAddress)
+                .Include(s => s.TemporaryAddress)
+                .Include(s => s.Parents)
+                .Include(s => s.AcademicHistories)
+                .Include(s => s.Achievements)
+                .Include(s => s.Hobbies)
+                .Include(s => s.Disability)
+                .Include(s => s.Scholarship)
+                .Include(s => s.Citizenship)
+                .Include(s => s.SecondaryInfos)
+                .FirstOrDefaultAsync(s => s.PID == pid);
 
             if (student == null) return false;
 
@@ -225,10 +227,9 @@ namespace FormBackend.Services
         // Delete a student by PID
         public async Task<bool> DeleteAsync(Guid pid)
         {
-            var student = await _unitOfWork.Students.GetByPIDAsync(
-                pid,
-                s => s.SecondaryInfos
-            );
+            var student = await _context.Students
+                .Include(s => s.SecondaryInfos)
+                .FirstOrDefaultAsync(s => s.PID == pid);
             if (student == null) return false;
 
             if (!string.IsNullOrEmpty(student.ProfileImagePath))
