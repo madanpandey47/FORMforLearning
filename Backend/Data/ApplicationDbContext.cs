@@ -45,20 +45,23 @@ namespace FormBackend.Data
                 entity.OwnsMany(s => s.Hobbies, h => { h.ToTable("Hobbies"); });
                 entity.OwnsMany(s => s.Achievements, a => { a.ToTable("Achievements"); });
 
-                    entity.HasMany(s => s.Parents)
-                        .WithOne(p => p.Student)
-                        .HasForeignKey(p => p.StudentPID)
-                        .OnDelete(DeleteBehavior.Cascade);
+                // ONE Student has MANY Parents
+                // Parent's StudentPID property links back to the Student
+                // OnDelete(DeleteBehavior.Cascade): If student is deleted, their parents are too
+                entity.HasMany(s => s.Parents)
+                    .WithOne(p => p.Student)
+                    .HasForeignKey(p => p.StudentPID)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasMany(s => s.AcademicHistories)
-                      .WithOne(ah => ah.Student)
-                      .HasForeignKey(ah => ah.StudentPID)
-                      .OnDelete(DeleteBehavior.Cascade);
+                    .WithOne(ah => ah.Student)
+                    .HasForeignKey(ah => ah.StudentPID)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(s => s.AcademicEnrollment)
-                      .WithOne(ae => ae.Student)
-                      .HasForeignKey<AcademicEnrollment>(ae => ae.StudentPID)
-                      .OnDelete(DeleteBehavior.Cascade);
+                    .WithOne(ae => ae.Student)
+                    .HasForeignKey<AcademicEnrollment>(ae => ae.StudentPID)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
 

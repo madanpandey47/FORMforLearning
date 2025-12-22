@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ZEUS\\Desktop\\solvetech\\FORM\\Backend\\FormBackend.csproj": {}
+    "c:\\Users\\ZEUS\\Desktop\\solvetech\\FORM\\Backend\\FormBackend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ZEUS\\Desktop\\solvetech\\FORM\\Backend\\FormBackend.csproj": {
+    "c:\\Users\\ZEUS\\Desktop\\solvetech\\FORM\\Backend\\FormBackend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ZEUS\\Desktop\\solvetech\\FORM\\Backend\\FormBackend.csproj",
+        "projectUniqueName": "c:\\Users\\ZEUS\\Desktop\\solvetech\\FORM\\Backend\\FormBackend.csproj",
         "projectName": "FormBackend",
-        "projectPath": "C:\\Users\\ZEUS\\Desktop\\solvetech\\FORM\\Backend\\FormBackend.csproj",
+        "projectPath": "c:\\Users\\ZEUS\\Desktop\\solvetech\\FORM\\Backend\\FormBackend.csproj",
         "packagesPath": "C:\\Users\\ZEUS\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ZEUS\\Desktop\\solvetech\\FORM\\Backend\\obj\\",
+        "outputPath": "c:\\Users\\ZEUS\\Desktop\\solvetech\\FORM\\Backend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
