@@ -29,7 +29,7 @@ namespace FormBackend.Services
             _context = context;
         }
 
-    // Get lookup data for all students
+    // Get lookup data
         public async Task<IEnumerable<StudentLookupDTO>> GetAllLookupAsync()
         {
             var students = await _context.Students
@@ -56,7 +56,7 @@ namespace FormBackend.Services
             });
         }
 
-        // Get student by PID with related data
+        // Get student
         public async Task<StudentReadDTO?> GetByIdAsync(Guid pid)
         {
             var student = await _context.Students
@@ -78,7 +78,7 @@ namespace FormBackend.Services
             return _mapper.Map<StudentReadDTO>(student);
         }
 
-        // Create a new student
+        // Create
         public async Task<bool> CreateAsync(CreateStudentDTO createStudentDto)
         {
             var student = _mapper.Map<Student>(createStudentDto);
@@ -94,7 +94,7 @@ namespace FormBackend.Services
                 student.SecondaryInfos = new SecondaryInfos();
             }
 
-            // Handle file uploads
+            // file uploads
             if (createStudentDto.ProfileImage != null)
             {
                 student.ProfileImagePath = await HandleFileUploadAsync(createStudentDto.ProfileImage, null);
@@ -118,6 +118,7 @@ namespace FormBackend.Services
             return true;
         }
 
+        // Update
         public async Task<bool> UpdateAsync(Guid pid, UpdateStudentDTO updateStudentDto)
         {
             var student = await _context.Students
@@ -148,7 +149,7 @@ namespace FormBackend.Services
                 ? _mapper.Map<Address>(updateStudentDto.TemporaryAddress)
                 : null;
 
-            // Handle Academic Enrollment
+            //Academic Enrollment
             if (updateStudentDto.AcademicEnrollment != null)
             {
                 if (student.AcademicEnrollment != null)
@@ -164,7 +165,7 @@ namespace FormBackend.Services
                 }
             }
             
-            // Handle file upload for ProfileImage
+            // file upload ProfileImage
             if (updateStudentDto.ProfileImage != null)
             {
                 student.ProfileImagePath = await HandleFileUploadAsync(updateStudentDto.ProfileImage, student.ProfileImagePath);
@@ -221,40 +222,6 @@ namespace FormBackend.Services
             _unitOfWork.Students.Update(student);
             await _unitOfWork.SaveAsync();
 
-            return true;
-        }
-
-        // Delete a student by PID
-        public async Task<bool> DeleteAsync(Guid pid)
-        {
-            var student = await _context.Students
-                .Include(s => s.SecondaryInfos)
-                .FirstOrDefaultAsync(s => s.PID == pid);
-            if (student == null) return false;
-
-            if (!string.IsNullOrEmpty(student.ProfileImagePath))
-            {
-                DeleteFile(student.ProfileImagePath);
-            }
-
-            if (student.SecondaryInfos != null)
-            {
-                if (!string.IsNullOrEmpty(student.SecondaryInfos.CitizenshipImagePath))
-                {
-                    DeleteFile(student.SecondaryInfos.CitizenshipImagePath);
-                }
-                if (!string.IsNullOrEmpty(student.SecondaryInfos.BoardCertificateImagePath))
-                {
-                    DeleteFile(student.SecondaryInfos.BoardCertificateImagePath);
-                }
-                if (!string.IsNullOrEmpty(student.SecondaryInfos.StudentIdCardPath))
-                {
-                    DeleteFile(student.SecondaryInfos.StudentIdCardPath);
-                }
-            }
-
-            _unitOfWork.Students.Remove(student);
-            await _unitOfWork.SaveAsync();
             return true;
         }
 
@@ -339,6 +306,40 @@ namespace FormBackend.Services
             return "/uploads/" + fileName;
         }
 
+        // Delete
+        public async Task<bool> DeleteAsync(Guid pid)
+        {
+            var student = await _context.Students
+                .Include(s => s.SecondaryInfos)
+                .FirstOrDefaultAsync(s => s.PID == pid);
+            if (student == null) return false;
+
+            if (!string.IsNullOrEmpty(student.ProfileImagePath))
+            {
+                DeleteFile(student.ProfileImagePath);
+            }
+
+            if (student.SecondaryInfos != null)
+            {
+                if (!string.IsNullOrEmpty(student.SecondaryInfos.CitizenshipImagePath))
+                {
+                    DeleteFile(student.SecondaryInfos.CitizenshipImagePath);
+                }
+                if (!string.IsNullOrEmpty(student.SecondaryInfos.BoardCertificateImagePath))
+                {
+                    DeleteFile(student.SecondaryInfos.BoardCertificateImagePath);
+                }
+                if (!string.IsNullOrEmpty(student.SecondaryInfos.StudentIdCardPath))
+                {
+                    DeleteFile(student.SecondaryInfos.StudentIdCardPath);
+                }
+            }
+
+            _unitOfWork.Students.Remove(student);
+            await _unitOfWork.SaveAsync();
+            return true;
+        }
+
         private void DeleteFile(string filePath)
         {
             try
@@ -348,8 +349,7 @@ namespace FormBackend.Services
                 if (File.Exists(fullPath)) File.Delete(fullPath);
             }
             catch
-            {
-            }
+            {}
         }
     }
 }
