@@ -257,16 +257,9 @@ namespace FormBackend.Services
             }
         }
 
-
         private void UpdateOwnedCollection<TEntity, TDto>(ICollection<TEntity> existingCollection, ICollection<TDto> dtoCollection)
             where TEntity : class where TDto : class
         {
-            if (dtoCollection == null )
-            {
-                existingCollection.Clear();
-                return;
-            }
-
             // Remove items that are no longer in the DTO collection
             var itemsToRemove = existingCollection.ToList();
             foreach (var item in itemsToRemove)

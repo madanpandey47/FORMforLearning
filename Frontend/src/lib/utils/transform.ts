@@ -130,6 +130,9 @@ export const transformToDTO = (formData: FieldValues): FieldValues => {
       middleName: middleName ?? null,
       alternateMobile: contactInfo?.alternateMobile ?? null,
       alternateEmail: contactInfo?.alternateEmail ?? null,
+      citizenshipImagePath: secondaryInfos?.citizenshipImagePath ?? null,
+      boardCertificateImagePath: secondaryInfos?.boardCertificateImagePath ?? null,
+      studentIdCardPath: secondaryInfos?.studentIdCardPath ?? null,
     };
   }
 

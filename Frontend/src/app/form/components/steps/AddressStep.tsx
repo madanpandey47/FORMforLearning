@@ -91,11 +91,20 @@ export const AddressStep: React.FC<AddressStepProps> = ({
               <input
                 type="checkbox"
                 id="isTemporaryAddressSameAsPermanent"
-                checked={field.value}
+                checked={!!field.value}
                 onChange={(e) => {
-                  field.onChange(e.target.checked);
-                  if (e.target.checked) {
-                    setValue("temporaryAddress", getValues("permanentAddress"));
+                  const isChecked = e.target.checked;
+                  field.onChange(isChecked);
+                  if (isChecked) {
+                    // Copy permanent address to temporary address
+                    const permanentAddress = getValues("permanentAddress");
+                    setValue("temporaryAddress", {
+                      province: permanentAddress?.province || "",
+                      municipality: permanentAddress?.municipality || "",
+                      ward: permanentAddress?.ward || "",
+                      street: permanentAddress?.street || "",
+                      country: permanentAddress?.country || "",
+                    });
                   }
                 }}
                 className="h-4 w-4 rounded accent-sky-600"

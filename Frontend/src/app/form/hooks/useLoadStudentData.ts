@@ -61,26 +61,28 @@ export const useLoadStudentData = (
             }
 
             // Load secondary info images
-            if (studentFormData.secondaryInfos?.citizenshipImagePath) {
-              setCitizenshipImagePreviewUrl(
-                resolveImageUrl(
-                  studentFormData.secondaryInfos.citizenshipImagePath
-                )
-              );
-            }
-            if (studentFormData.secondaryInfos?.boardCertificateImagePath) {
-              setBoardCertificateImagePreviewUrl(
-                resolveImageUrl(
-                  studentFormData.secondaryInfos.boardCertificateImagePath
-                )
-              );
-            }
-            if (studentFormData.secondaryInfos?.studentIdCardPath) {
-              setStudentIdCardImagePreviewUrl(
-                resolveImageUrl(
-                  studentFormData.secondaryInfos.studentIdCardPath
-                )
-              );
+            if (studentFormData.secondaryInfos) {
+              if (studentFormData.secondaryInfos.citizenshipImagePath) {
+                setCitizenshipImagePreviewUrl(
+                  resolveImageUrl(
+                    studentFormData.secondaryInfos.citizenshipImagePath
+                  )
+                );
+              }
+              if (studentFormData.secondaryInfos.boardCertificateImagePath) {
+                setBoardCertificateImagePreviewUrl(
+                  resolveImageUrl(
+                    studentFormData.secondaryInfos.boardCertificateImagePath
+                  )
+                );
+              }
+              if (studentFormData.secondaryInfos.studentIdCardPath) {
+                setStudentIdCardImagePreviewUrl(
+                  resolveImageUrl(
+                    studentFormData.secondaryInfos.studentIdCardPath
+                  )
+                );
+              }
             }
 
             if (studentFormData.permanentAddress?.province) {
@@ -94,7 +96,31 @@ export const useLoadStudentData = (
                 }
               );
             }
-            if (studentFormData.temporaryAddress?.province) {
+            // Set isTemporaryAddressSameAsPermanent first
+            const isSameAddress =
+              studentFormData.isTemporaryAddressSameAsPermanent ?? false;
+            setValue("isTemporaryAddressSameAsPermanent", isSameAddress);
+
+            // If same address, copy permanent to temporary
+            if (isSameAddress && studentFormData.permanentAddress) {
+              const permanentAddr = studentFormData.permanentAddress;
+              setValue("temporaryAddress", {
+                province: permanentAddr.province || "",
+                municipality: permanentAddr.municipality || "",
+                ward: permanentAddr.ward || "",
+                street: permanentAddr.street || "",
+                country: permanentAddr.country || "",
+              });
+              // Load municipalities for permanent province for temporary address display
+              if (permanentAddr.province) {
+                getMunicipalities(permanentAddr.province).then(
+                  (municipalities) => {
+                    setTemporaryMunicipalities(municipalities);
+                  }
+                );
+              }
+            } else if (studentFormData.temporaryAddress?.province) {
+              // Load municipalities for temporary address if provided
               getMunicipalities(studentFormData.temporaryAddress.province).then(
                 (municipalities) => {
                   setTemporaryMunicipalities(municipalities);
@@ -105,10 +131,6 @@ export const useLoadStudentData = (
                 }
               );
             }
-            setValue(
-              "isTemporaryAddressSameAsPermanent",
-              studentFormData.isTemporaryAddressSameAsPermanent ?? false
-            );
           }
         } catch {
           alert("Failed to load student data");
