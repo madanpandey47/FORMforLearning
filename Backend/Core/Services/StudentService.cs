@@ -210,14 +210,9 @@ namespace FormBackend.Services
             {
                 UpdateChildCollection(student.AcademicHistories, updateStudentDto.AcademicHistories, student.PID);
             }
-            if (updateStudentDto.Hobbies != null)
-            {
-                UpdateOwnedCollection(student.Hobbies, updateStudentDto.Hobbies);
-            }
-            if (updateStudentDto.Achievements != null)
-            {
-                UpdateOwnedCollection(student.Achievements, updateStudentDto.Achievements);
-            }
+            // Always update collections, even if null (which means they were cleared)
+            UpdateOwnedCollection(student.Hobbies, updateStudentDto.Hobbies ?? new List<HobbyDTO>());
+            UpdateOwnedCollection(student.Achievements, updateStudentDto.Achievements ?? new List<AchievementDTO>());
 
             _unitOfWork.Students.Update(student);
             await _unitOfWork.SaveAsync();
