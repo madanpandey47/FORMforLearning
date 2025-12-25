@@ -127,10 +127,6 @@ namespace FormBackend.Services
                     student.AcademicEnrollment.EnrollmentDate = updateStudentDto.AcademicEnrollment.EnrollmentDate;
                     student.AcademicEnrollment.StudentIdNumber = updateStudentDto.AcademicEnrollment.StudentIdNumber;
                 }
-                else
-                {
-                    student.AcademicEnrollment = _mapper.Map<AcademicEnrollment>(updateStudentDto.AcademicEnrollment);
-                }
             }
             
             // file upload ProfileImage
@@ -198,7 +194,7 @@ namespace FormBackend.Services
             {
                 existingCollection.Remove(item);
             }
-
+            
             // Add or Update entities
             foreach (var dtoItem in dtoCollection)
             {
