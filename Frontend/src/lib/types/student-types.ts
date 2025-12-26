@@ -1,3 +1,5 @@
+export type Option = { value: number | string; label: string };
+
 export enum Gender {
   Male = 0,
   Female = 1,

@@ -11,6 +11,11 @@ export const useFormNavigation = (
 ) => {
   const handleNext = async () => {
     const fields = steps[currentStep - 1].fields;
+    // If no fields to validate (empty array), just move to next step
+    if (fields.length === 0) {
+      setCurrentStep(Math.min(currentStep + 1, steps.length));
+      return;
+    }
     const output = await trigger(fields as (keyof FormData)[]);
     if (output) setCurrentStep(Math.min(currentStep + 1, steps.length));
   };
@@ -29,8 +34,8 @@ export const useFormNavigation = (
     onError: (err: Record<string, { message?: string }>) => void,
     errors: Record<string, { message?: string }>
   ) => {
-    const fields = steps[currentStep - 1].fields;
-    const isValid = await trigger(fields as (keyof FormData)[]);
+    // Validate all fields, not just the current step
+    const isValid = await trigger();
     if (isValid) {
       const data = getValues();
       await onSubmit(data);

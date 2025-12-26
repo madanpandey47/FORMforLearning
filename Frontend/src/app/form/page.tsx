@@ -316,12 +316,15 @@ const FormPage: React.FC = () => {
 
         <Form
           onSubmit={handleSubmit(async (data: FieldValues) => {
-            const isValid = await trigger();
-            if (!isValid) {
-              onError(errors as Record<string, { message?: string }>);
-              return;
+            // Only submit if on the last step and not in edit mode
+            if (currentStep === FORM_STEPS.length && !isEditMode) {
+              const isValid = await trigger();
+              if (!isValid) {
+                onError(errors as Record<string, { message?: string }>);
+                return;
+              }
+              await onSubmit(data as FormData);
             }
-            await onSubmit(data as FormData);
           }, onError)}
         >
           {renderStep()}

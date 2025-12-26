@@ -7,8 +7,8 @@ import {
   getFacultyTypes,
   getProvinces,
   getMunicipalities,
-  Option,
 } from "@/lib/api/lookups";
+import { Option } from "@/lib/types/student-types";
 
 export const useLookups = (
   permanentProvince?: string,

@@ -4,7 +4,7 @@ import { FiBriefcase } from "react-icons/fi";
 import Input from "@/components/ui/input";
 import Select from "@/components/ui/select";
 import { FormData } from "@/lib/validation/formvalidation";
-import { Option } from "@/lib/api/lookups";
+import { Option } from "@/lib/types/student-types";
 
 interface EnrollmentStepProps {
   register: UseFormRegister<FormData>;

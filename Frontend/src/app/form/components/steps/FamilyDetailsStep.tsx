@@ -8,7 +8,7 @@ import { FiUsers, FiPlus, FiTrash2 } from "react-icons/fi";
 import Input from "@/components/ui/input";
 import Select from "@/components/ui/select";
 import { FormData } from "@/lib/validation/formvalidation";
-import { Option } from "@/lib/api/lookups";
+import { Option } from "@/lib/types/student-types";
 
 interface FamilyDetailsStepProps {
   register: UseFormRegister<FormData>;
@@ -83,6 +83,7 @@ export const FamilyDetailsStep: React.FC<FamilyDetailsStepProps> = ({
             />
             <Input
               label="Mobile (optional)"
+              type="number"
               {...register(`parents.${i}.mobileNumber`)}
             />
             <Input

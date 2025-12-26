@@ -8,15 +8,16 @@ const dateStringSchema = z
   )
   .optional();
 
-export const GenderEnum = z.coerce.number().int().min(0).max(2).nullable();
-export const BloodGroupEnum = z.coerce.number().int().min(0).max(7).nullable();
-export const ParentTypeEnum = z.coerce.number().int().min(0).max(3).nullable();
+// Dynamic enum validators - these check that values are non-negative integers
+export const GenderEnum = z.coerce.number().int().nonnegative().nullable();
+export const BloodGroupEnum = z.coerce.number().int().nonnegative().nullable();
+export const ParentTypeEnum = z.coerce.number().int().nonnegative().nullable();
 export const AcademicLevelEnum = z.coerce
   .number()
   .int()
-  .min(0)
-  .max(3)
+  .nonnegative()
   .nullable();
+export const FacultyTypeEnum = z.coerce.number().int().nonnegative();
 
 export const addressSchema = z.object({
   province: z.string().min(1, "Province is required"),
@@ -65,7 +66,7 @@ const citizenshipSchema = z.object({
 
 const contactInfoSchema = z.object({
   primaryMobile: z.string().min(7, "Enter a valid mobile number"),
-  alternateMobile: z.string().nullable().optional(),
+  alternateMobile: z.string().optional(),
   primaryEmail: z.string().email("Invalid email"),
   alternateEmail: z
     .union([
@@ -112,7 +113,7 @@ const scholarshipSchema = z
   .optional();
 
 const academicEnrollmentSchema = z.object({
-  faculty: z.coerce.number().int().min(0).max(16),
+  faculty: FacultyTypeEnum,
   programName: z.string().min(1, "Program name is required"),
   enrollmentDate: dateStringSchema,
   studentIdNumber: z.string().nullable().optional(),

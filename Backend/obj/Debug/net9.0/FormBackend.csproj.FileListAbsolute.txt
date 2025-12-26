@@ -499,4 +499,3 @@ C:\Users\ZEUS\Desktop\solvetech\FORM\Backend\obj\Debug\net9.0\FormBackend.pdb
 C:\Users\ZEUS\Desktop\solvetech\FORM\Backend\obj\Debug\net9.0\FormBackend.genruntimeconfig.cache
 C:\Users\ZEUS\Desktop\solvetech\FORM\Backend\obj\Debug\net9.0\ref\FormBackend.dll
 C:\Users\ZEUS\Desktop\solvetech\FORM\Backend\obj\Debug\net9.0\swae.build.ex.cache
-C:\Users\ZEUS\Desktop\solvetech\FORM\Backend\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

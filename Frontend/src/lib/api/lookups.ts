@@ -1,8 +1,4 @@
-import {
-  FacultyType,
-  facultyTypeMap,
-} from "../types/student-types";
-export type Option = { value: number | string; label: string };
+import { Option } from "../types/student-types";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
@@ -26,10 +22,6 @@ export async function getAcademicLevels() {
   return fetchOptions("academic-levels");
 }
 
-export async function getAddressTypes() {
-  return fetchOptions("address-types");
-}
-
 export async function getGenders() {
   return fetchOptions("genders");
 }
@@ -39,16 +31,7 @@ export async function getParentTypes() {
 }
 
 export async function getFacultyTypes(): Promise<Option[]> {
-  const options = Object.keys(FacultyType)
-    .filter((key) => !isNaN(Number(key)))
-    .map((key) => {
-      const numericKey = Number(key);
-      return {
-        value: numericKey,
-        label: facultyTypeMap[numericKey],
-      };
-    });
-  return Promise.resolve(options);
+  return fetchOptions("faculty-types");
 }
 
 export async function getProvinces(): Promise<Option[]> {

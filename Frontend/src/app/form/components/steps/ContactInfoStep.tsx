@@ -21,11 +21,13 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({
       <div className="grid gap-4 md:grid-cols-2">
         <Input
           label="Primary Mobile"
+          type="number"
           {...register("contactInfo.primaryMobile")}
           error={errors.contactInfo?.primaryMobile?.message}
         />
         <Input
           label="Alternate Mobile (optional)"
+          type="number"
           {...register("contactInfo.alternateMobile")}
         />
         <Input
