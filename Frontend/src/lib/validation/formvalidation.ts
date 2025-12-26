@@ -8,10 +8,18 @@ const dateStringSchema = z
   )
   .optional();
 
-// Dynamic enum validators - these check that values are non-negative integers
-export const GenderEnum = z.coerce.number().int().nonnegative().nullable();
-export const BloodGroupEnum = z.coerce.number().int().nonnegative().nullable();
-export const ParentTypeEnum = z.coerce.number().int().nonnegative().nullable();
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const imageFileSchema = z
+  .instanceof(File)
+  .refine(
+    (file) => file.size <= MAX_IMAGE_SIZE_BYTES,
+    "Image must be 10MB or smaller"
+  );
+
+// Dynamic enum validators - required values
+export const GenderEnum = z.coerce.number().int().min(0).max(2);
+export const BloodGroupEnum = z.coerce.number().int().min(0).max(7);
+export const ParentTypeEnum = z.coerce.number().int().nonnegative();
 export const AcademicLevelEnum = z.coerce
   .number()
   .int()
@@ -31,7 +39,7 @@ export const parentSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
   middleName: z.string().nullable().optional(),
   lastName: z.string().min(2, "Last name is required"),
-  relation: ParentTypeEnum.nullable(),
+  relation: ParentTypeEnum,
   occupation: z.string().nullable().optional(),
   annualIncome: z
     .union([z.number().nonnegative(), z.nan()])
@@ -45,7 +53,7 @@ export const parentSchema = z.object({
 });
 
 export const academicHistorySchema = z.object({
-  institutionName: z.string().min(4, "Institution name is required"),
+  institutionName: z.string().min(2, "Institution name is required"),
   level: z.coerce.number().int().nullable(),
   board: z.string().optional(),
   percentageOrGPA: z.number().min(0).max(100).nullable(),
@@ -128,13 +136,13 @@ export const formSchema = z
       (val) => val !== undefined,
       "Date of birth is required"
     ),
-    gender: z.coerce.number().int().min(0).max(2).nullable(),
-    bloodGroup: z.coerce.number().int().min(0).max(7).nullable(),
+    gender: GenderEnum,
+    bloodGroup: BloodGroupEnum,
     citizenship: citizenshipSchema,
     contactInfo: contactInfoSchema,
     isTemporaryAddressSameAsPermanent: z.boolean().optional(),
     permanentAddress: addressSchema,
-    temporaryAddress: addressSchema.optional(),
+    temporaryAddress: addressSchema,
     parents: z.array(parentSchema).min(1, "At least one parent is required"),
     academicHistories: z
       .array(academicHistorySchema)
@@ -144,10 +152,10 @@ export const formSchema = z
     hobbies: z.array(hobbiesSchema).optional(),
     disability: disabilitySchema.optional(),
     scholarship: scholarshipSchema.optional(),
-    profileImage: z.instanceof(File).optional(),
-    citizenshipImage: z.instanceof(File).optional(),
-    boardCertificateImage: z.instanceof(File).optional(),
-    studentIdCardImage: z.instanceof(File).optional(),
+    profileImage: imageFileSchema,
+    citizenshipImage: imageFileSchema,
+    boardCertificateImage: imageFileSchema,
+    studentIdCardImage: imageFileSchema,
     agree: z
       .boolean()
       .refine((v) => v === true, { message: "You must agree to continue" }),

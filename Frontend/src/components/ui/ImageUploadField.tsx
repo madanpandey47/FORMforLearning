@@ -1,8 +1,10 @@
 import React from "react";
 import Image from "next/image";
 import { Control, Controller, FieldErrors } from "react-hook-form";
-import { FiFileText, FiUser } from "react-icons/fi";
+import { FiFileText } from "react-icons/fi";
 import { FormData } from "@/lib/validation/formvalidation";
+
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 interface ImageUploadFieldProps {
   control: Control<FormData>;
@@ -15,8 +17,6 @@ interface ImageUploadFieldProps {
   previewUrl: string | null;
   setPreviewUrl: (url: string | null) => void;
   errors: FieldErrors<FormData>;
-  isEditMode?: boolean;
-  isProfile?: boolean;
 }
 
 export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
@@ -26,10 +26,8 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
   previewUrl,
   setPreviewUrl,
   errors,
-  isEditMode = false,
-  isProfile = false,
 }) => {
-  const Icon = isProfile ? FiUser : FiFileText;
+  const Icon = FiFileText;
 
   return (
     <Controller
@@ -39,8 +37,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
         <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
           <Icon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
           <p className="font-medium">
-            {label}{" "}
-            {isEditMode ? "(Replace if needed)" : isProfile ? "" : "(Optional)"}
+            {label} {"(Upload a file under 10MB)"}
           </p>
           {previewUrl ? (
             <div className="mt-6 flex flex-col items-center gap-3">
@@ -78,6 +75,11 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) {
+                    if (file.size > MAX_FILE_SIZE_BYTES) {
+                      alert("Image must be 10MB or smaller.");
+                      e.target.value = "";
+                      return;
+                    }
                     field.onChange(file);
                     setPreviewUrl(URL.createObjectURL(file));
                   }

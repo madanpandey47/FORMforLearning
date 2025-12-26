@@ -9,14 +9,12 @@ import { ImagePreviewState } from "../../../../components/ui/useImagePreviews";
 interface DocumentsStepProps {
   control: Control<FormData>;
   errors: FieldErrors<FormData>;
-  isEditMode: boolean;
   imagePreviews: ImagePreviewState;
 }
 
 export const DocumentsStep: React.FC<DocumentsStepProps> = ({
   control,
   errors,
-  isEditMode,
   imagePreviews,
 }) => {
   return (
@@ -32,8 +30,6 @@ export const DocumentsStep: React.FC<DocumentsStepProps> = ({
         previewUrl={imagePreviews.profileImagePreviewUrl}
         setPreviewUrl={imagePreviews.setProfileImagePreviewUrl}
         errors={errors}
-        isEditMode={isEditMode}
-        isProfile
       />
 
       <ImageUploadField
@@ -43,7 +39,6 @@ export const DocumentsStep: React.FC<DocumentsStepProps> = ({
         previewUrl={imagePreviews.citizenshipImagePreviewUrl}
         setPreviewUrl={imagePreviews.setCitizenshipImagePreviewUrl}
         errors={errors}
-        isEditMode={isEditMode}
       />
 
       <ImageUploadField
@@ -53,17 +48,15 @@ export const DocumentsStep: React.FC<DocumentsStepProps> = ({
         previewUrl={imagePreviews.boardCertificateImagePreviewUrl}
         setPreviewUrl={imagePreviews.setBoardCertificateImagePreviewUrl}
         errors={errors}
-        isEditMode={isEditMode}
       />
 
       <ImageUploadField
         control={control}
         name="studentIdCardImage"
-        label="Student ID Card"
+        label="Student-ID Card"
         previewUrl={imagePreviews.studentIdCardImagePreviewUrl}
         setPreviewUrl={imagePreviews.setStudentIdCardImagePreviewUrl}
         errors={errors}
-        isEditMode={isEditMode}
       />
 
       <Controller

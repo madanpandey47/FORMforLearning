@@ -1,6 +1,7 @@
 import { FormStep } from "../constants/formSteps";
 import { FormData } from "@/lib/validation/formvalidation";
 import { UseFormTrigger } from "react-hook-form";
+import type { MouseEvent } from "react";
 
 export const useFormNavigation = (
   currentStep: number,
@@ -9,7 +10,10 @@ export const useFormNavigation = (
   trigger: UseFormTrigger<FormData>,
   router: { push: (path: string) => void }
 ) => {
-  const handleNext = async () => {
+  const handleNext = async (event?: MouseEvent<HTMLButtonElement>) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+
     const fields = steps[currentStep - 1].fields;
     // If no fields to validate (empty array), just move to next step
     if (fields.length === 0) {

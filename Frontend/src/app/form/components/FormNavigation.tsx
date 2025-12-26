@@ -4,7 +4,7 @@ interface FormNavigationProps {
   currentStep: number;
   totalSteps: number;
   isEditMode: boolean;
-  onNext: () => void;
+  onNext: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onBack: () => void;
   onCancel: () => void;
   onSave: () => void;

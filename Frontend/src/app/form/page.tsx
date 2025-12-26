@@ -296,7 +296,6 @@ const FormPage: React.FC = () => {
           <DocumentsStep
             control={control}
             errors={errors}
-            isEditMode={isEditMode}
             imagePreviews={imagePreviews}
           />
         );
