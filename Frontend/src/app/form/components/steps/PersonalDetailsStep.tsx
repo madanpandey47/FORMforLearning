@@ -61,6 +61,7 @@ export const PersonalDetailsStep: React.FC<PersonalDetailsStepProps> = ({
       <div className="grid gap-4 md:grid-cols-2">
         <Input
           label="Citizenship Number"
+          type="number"
           {...register("citizenship.citizenshipNumber")}
           error={errors.citizenship?.citizenshipNumber?.message}
         />
