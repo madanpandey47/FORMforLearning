@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FormBackend.Core.Interfaces;
+using FormBackend.Models.Enum;
 
 namespace FormBackend.Services
 {
@@ -34,6 +36,39 @@ namespace FormBackend.Services
                 return Task.FromResult(districts.AsEnumerable());
             }
             return Task.FromResult(Enumerable.Empty<string>());
+        }
+
+        private IEnumerable<dynamic> GetEnumLookup<T>() where T : Enum
+        {
+            return Enum.GetValues(typeof(T))
+                .Cast<T>()
+                .Select(e => new { value = Convert.ToInt32(e), name = e.ToString() })
+                .Cast<dynamic>();
+        }
+
+        public Task<IEnumerable<dynamic>> GetGenders()
+        {
+            return Task.FromResult(GetEnumLookup<Gender>());
+        }
+
+        public Task<IEnumerable<dynamic>> GetFacultyTypes()
+        {
+            return Task.FromResult(GetEnumLookup<FacultyType>());
+        }
+
+        public Task<IEnumerable<dynamic>> GetBloodTypes()
+        {
+            return Task.FromResult(GetEnumLookup<BloodType>());
+        }
+
+        public Task<IEnumerable<dynamic>> GetAcademicLevels()
+        {
+            return Task.FromResult(GetEnumLookup<AcademicLevel>());
+        }
+
+        public Task<IEnumerable<dynamic>> GetParentTypes()
+        {
+            return Task.FromResult(GetEnumLookup<ParentType>());
         }
     }
 }

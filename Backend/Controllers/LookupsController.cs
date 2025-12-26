@@ -1,9 +1,6 @@
 using FormBackend.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using System;
-using System.Linq;
-using FormBackend.Models.Enum;
 
 namespace FormBackend.Controllers
 {
@@ -18,29 +15,40 @@ namespace FormBackend.Controllers
             _lookupService = lookupService;
         }
 
-        private IActionResult GetEnumAsList<T>() where T : Enum
+        [HttpGet("blood-types")]
+        public async Task<IActionResult> GetBloodTypes()
         {
-            var values = Enum.GetValues(typeof(T))
-                .Cast<T>()
-                .Select(e => new { value = Convert.ToInt32(e), name = e.ToString() });
-            return Ok(values);
+            var bloodTypes = await _lookupService.GetBloodTypes();
+            return Ok(bloodTypes);
         }
 
-        [HttpGet("blood-types")]
-        public IActionResult GetBloodTypes() => GetEnumAsList<BloodType>();
-
         [HttpGet("academic-levels")]
-        public IActionResult GetAcademicLevels() => GetEnumAsList<AcademicLevel>();
-
+        public async Task<IActionResult> GetAcademicLevels()
+        {
+            var academicLevels = await _lookupService.GetAcademicLevels();
+            return Ok(academicLevels);
+        }
 
         [HttpGet("genders")]
-        public IActionResult GetGenders() => GetEnumAsList<Gender>();
+        public async Task<IActionResult> GetGenders()
+        {
+            var genders = await _lookupService.GetGenders();
+            return Ok(genders);
+        }
 
         [HttpGet("parent-types")]
-        public IActionResult GetParentTypes() => GetEnumAsList<ParentType>();
+        public async Task<IActionResult> GetParentTypes()
+        {
+            var parentTypes = await _lookupService.GetParentTypes();
+            return Ok(parentTypes);
+        }
 
         [HttpGet("faculty-types")]
-        public IActionResult GetFacultyTypes() => GetEnumAsList<FacultyType>();
+        public async Task<IActionResult> GetFacultyTypes()
+        {
+            var facultyTypes = await _lookupService.GetFacultyTypes();
+            return Ok(facultyTypes);
+        }
 
         [HttpGet("provinces")]
         public async Task<IActionResult> GetProvinces()
